@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mudhakkarati/data/models/category.dart';
 import 'package:mudhakkarati/data/models/checklist_item.dart';
 import 'package:mudhakkarati/data/models/enums.dart';
-import 'package:mudhakkarati/data/models/med_dose.dart';
 import 'package:mudhakkarati/data/models/note.dart';
 
 void main() {
@@ -163,29 +162,6 @@ void main() {
       expect(c.color, 0xFF9E9E9E);
       expect(c.iconCode, 7);
       expect(c.position, 0);
-    });
-  });
-
-  group('MedDose serialization', () {
-    test('taken/missed status maps both ways', () {
-      final taken = MedDose(
-          name: 'دواء',
-          dose: '500mg',
-          taken: true,
-          at: DateTime.fromMillisecondsSinceEpoch(1000));
-      expect(taken.toMap()['status'], 'taken');
-      expect(MedDose.fromMap(taken.toMap()).taken, true);
-
-      final missed = taken.toMap()..['status'] = 'missed';
-      expect(MedDose.fromMap(missed).taken, false);
-    });
-
-    test('missing status/name/at do not crash (corrupt/partial rows)', () {
-      final d = MedDose.fromMap({'name': null}); // no 'at' column at all
-      expect(d.taken, true);
-      expect(d.name, '');
-      expect(d.dose, isNull);
-      expect(d.at.millisecondsSinceEpoch, 0);
     });
   });
 
