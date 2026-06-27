@@ -18,8 +18,6 @@ import '../../services/update_service.dart';
 import '../backup/backup_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../insights/weekly_summary_screen.dart';
-import '../reminders/reminders_provider.dart';
-import '../reminders/reminders_screen.dart';
 import '../tags/tags_screen.dart';
 import '../editor/note_editor_screen.dart';
 import '../info/info_list_screen.dart';
@@ -138,9 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
         .showSnackBar(SnackBar(content: Text(r.message)));
     if (r.success) {
       await context.read<NotesProvider>().init();
-      if (mounted) await context.read<RemindersProvider>().refresh();
-      // أعد جدولة التذكيرات المستعادة فورًا كي تعمل دون انتظار إعادة التشغيل.
-      if (mounted) await context.read<RemindersProvider>().ensureScheduled();
     }
   }
 
@@ -935,12 +930,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     provider.setSearch('');
                   }
                 }),
-              ),
-              IconButton(
-                tooltip: s.t('reminders'),
-                icon: const Icon(Icons.alarm),
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const RemindersScreen())),
               ),
               IconButton(
                 tooltip: s.t('layout'),

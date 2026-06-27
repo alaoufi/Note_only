@@ -7,8 +7,6 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/note_gradient.dart';
 import '../../data/models/enums.dart';
-import '../../services/ringtone_picker.dart';
-import '../../services/tone_preview.dart';
 import '../../widgets/color_picker_sheet.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/paper_background.dart';
@@ -16,7 +14,6 @@ import '../home/notes_provider.dart';
 import '../backup/backup_screen.dart';
 import '../backup/daily_backup_switch.dart';
 import '../categories/manage_categories_screen.dart';
-import '../reminders/reminders_screen.dart';
 import '../security/security_settings_screen.dart';
 import '../../services/update_service.dart';
 import '../trash/archive_screen.dart';
@@ -96,13 +93,6 @@ class SettingsScreen extends StatelessWidget {
                   title: 'التحرير والعرض',
                   subtitle: 'سلوك المحرّر وطريقة العرض',
                   children: _editingDisplay(context, s, settings),
-                ),
-                _groupCard(
-                  context,
-                  icon: Icons.notifications_active_outlined,
-                  title: 'التنبيهات',
-                  subtitle: 'نغمة التذكيرات',
-                  children: _notifications(context, s, settings),
                 ),
                 _groupCard(
                   context,
@@ -651,123 +641,6 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ];
-
-  // ===================== التنبيهات =====================
-
-  /// شارة عنوان مجموعة صغيرة داخل البطاقة.
-  Widget _miniHeader(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-        child: Text(text,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold)),
-      );
-
-  /// عنصر نغمة قابل للاختيار (أيقونة + اسم + زرّ سماع + علامة تحديد).
-  Widget _toneTile(BuildContext context, SettingsProvider st,
-      {required String value, required IconData icon, required String label}) {
-    final selected = st.alarmTone == value;
-    final scheme = Theme.of(context).colorScheme;
-    return ListTile(
-      dense: true,
-      leading: Icon(icon, color: selected ? scheme.primary : null),
-      title: Text(label,
-          style: TextStyle(
-              fontWeight: selected ? FontWeight.bold : FontWeight.normal)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            tooltip: 'سماع',
-            icon: Icon(Icons.play_circle_outline, color: scheme.primary),
-            onPressed: () => TonePreview.play(value),
-          ),
-          selected
-              ? Icon(Icons.check_circle, color: scheme.primary)
-              : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
-        ],
-      ),
-      onTap: () => st.setAlarmTone(value),
-    );
-  }
-
-  List<Widget> _notifications(BuildContext context, S s, SettingsProvider st) {
-    Future<void> pickDevice() async {
-      final uri = await RingtonePicker.pick(current: st.customToneUri);
-      if (uri != null) {
-        final title = await RingtonePicker.title(uri);
-        await st.setCustomTone(uri, title);
-      }
-    }
-
-    final scheme = Theme.of(context).colorScheme;
-    return [
-      // قائمة كل التذكيرات.
-      ListTile(
-        leading: const Icon(Icons.list_alt_outlined),
-        title: const Text('كل التذكيرات'),
-        subtitle: const Text('عرض وإدارة كل تنبيهاتك'),
-        trailing: const Icon(Icons.chevron_left),
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const RemindersScreen())),
-      ),
-      const Divider(height: 1),
-      _miniHeader(context, 'نغمات كلاسيكية'),
-      _toneTile(context, st,
-          value: 'alarm', icon: Icons.notifications_active, label: 'إنذار'),
-      _toneTile(context, st,
-          value: 'chime', icon: Icons.notifications_none, label: 'لطيفة'),
-      _toneTile(context, st,
-          value: 'bell', icon: Icons.notifications, label: 'جرس'),
-      const Divider(height: 1),
-      _miniHeader(context, 'نغمات طبيعية ناعمة 🌿'),
-      _toneTile(context, st,
-          value: 'forest', icon: Icons.forest, label: 'غابة 🌳'),
-      _toneTile(context, st,
-          value: 'birds', icon: Icons.flutter_dash, label: 'طيور 🐦'),
-      _toneTile(context, st,
-          value: 'water', icon: Icons.water_drop, label: 'ماء 💧'),
-      _toneTile(context, st,
-          value: 'rain', icon: Icons.grain, label: 'مطر 🌧️'),
-      _toneTile(context, st,
-          value: 'ocean', icon: Icons.waves, label: 'محيط 🌊'),
-      const Divider(height: 1),
-      _miniHeader(context, 'من جهازك'),
-      ListTile(
-        leading: Icon(Icons.library_music_outlined,
-            color: st.alarmTone == 'custom' ? scheme.primary : null),
-        title: const Text('اختر نغمة من الجهاز'),
-        subtitle: Text(
-          st.alarmTone == 'custom'
-              ? 'الحالية: ${st.customToneTitle ?? 'نغمة مخصّصة'}'
-              : 'كل نغمات جهازك (بما فيها نغمات هواوي)',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: st.alarmTone == 'custom'
-            ? Icon(Icons.check_circle, color: scheme.primary)
-            : const Icon(Icons.chevron_left),
-        onTap: pickDevice,
-      ),
-      const Divider(height: 1),
-      _miniHeader(context, S.of(context).t('sound_options')),
-      SwitchListTile(
-        secondary: const Icon(Icons.volume_up_outlined),
-        title: Text(S.of(context).t('auto_raise_volume')),
-        subtitle: Text(S.of(context).t('auto_raise_volume_desc')),
-        value: st.autoRaiseVolume,
-        onChanged: (v) => st.setAutoRaiseVolume(v),
-      ),
-      SwitchListTile(
-        secondary: const Icon(Icons.trending_up),
-        title: Text(S.of(context).t('gradual_volume')),
-        subtitle: Text(S.of(context).t('gradual_volume_desc')),
-        value: st.gradualVolume,
-        onChanged:
-            st.autoRaiseVolume ? (v) => st.setGradualVolume(v) : null,
-      ),
-    ];
-  }
 
   // ===================== حول التطبيق =====================
 

@@ -11,7 +11,6 @@ import '../../services/backup_service.dart';
 import '../../services/easynotes_import.dart';
 import '../../widgets/ui_kit.dart';
 import '../home/notes_provider.dart';
-import '../reminders/reminders_provider.dart';
 import '../sync/cloud_sync_screen.dart';
 
 class BackupScreen extends StatefulWidget {
@@ -309,10 +308,6 @@ class _BackupScreenState extends State<BackupScreen> {
           _toast(r.message);
           if (r.success) {
             await context.read<NotesProvider>().init();
-            await context.read<RemindersProvider>().refresh();
-            if (mounted) {
-              await context.read<RemindersProvider>().ensureScheduled();
-            }
           }
         },
       ),
@@ -335,9 +330,6 @@ class _BackupScreenState extends State<BackupScreen> {
     _toast(result.message);
     if (result.success) {
       await context.read<NotesProvider>().init();
-      // جدولة أي تنبيهات مستوردة فورًا.
-      if (mounted) await context.read<RemindersProvider>().refresh();
-      if (mounted) await context.read<RemindersProvider>().ensureScheduled();
     }
   }
 
@@ -381,9 +373,6 @@ class _BackupScreenState extends State<BackupScreen> {
 
     if (result.success && mounted) {
       await context.read<NotesProvider>().init();
-      await context.read<RemindersProvider>().refresh();
-      // أعد جدولة التذكيرات المستعادة فورًا كي تعمل دون انتظار إعادة التشغيل.
-      if (mounted) await context.read<RemindersProvider>().ensureScheduled();
       if (mounted) _showRestoreUndo();
     }
   }
@@ -567,9 +556,6 @@ class _BackupScreenState extends State<BackupScreen> {
 
     if (r.success && mounted) {
       await context.read<NotesProvider>().init();
-      await context.read<RemindersProvider>().refresh();
-      // أعد جدولة التذكيرات المستعادة فورًا كي تعمل دون انتظار إعادة التشغيل.
-      if (mounted) await context.read<RemindersProvider>().ensureScheduled();
       if (mounted) _showRestoreUndo();
     }
   }

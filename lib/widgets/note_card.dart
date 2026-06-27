@@ -89,12 +89,6 @@ class NoteCard extends StatelessWidget {
                   ],
                   Icon(_typeIcon, size: 18, color: onBg.withOpacity(0.6)),
                   const Spacer(),
-                  if (context.watch<NotesProvider>().noteHasReminder(note.id))
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Icon(Icons.alarm,
-                          size: 15, color: onBg.withOpacity(0.7)),
-                    ),
                   if (note.isFavorite)
                     Padding(
                       padding: const EdgeInsets.only(right: 4),

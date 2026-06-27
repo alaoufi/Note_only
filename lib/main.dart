@@ -8,13 +8,9 @@ import 'app.dart';
 import 'data/database/app_database.dart';
 import 'data/repositories/category_repository.dart';
 import 'data/repositories/note_repository.dart';
-import 'data/repositories/reminder_repository.dart';
 import 'features/editor/note_editor_screen.dart';
 import 'features/home/notes_provider.dart';
-import 'features/reminders/alarm_screen.dart';
-import 'features/reminders/reminders_provider.dart';
 import 'features/settings/settings_provider.dart';
-import 'services/med_dose_logger.dart';
 import 'services/notification_service.dart';
 import 'services/vault_service.dart';
 
@@ -80,18 +76,10 @@ Future<void> main() async {
     await _safe('notifications', () async {
       await NotificationService.instance.init();
       await NotificationService.instance.requestPermissions();
-      // فتح الملاحظة عند الضغط على التذكير.
+      // فتح الملاحظة عند الضغط على إشعار مرتبط بها.
       NotificationService.instance.onOpenNote = (noteId) {
         appNavigatorKey.currentState?.push(
           MaterialPageRoute(builder: (_) => NoteEditorScreen(noteId: noteId)),
-        );
-      };
-      // تذكير حرج ⇒ شاشة المنبّه داخل التطبيق (تم الإنجاز/تأجيل).
-      NotificationService.instance.onAlarm = (info) {
-        appNavigatorKey.currentState?.push(
-          MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (_) => AlarmScreen(info: info)),
         );
       };
     });
@@ -99,26 +87,17 @@ Future<void> main() async {
     final db = AppDatabase.instance;
     final noteRepo = NoteRepository(db);
     final categoryRepo = CategoryRepository(db);
-    final reminderRepo = ReminderRepository(db);
 
     final settings = SettingsProvider();
     await _safe('settings', () => settings.load());
 
     final notesProvider = NotesProvider(noteRepo, categoryRepo);
-    final remindersProvider = RemindersProvider(reminderRepo, noteRepo);
-
-    // إعادة جدولة ذاتية: تضمن بقاء كل تذكير نشط مجدولًا (لا تضيع التذكيرات).
-    await _safe('reschedule', () => remindersProvider.ensureScheduled());
-
-    // تسجيل جرعات الأدوية الفائتة منذ آخر فتح (لمنبّهات الدواء 💊) في السجلّ.
-    await _safe('med_log', () => MedDoseLogger.instance.run());
 
     runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: settings),
           ChangeNotifierProvider.value(value: notesProvider),
-          ChangeNotifierProvider.value(value: remindersProvider),
         ],
         child: const MudhakkaratiApp(),
       ),

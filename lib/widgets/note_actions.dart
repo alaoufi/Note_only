@@ -10,7 +10,6 @@ import '../features/editor/rich_text_field.dart';
 import '../features/editor/share_image_screen.dart';
 import '../features/home/notes_provider.dart';
 import '../features/links/note_links.dart';
-import '../features/reminders/reminder_dialog.dart';
 import '../features/security/pin_setup.dart';
 import '../features/settings/settings_provider.dart';
 import '../services/notification_service.dart';
@@ -115,10 +114,6 @@ Future<void> showNoteActions(BuildContext context, Note note,
                   ruleLineHeight: res.ruleLineHeight,
                 ));
               }
-            }),
-            tile(Icons.alarm, s.t('reminder'), () async {
-              Navigator.pop(context);
-              await showReminderDialog(context, note);
             }),
             // تثبيت الملاحظة في شريط الإشعارات (إشعار صامت مستمرّ أمام المستخدم).
             if (note.id != null)

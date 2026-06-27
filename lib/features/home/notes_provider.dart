@@ -86,9 +86,6 @@ class NotesProvider extends ChangeNotifier {
   Map<String, int> _tagColors = {};
   Map<String, int> get tagColors => _tagColors;
 
-  Set<int> _reminderNoteIds = {};
-  bool noteHasReminder(int? id) => id != null && _reminderNoteIds.contains(id);
-
   Map<int, int> _categoryCounts = {};
   int _allCount = 0;
   int get allCount => _allCount;
@@ -175,7 +172,6 @@ class NotesProvider extends ChangeNotifier {
         to: fTo,
       );
       _dbError = false;
-      _reminderNoteIds = await notes.noteIdsWithReminders();
       final hc = await notes.homeCounts();
       _categoryCounts = hc.byCategory;
       _allCount = hc.total;

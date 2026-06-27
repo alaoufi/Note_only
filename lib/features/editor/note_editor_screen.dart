@@ -22,7 +22,6 @@ import '../../widgets/note_actions.dart';
 import '../../widgets/paper_background.dart';
 import '../drawing/drawing_screen.dart';
 import '../home/notes_provider.dart';
-import '../reminders/reminder_dialog.dart';
 import '../settings/settings_provider.dart';
 import 'editor_attachments.dart';
 import 'rich_text_field.dart';
@@ -494,14 +493,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 // مزدوج) ليطابق الناتج الواجهة. مثل togglePin أعلاه — لا تبسّطه.
                 await context.read<NotesProvider>().toggleFavorite(
                     _note.copyWith(isFavorite: !updated.isFavorite));
-              },
-            ),
-            IconButton(
-              tooltip: s.t('reminder'),
-              icon: const Icon(Icons.alarm),
-              onPressed: () async {
-                await _ensureSaved();
-                if (mounted) await showReminderDialog(context, _note);
               },
             ),
             IconButton(
