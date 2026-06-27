@@ -11,6 +11,8 @@ build/
 # Android
 android/local.properties
 android/.gradle/
+android/.kotlin/
+.kotlin/
 android/app/debug
 android/app/profile
 android/app/release
