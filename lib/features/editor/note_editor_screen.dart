@@ -128,6 +128,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       });
     }
 
+    // قد تُغلَق الشاشة أثناء التحميل غير المتزامن أعلاه؛ لا نلمس الحالة بعد التخلّص.
+    if (!mounted) return;
     setState(() => _loaded = true);
     // ملاحظة مُحمّلة بمحتوى ⇒ احفظ أنها حملت محتوًى حقيقيًّا (لتذهب للسلّة لو أُفرِغت).
     _hadRealContent = !_isCurrentlyEmpty();
@@ -441,6 +443,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               onPressed: () async {
                 await _ensureSaved();
                 setState(() => _note = _note.copyWith(isPinned: !_note.isPinned));
+                // togglePin يقلب القيمة الممرَّرة (is_pinned: x ? 0 : 1)، لذا نمرّر
+                // القيمة *القديمة* (نفي مزدوج) كي يصبح الناتج مطابقًا للواجهة. لا تبسّطه.
                 await context.read<NotesProvider>().togglePin(
                     _note.copyWith(isPinned: !_note.isPinned));
               },
@@ -486,7 +490,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 await _ensureSaved();
                 final updated = _note.copyWith(isFavorite: !_note.isFavorite);
                 setState(() => _note = updated);
-                await context.read<NotesProvider>().toggleFavorite(_note.copyWith(isFavorite: !updated.isFavorite));
+                // toggleFavorite يقلب القيمة الممرَّرة، فنمرّر القيمة القديمة (نفي
+                // مزدوج) ليطابق الناتج الواجهة. مثل togglePin أعلاه — لا تبسّطه.
+                await context.read<NotesProvider>().toggleFavorite(
+                    _note.copyWith(isFavorite: !updated.isFavorite));
               },
             ),
             IconButton(

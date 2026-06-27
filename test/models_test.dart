@@ -97,6 +97,32 @@ void main() {
       expect(n.bgStyle, 0);
     });
 
+    test('corrupt row with missing timestamps does not throw', () {
+      // صفّ تالف (بلا created_at/updated_at) يجب ألّا يُعطّل تحميل القائمة.
+      final n = Note.fromMap({
+        'id': 7,
+        'uuid': 'y',
+        'title': 't',
+        'content': '',
+        'type': 'text',
+      });
+      expect(n.createdAt, DateTime.fromMillisecondsSinceEpoch(0));
+      expect(n.updatedAt, DateTime.fromMillisecondsSinceEpoch(0));
+    });
+
+    test('missing updated_at falls back to created_at', () {
+      final n = Note.fromMap({
+        'id': 8,
+        'uuid': 'z',
+        'title': 't',
+        'content': '',
+        'type': 'text',
+        'created_at': 1700000000000,
+      });
+      expect(n.createdAt, DateTime.fromMillisecondsSinceEpoch(1700000000000));
+      expect(n.updatedAt, DateTime.fromMillisecondsSinceEpoch(1700000000000));
+    });
+
     test('copyWith clear flags null out fields', () {
       final n = Note(
         uuid: 'u',

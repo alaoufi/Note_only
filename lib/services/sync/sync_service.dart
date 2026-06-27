@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../data/database/app_database.dart';
 import '../encryption_service.dart';
@@ -498,10 +499,9 @@ class SyncService {
   }
 
   String _randomUuid() {
-    // معرّف hex عشوائي 32 خانة (كافٍ كمعرّف ثابت فريد).
-    final now = DateTime.now().microsecondsSinceEpoch;
-    final r = now.toRadixString(16).padLeft(16, '0');
-    final r2 = (now ^ 0x5DEECE66D).toRadixString(16).padLeft(16, '0');
-    return (r + r2).substring(0, 32);
+    // معرّف ثابت فريد للملاحظة. يجب أن يكون عشوائيًّا فعلًا: المعرّف المبنيّ على
+    // الطابع الزمني وحده يتصادم لملاحظتين تُنشأان في نفس الميكروثانية ⇒ خلط/فقد
+    // بيانات أثناء المزامنة. نستخدم UUIDv4 (مثل بقية التطبيق في note.dart).
+    return const Uuid().v4();
   }
 }

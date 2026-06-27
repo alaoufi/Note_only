@@ -166,8 +166,11 @@ class Note {
       ruleThickness: (map['rule_thickness'] as num?)?.toDouble(),
       ruleOpacity: (map['rule_opacity'] as num?)?.toDouble(),
       ruleLineHeight: (map['rule_line_height'] as num?)?.toDouble(),
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
+      // صفّ تالف أو ناقص لا يجب أن يُعطّل تحميل القائمة بأكملها؛ نرجع لقيمة آمنة.
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+          (map['created_at'] as int?) ?? 0),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(
+          (map['updated_at'] as int?) ?? (map['created_at'] as int?) ?? 0),
       tags: tags,
     );
   }
