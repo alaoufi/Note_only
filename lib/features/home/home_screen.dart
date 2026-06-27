@@ -16,7 +16,6 @@ import '../../services/backup_service.dart';
 import '../../services/sync/sync_service.dart';
 import '../../services/update_service.dart';
 import '../backup/backup_screen.dart';
-import '../calendar/calendar_screen.dart';
 import '../favorites/favorites_screen.dart';
 import '../insights/weekly_summary_screen.dart';
 import '../reminders/reminders_provider.dart';
@@ -936,12 +935,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     provider.setSearch('');
                   }
                 }),
-              ),
-              IconButton(
-                tooltip: s.t('calendar'),
-                icon: const Icon(Icons.calendar_month_outlined),
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const CalendarScreen())),
               ),
               IconButton(
                 tooltip: s.t('reminders'),
