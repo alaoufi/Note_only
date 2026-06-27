@@ -99,15 +99,22 @@ class NoteCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: Icon(Icons.star,
-                          size: 16, color: Colors.amber.shade700),
+                          size: 16,
+                          color: Colors.amber.shade700,
+                          semanticLabel: S.of(context).t('favorite')),
                     ),
                   if (note.isLocked)
-                    Icon(Icons.lock, size: 16, color: onBg.withOpacity(0.6)),
+                    Icon(Icons.lock,
+                        size: 16,
+                        color: onBg.withOpacity(0.6),
+                        semanticLabel: S.of(context).t('locked_note')),
                   if (note.isPinned)
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: Icon(Icons.push_pin,
-                          size: 16, color: onBg.withOpacity(0.7)),
+                          size: 16,
+                          color: onBg.withOpacity(0.7),
+                          semanticLabel: S.of(context).t('pinned')),
                     ),
                 ],
               ),
