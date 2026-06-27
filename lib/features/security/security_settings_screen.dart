@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../services/license_service.dart';
 import '../../services/security_service.dart';
 import '../../widgets/ui_kit.dart';
 import 'pin_entry.dart';
@@ -65,6 +66,36 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     if (ok == true) await _load();
   }
 
+  /// إلغاء تفعيل هذا الجهاز (للمالك/الاختبار): يمسح الترخيص المخزَّن فتظهر شاشة
+  /// التفعيل عند إعادة فتح التطبيق. يُعاد التفعيل بكود جديد من المولّد.
+  Future<void> _deactivateLicense() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.lock_reset),
+        title: const Text('إلغاء التفعيل؟'),
+        content: const Text(
+            'سيُمسح ترخيص هذا الجهاز، فتظهر شاشة التفعيل عند إعادة فتح التطبيق '
+            '(للاختبار). يمكنك إعادة التفعيل بكود جديد في أي وقت.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('إلغاء التفعيل')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await LicenseService.instance.deactivate();
+    if (!mounted) return;
+    setState(() {}); // حدّث بطاقة حالة الترخيص.
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content:
+            Text('تم إلغاء التفعيل — أعد تشغيل التطبيق لاختبار شاشة التفعيل')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -114,6 +145,44 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   ),
               ],
             ),
+          ),
+          // بطاقة الترخيص (تظهر فقط عند ضبط مفتاح عامّ — أي خارج وضع التطوير).
+          FutureBuilder<LicenseInfo>(
+            future: LicenseService.instance.info(),
+            builder: (context, snap) {
+              final info = snap.data;
+              if (info == null || info.state == LicenseState.disabled) {
+                return const SizedBox.shrink();
+              }
+              final status = switch (info.state) {
+                LicenseState.active => info.permanent
+                    ? 'مفعّل — دائم'
+                    : 'مفعّل — يتبقّى ${info.daysLeft} يوم',
+                LicenseState.expired => 'انتهت صلاحية التفعيل',
+                _ => 'غير مفعّل',
+              };
+              return AppCard(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading:
+                          const GradientIcon(Icons.verified_user_outlined),
+                      title: const Text('ترخيص التطبيق',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(status),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.lock_reset, color: scheme.error),
+                      title: Text('إلغاء التفعيل (للاختبار)',
+                          style: TextStyle(color: scheme.error)),
+                      subtitle: const Text(
+                          'امسح ترخيص هذا الجهاز لاختبار شاشة التفعيل'),
+                      onTap: _deactivateLicense,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           AppCard(
             child: Padding(

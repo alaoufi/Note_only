@@ -10,7 +10,7 @@ import 'package:mudhakkarati/services/license_service.dart';
 Future<String> _signKey(
     SimpleKeyPair kp, String deviceId, int duration) async {
   final ed = Ed25519();
-  final msg = utf8.encode('MDKL1|$deviceId|$duration');
+  final msg = utf8.encode('UNIV1|$deviceId|$duration');
   final sig = await ed.sign(msg, keyPair: kp);
   final bytes = <int>[(duration >> 8) & 0xff, duration & 0xff, ...sig.bytes];
   return LicenseService.base32(bytes);
@@ -58,14 +58,14 @@ void main() {
       expect(dur, duration);
       final sig = decoded.sublist(2);
 
-      final goodMsg = utf8.encode('MDKL1|$deviceId|$dur');
+      final goodMsg = utf8.encode('UNIV1|$deviceId|$dur');
       expect(
         await ed.verify(goodMsg, signature: Signature(sig, publicKey: pub)),
         isTrue,
       );
 
       // جهاز مختلف ⇒ يفشل (مربوط بالجهاز، لا ينتقل).
-      final otherMsg = utf8.encode('MDKL1|ZZZZ2345EFGH6789|$dur');
+      final otherMsg = utf8.encode('UNIV1|ZZZZ2345EFGH6789|$dur');
       expect(
         await ed.verify(otherMsg, signature: Signature(sig, publicKey: pub)),
         isFalse,
@@ -79,7 +79,7 @@ void main() {
       );
 
       // تلاعب بالمدّة ⇒ الرسالة تختلف ⇒ يفشل.
-      final wrongDurMsg = utf8.encode('MDKL1|$deviceId|9999');
+      final wrongDurMsg = utf8.encode('UNIV1|$deviceId|9999');
       expect(
         await ed.verify(wrongDurMsg, signature: Signature(sig, publicKey: pub)),
         isFalse,
@@ -93,6 +93,40 @@ void main() {
       final decoded = LicenseService.base32Decode(key);
       final dur = (decoded[0] << 8) | decoded[1];
       expect(dur, 0); // 0 = دائم.
+    });
+  });
+
+  // متجهات الاختبار الرسمية لنظام UNIV1 (من مستند المولّد): تتحقّق من أنّ التطبيق
+  // متوافق تمامًا مع «مولّد أكواد التفعيل» — أي كود من المولّد سيُقبَل هنا.
+  group('UNIV1 official vectors (matches the keygen app)', () {
+    // المفتاح العامّ المدمج نفسه (نسخة من _publicKeyB64 في license_service.dart).
+    const pub = '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=';
+    const device = 'TESTDEVICE234567';
+    const vectors = {
+      0: 'AAANSJ2UELQ398JB5X4FPSV9DWUW3XSRP367RBVF9ASD7URBN55UTUBRMHWNYEQTL6HQLVS43XA5B3K7QK2ZU7FF4GX8PJB93BE4CKB2AJ',
+      30: 'AARLNZUCVGUA827D3FUBNPHB9ESX6KZX4EWUEM7NX7LU2CJ5XX4JPZSBUPAWUDNKH2TAP2P7992LQ99UNV9HP55BME68X8EM8FBU69UBAJ',
+    };
+
+    test('official codes verify against the embedded public key', () async {
+      final ed = Ed25519();
+      final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
+      for (final e in vectors.entries) {
+        final bytes = LicenseService.base32Decode(e.value);
+        expect(bytes.length, 66, reason: 'len for dur ${e.key}');
+        expect((bytes[0] << 8) | bytes[1], e.key, reason: 'duration parse');
+        final ok = await ed.verify(utf8.encode('UNIV1|$device|${e.key}'),
+            signature: Signature(bytes.sublist(2), publicKey: pk));
+        expect(ok, isTrue, reason: 'verify dur ${e.key}');
+      }
+    });
+
+    test('a code for one device is rejected on another device', () async {
+      final ed = Ed25519();
+      final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
+      final bytes = LicenseService.base32Decode(vectors[0]!);
+      final ok = await ed.verify(utf8.encode('UNIV1|OTHERDEVICE12345|0'),
+          signature: Signature(bytes.sublist(2), publicKey: pk));
+      expect(ok, isFalse);
     });
   });
 }

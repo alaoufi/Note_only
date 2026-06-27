@@ -23,13 +23,17 @@
 ## تفعيل جهاز مستخدم
 
 1. المستخدم يفتح التطبيق فيظهر **«رقم الجهاز»** ويرسله لك.
-2. تولّد له الرمز:
+2. تولّد له الرمز (الصيغة العالمية UNIV1؛ `DAYS` اختياريّ، 0/حذفه = دائم):
 
    ```
-   dart run tool/license.dart sign <PRIVATE_KEY_B64> <DEVICE_ID>
+   dart run tool/license.dart sign <PRIVATE_KEY_B64> <DEVICE_ID> [DAYS]
    ```
+   أو استخدم تطبيق «مولّد أكواد التفعيل» مباشرةً (يدعم المدّة وكل تطبيقاتك).
 
 3. ترسل له الرمز، فيلصقه في شاشة التفعيل ويعمل التطبيق على جهازه فقط.
+
+> **إلغاء التفعيل (للاختبار):** الإعدادات ← الأمان ← «إلغاء التفعيل (للاختبار)»
+> يمسح ترخيص هذا الجهاز فتظهر شاشة التفعيل عند إعادة الفتح.
 
 ## لماذا هذا آمن وعملي
 
@@ -39,35 +43,50 @@
 
 ## الصيغة الدقيقة (المعادلة)
 
-### كيف يُولّد التطبيق «رقم الجهاز»
+### كيف يُولّد التطبيق «رقم الجهاز» (الصيغة العالمية UNIV1)
 ```
 raw      = ANDROID_ID            (أو identifierForVendor على iOS)
-digest   = SHA-256( "mudhakkarati:" + raw )
+digest   = SHA-256( "alaoufi:" + raw )
 deviceId = Base32( digest[0..9] )            # 10 بايت ⇒ 16 حرفًا
 العرض    = تُجمَّع كل 4 أحرف بشرطة: XXXX-XXXX-XXXX-XXXX
 ```
 أبجدية Base32 (بلا أحرف ملتبسة): `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`
 
-### كيف تُولّد أنت رمز التفعيل
+### كيف تُولّد أنت رمز التفعيل (UNIV1، مع مدّة)
 ```
-n    = رقم الجهاز بأحرف كبيرة بعد حذف المسافات والشرطات
-sig  = Ed25519_Sign( PRIVATE_KEY , UTF8(n) )      # توقيع 64 بايت
-code = Base64(sig) مع حذف "=" من النهاية
+n        = رقم الجهاز بأحرف كبيرة بعد حذف كل ما ليس [A-Z0-9]
+duration = أيام الصلاحية (0 = دائم)
+sig      = Ed25519_Sign( PRIVATE_KEY , UTF8("UNIV1|" + n + "|" + duration) )   # 64 بايت
+packet   = [ duration>>8 , duration&0xff , ...sig ]                            # 66 بايت
+code     = Base32(packet)        # يُعرض بمجموعات من 5 أحرف بشرطات (تُتجاهَل)
 ```
-الخوارزمية قياسية (RFC 8032) فتعمل بأي لغة. التطبيق يتحقق بنفس المنطق:
-يطبّع رقم الجهاز ثم يتحقق من التوقيع بالمفتاح العام المدمج.
+الخوارزمية قياسية (RFC 8032) فتعمل بأي لغة. التطبيق يفكّ Base32، يقرأ المدّة من
+أوّل بايتين، ثم يتحقّق من التوقيع على `UNIV1|deviceId|duration` بالمفتاح العام المدمج.
 
-### مولّد بديل بلغة بايثون
+### مولّد بديل بلغة بايثون (UNIV1)
 ```python
 # pip install pynacl
-import base64, sys
+import sys
 from nacl.signing import SigningKey
+import base64 as b64
+
+B32 = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+def base32(data):
+    bits = val = 0; out = ""
+    for byte in data:
+        val = (val << 8) | byte; bits += 8
+        while bits >= 5:
+            out += B32[(val >> (bits - 5)) & 31]; bits -= 5
+        val &= (1 << bits) - 1
+    if bits: out += B32[(val << (5 - bits)) & 31]
+    return out
 
 priv_b64, device_id = sys.argv[1], sys.argv[2]
-n = device_id.strip().replace(" ", "").replace("-", "").upper()
-sk = SigningKey(base64.b64decode(priv_b64))          # المفتاح الخاص (32 بايت)
-sig = sk.sign(n.encode()).signature                  # 64 بايت
-print(base64.b64encode(sig).decode().rstrip("="))    # رمز التفعيل
+days = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+n = "".join(c for c in device_id.upper() if c.isalnum())
+sk = SigningKey(b64.b64decode(priv_b64))                       # المفتاح الخاص (32 بايت)
+sig = sk.sign(f"UNIV1|{n}|{days}".encode()).signature          # 64 بايت
+print(base32(bytes([(days >> 8) & 255, days & 255]) + sig))    # رمز التفعيل
 ```
-تشغيل: `python sign.py <PRIVATE_KEY_B64> <DEVICE_ID>`
+تشغيل: `python sign.py <PRIVATE_KEY_B64> <DEVICE_ID> [DAYS]`
 
