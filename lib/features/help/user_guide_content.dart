@@ -707,6 +707,114 @@ const List<GuideTopic> guideTopics = [
     },
   ),
   GuideTopic(
+    'requirements',
+    Icons.phonelink_setup_outlined,
+    {
+      'ar': 'متطلبات التطبيق على الجهاز',
+      'en': 'Device requirements',
+      'tr': 'Cihaz gereksinimleri',
+      'es': 'Requisitos del dispositivo',
+      'fa': 'نیازمندی‌های دستگاه',
+      'id': 'Persyaratan perangkat',
+      'fr': "Configuration requise",
+      'de': 'Geräteanforderungen',
+    },
+    {
+      'ar': 'يعمل التطبيق على معظم أجهزة أندرويد:\n\n'
+          '• نظام التشغيل: أندرويد 8.0 (API 26) أو أحدث.\n'
+          '• المعمارية: arm64‑v8a (الأغلب)، armeabi‑v7a (أجهزة قديمة)، أو x86_64. '
+          'النسخة «الشاملة» تعمل على الكلّ.\n'
+          '• الذاكرة: يُفضّل 2 غيغابايت RAM فأكثر.\n'
+          '• التخزين: ~120 ميغابايت للنسخة الشاملة (أو ~55 ميغابايت لنسخة arm64).\n'
+          '• يعمل دون خدمات Google Play (يناسب أجهزة هواوي/AOSP): WebDAV وكل الميزات '
+          'الأساسية تعمل بدونها، ومزامنة Google Drive وحدها تحتاجها.\n'
+          '• أذونات اختيارية حسب الميزة: الميكروفون (صوت)، البصمة (قفل)، الإشعارات '
+          '(تثبيت ملاحظة)، الكاميرا (صور)، الإنترنت (مزامنة/تحديث).\n'
+          '• يعمل على الهواتف والأجهزة اللوحية، أفقيًّا وعموديًّا.',
+      'en': 'The app runs on most Android devices:\n\n'
+          '• OS: Android 8.0 (API 26) or newer.\n'
+          '• Architecture: arm64‑v8a (most phones), armeabi‑v7a (older devices), or x86_64. '
+          'The “universal” build runs on all of them.\n'
+          '• Memory: 2 GB RAM or more recommended.\n'
+          '• Storage: ~120 MB for the universal build (or ~55 MB for the arm64 build).\n'
+          '• Works without Google Play Services (good for Huawei/AOSP): WebDAV and all core '
+          'features work without them; only Google Drive sync needs them.\n'
+          '• Optional permissions per feature: microphone (voice), biometrics (lock), '
+          'notifications (pin a note), camera (images), internet (sync/update).\n'
+          '• Works on phones and tablets, in portrait and landscape.',
+    },
+  ),
+  GuideTopic(
+    'privacy',
+    Icons.privacy_tip_outlined,
+    {
+      'ar': 'الخصوصية والاستخدام',
+      'en': 'Privacy & usage',
+      'tr': 'Gizlilik ve kullanım',
+      'es': 'Privacidad y uso',
+      'fa': 'حریم خصوصی و استفاده',
+      'id': 'Privasi & penggunaan',
+      'fr': "Confidentialité et usage",
+      'de': 'Datenschutz & Nutzung',
+    },
+    {
+      'ar': 'سياسة الخصوصية والاستخدام:\n\n'
+          '• بياناتك ملكك: كل ملاحظاتك تُخزَّن محليًّا على جهازك في قاعدة بيانات مشفّرة '
+          '(SQLCipher). لا يوجد خادم لنا ولا نرى بياناتك.\n'
+          '• لا حسابات، ولا تتبّع، ولا إعلانات، ولا تحليلات.\n'
+          '• الإنترنت اختياريّ: يُستخدم فقط إن فعّلت المزامنة السحابية (مشفّرة طرفيًّا '
+          'E2E) أو التحديث الذاتيّ.\n'
+          '• الأذونات تُطلب عند الحاجة فقط، ولكلٍّ غرض واضح (صوت/بصمة/إشعارات/تثبيت تحديث).\n'
+          '• الاستخدام السليم: التطبيق للاستخدام الشخصيّ المشروع. أنت مسؤول عن محتوى '
+          'ملاحظاتك، وعن أخذ نسخ احتياطية منتظمة، وعن حفظ كلمات المرور وعبارات التشفير.',
+      'en': 'Privacy & usage policy:\n\n'
+          '• Your data is yours: all notes are stored locally on your device in an encrypted '
+          'database (SQLCipher). We run no server and never see your data.\n'
+          '• No accounts, no tracking, no ads, no analytics.\n'
+          '• Internet is optional: used only if you enable cloud sync (end-to-end encrypted) '
+          'or self-update.\n'
+          '• Permissions are requested only when needed, each with a clear purpose '
+          '(voice/biometrics/notifications/update install).\n'
+          '• Proper use: the app is for lawful personal use. You are responsible for your '
+          'notes’ content, for taking regular backups, and for keeping your passwords and '
+          'encryption passphrases.',
+    },
+  ),
+  GuideTopic(
+    'disclaimer',
+    Icons.gavel_outlined,
+    {
+      'ar': 'إخلاء المسؤولية',
+      'en': 'Disclaimer',
+      'tr': 'Sorumluluk reddi',
+      'es': 'Descargo de responsabilidad',
+      'fa': 'سلب مسئولیت',
+      'id': 'Penafian',
+      'fr': "Avis de non-responsabilité",
+      'de': 'Haftungsausschluss',
+    },
+    {
+      'ar': 'إخلاء المسؤولية:\n\n'
+          '• يُقدَّم التطبيق «كما هو» دون أي ضمان صريح أو ضمنيّ.\n'
+          '• لا يتحمّل المطوّر أي مسؤولية عن أي خلل أو خطأ برمجيّ أو فقدان بيانات أو '
+          'أضرار مباشرة أو غير مباشرة ناتجة عن استخدام التطبيق.\n'
+          '• أنت وحدك مسؤول عن أخذ نُسخ احتياطية منتظمة وحفظ كلمات المرور؛ فقدان كلمة '
+          'مرور النسخة يعني تعذّر استعادتها نهائيًّا.\n'
+          '• لا يتحمّل المطوّر مسؤولية أي سوء استخدام للتطبيق أو استخدامه في أغراض مخالفة '
+          'للأنظمة والقوانين؛ تقع هذه المسؤولية على عاتق المستخدم وحده.\n'
+          '• باستخدامك التطبيق فإنك تقرّ بقبول هذه الشروط.',
+      'en': 'Disclaimer:\n\n'
+          '• The app is provided “as is”, without any warranty, express or implied.\n'
+          '• The developer is not liable for any defect, software error, data loss, or any '
+          'direct or indirect damages arising from using the app.\n'
+          '• You alone are responsible for taking regular backups and keeping your passwords; '
+          'losing the backup password means it can never be restored.\n'
+          '• The developer is not responsible for any misuse of the app or its use for purposes '
+          'that violate applicable laws and regulations; that responsibility rests solely with the user.\n'
+          '• By using the app, you acknowledge and accept these terms.',
+    },
+  ),
+  GuideTopic(
     'faq',
     Icons.help_outline,
     {
