@@ -18,7 +18,7 @@ class WebDavBackend implements SyncBackend {
     required this.baseUrl,
     required this.username,
     required this.password,
-    this.fileName = 'mudhakkarati-sync.enc',
+    this.fileName = 'mulahazat-notes-sync.enc',
   });
 
   @override

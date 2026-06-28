@@ -59,7 +59,7 @@ class SyncService {
   static const _kWebdavPass = 'sync_webdav_pass'; // secure
   static const _kPassphrase = 'sync_passphrase'; // secure (مفتاح التشفير E2E)
 
-  static const _fileName = 'mudhakkarati-sync.enc';
+  static const _fileName = 'mulahazat-notes-sync.enc';
 
   final _secure = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),

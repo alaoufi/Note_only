@@ -12,7 +12,7 @@ import 'sync_backend.dart';
 /// ولا يحتاج صلاحية الوصول لكامل الدرايف (نطاق drive.appdata فقط).
 class GoogleDriveBackend implements SyncBackend {
   final String fileName;
-  GoogleDriveBackend({this.fileName = 'mudhakkarati-sync.enc'});
+  GoogleDriveBackend({this.fileName = 'mulahazat-notes-sync.enc'});
 
   /// نطلب نطاق appdata فقط (الأقل صلاحيةً والأكثر خصوصية).
   static final GoogleSignIn googleSignIn = GoogleSignIn(

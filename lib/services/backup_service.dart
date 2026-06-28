@@ -402,7 +402,7 @@ class BackupService {
 
       // 4) الحفظ: نكتب أولًا في الملفات المؤقتة ثم نتيح حفظه للمستخدم.
       final stamp = DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now());
-      final fileName = 'Notes_$stamp.$_ext';
+      final fileName = 'Mulahazat_$stamp.$_ext';
 
       final tmpDir = await getTemporaryDirectory();
       final tmpPath = p.join(tmpDir.path, fileName);
@@ -440,7 +440,7 @@ class BackupService {
               .where((r) => r.isStandalone)
               .toList();
       final data = <String, dynamic>{
-        'app': 'AlaoufiNotes',
+        'app': 'Mulahazat',
         'type': 'notes-json',
         'version': 1,
         'exportedAt': DateTime.now().toIso8601String(),
@@ -455,7 +455,7 @@ class BackupService {
       final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
       final bytes = Uint8List.fromList(utf8.encode(jsonStr));
       final stamp = DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now());
-      final fileName = 'AlaoufiNotes_$stamp.json';
+      final fileName = 'Mulahazat_$stamp.json';
       final saved = await FilePicker.platform.saveFile(
         dialogTitle: 'حفظ ملف JSON',
         fileName: fileName,
@@ -573,14 +573,14 @@ class BackupService {
         return const BackupResult(false, 'فشل التحقّق من سلامة النسخة');
       }
       final stamp = DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now());
-      final fileName = 'Notes_$stamp.$_ext';
+      final fileName = 'Mulahazat_$stamp.$_ext';
       final tmpDir = await getTemporaryDirectory();
       final tmpPath = p.join(tmpDir.path, fileName);
       await File(tmpPath).writeAsBytes(encrypted, flush: true);
 
       await SharePlus.instance.share(ShareParams(
         files: [XFile(tmpPath, mimeType: 'application/octet-stream')],
-        text: 'نسخة Alaoufi Notes الاحتياطية المشفّرة',
+        text: 'نسخة ملاحظات الاحتياطية المشفّرة',
         subject: fileName,
       ));
       await _stamp(_kLastShare);

@@ -59,7 +59,7 @@ class S {
   };
 
   static const Map<String, String> _ar = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'الملاحظات',
     'nav_reminders': 'التذكيرات',
     'nav_calendar': 'التقويم',
@@ -520,7 +520,7 @@ class S {
   };
 
   static const Map<String, String> _en = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Notes',
     'nav_reminders': 'Reminders',
     'nav_calendar': 'Calendar',
@@ -981,7 +981,7 @@ class S {
   };
 
   static const Map<String, String> _es = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Notas',
     'nav_reminders': 'Recordatorios',
     'nav_calendar': 'Calendario',
@@ -1422,7 +1422,7 @@ class S {
   };
 
   static const Map<String, String> _de = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Notizen',
     'nav_reminders': 'Erinnerungen',
     'nav_calendar': 'Kalender',
@@ -1863,7 +1863,7 @@ class S {
   };
 
   static const Map<String, String> _fil = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Mga Tala',
     'nav_reminders': 'Mga Paalala',
     'nav_calendar': 'Kalendaryo',
@@ -2304,7 +2304,7 @@ class S {
   };
 
   static const Map<String, String> _fr = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Notes',
     'nav_reminders': 'Rappels',
     'nav_calendar': 'Calendrier',
@@ -2745,7 +2745,7 @@ class S {
   };
 
   static const Map<String, String> _id = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Catatan',
     'nav_reminders': 'Pengingat',
     'nav_calendar': 'Kalender',
@@ -3186,7 +3186,7 @@ class S {
   };
 
   static const Map<String, String> _it = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Note',
     'nav_reminders': 'Promemoria',
     'nav_calendar': 'Calendario',
@@ -3627,7 +3627,7 @@ class S {
   };
 
   static const Map<String, String> _ms = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Nota',
     'nav_reminders': 'Peringatan',
     'nav_calendar': 'Kalendar',
@@ -4068,7 +4068,7 @@ class S {
   };
 
   static const Map<String, String> _hi = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'नोट्स',
     'nav_reminders': 'रिमाइंडर',
     'nav_calendar': 'कैलेंडर',
@@ -4509,7 +4509,7 @@ class S {
   };
 
   static const Map<String, String> _bn = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'নোট',
     'nav_reminders': 'রিমাইন্ডার',
     'nav_calendar': 'ক্যালেন্ডার',
@@ -4950,7 +4950,7 @@ class S {
   };
 
   static const Map<String, String> _fa = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'یادداشت‌ها',
     'nav_reminders': 'یادآورها',
     'nav_calendar': 'تقویم',
@@ -5391,7 +5391,7 @@ class S {
   };
 
   static const Map<String, String> _ru = {
-    'app_name': 'Alaoufi Notes',
+    'app_name': 'ملاحظات',
     'nav_notes': 'Заметки',
     'nav_reminders': 'Напоминания',
     'nav_calendar': 'Календарь',
