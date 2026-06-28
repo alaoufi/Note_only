@@ -258,9 +258,11 @@ class BackupService {
       final rows = await db
           .rawQuery('SELECT COUNT(*) AS c FROM notes WHERE is_deleted = 0');
       final liveCount = (rows.first['c'] as int?) ?? 0;
-      if (liveCount == 0 && (await listAutoBackups()).isNotEmpty) {
+      if (liveCount == 0) {
+        // لا ملاحظات لحفظها ⇒ لا نُنشئ نسخة (يحمي نسخك السابقة، ويتفادى عملًا
+        // ثقيلًا بلا فائدة عند أوّل تشغيل قبل إضافة أي ملاحظة).
         return const BackupResult(
-            false, 'تُخطّي النسخ التلقائي (لا ملاحظات) — حماية لنسخك السابقة');
+            false, 'تُخطّي النسخ التلقائي: لا ملاحظات لحفظها');
       }
 
       final pwd = await _secure.read(key: _kAutoPwd);
@@ -389,9 +391,9 @@ class BackupService {
         return const BackupResult(false, 'تعذّر إنشاء الأرشيف');
       }
 
-      // 3) التشفير.
-      final encrypted = EncryptionService.instance
-          .encryptBytes(Uint8List.fromList(zipped), password);
+      // 3) التشفير (في عزلة كي لا يتجمّد التطبيق أثناء اشتقاق المفتاح).
+      final encrypted = await EncryptionService.instance
+          .encryptBytesAsync(Uint8List.fromList(zipped), password);
 
       // 3ب) تحقّق فوريّ من سلامة النسخة (فكّ تشفير اختباريّ) قبل إعلان النجاح.
       if (!await _verifyEncrypted(encrypted, password)) {
@@ -613,7 +615,7 @@ class BackupService {
     final zipped = ZipEncoder().encode(archive);
     if (zipped == null) throw Exception('تعذّر إنشاء الأرشيف');
     return EncryptionService.instance
-        .encryptBytes(Uint8List.fromList(zipped), password);
+        .encryptBytesAsync(Uint8List.fromList(zipped), password);
   }
 
   /// يتيح للمستخدم اختيار ملفّ نسخة والتأكّد من سلامته (فكّ تشفير اختباريّ) دون
@@ -667,8 +669,8 @@ class BackupService {
   /// إنشائها، فلا تُكتشف نسخة تالفة وقت الحاجة الماسّة للاستعادة.
   Future<bool> _verifyEncrypted(Uint8List encrypted, String password) async {
     try {
-      final zipped =
-          EncryptionService.instance.decryptBytes(encrypted, password);
+      final zipped = await EncryptionService.instance
+          .decryptBytesAsync(encrypted, password);
       final archive = ZipDecoder().decodeBytes(zipped);
       for (final f in archive) {
         if (f.isFile && f.name == 'database.db') {
@@ -688,7 +690,8 @@ class BackupService {
       Uint8List encrypted, String password) async {
     late Uint8List zipped;
     try {
-      zipped = EncryptionService.instance.decryptBytes(encrypted, password);
+      zipped = await EncryptionService.instance
+          .decryptBytesAsync(encrypted, password);
     } catch (_) {
       return const BackupResult(false, 'كلمة المرور خاطئة أو الملف تالف');
     }

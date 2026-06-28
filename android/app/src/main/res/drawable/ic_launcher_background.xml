@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- خلفية فاتحة متدرّجة لتُبرز الدفتر الأزرق بشكل نظيف وناعم. -->
+<!-- خلفية كهرمانية متدرّجة: تميّز أيقونة «ملاحظات» عن بقية تطبيقات المطوّر،
+     وتمنح تباينًا عاليًا مع الدفتر الأزرق في المقدّمة. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -12,8 +13,8 @@
                 android:startX="0" android:startY="0"
                 android:endX="108" android:endY="108"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFFFFF"/>
-                <item android:offset="1.0" android:color="#FFE9F2FB"/>
+                <item android:offset="0.0" android:color="#FFFFF3E0"/>
+                <item android:offset="1.0" android:color="#FFFFB74D"/>
             </gradient>
         </aapt:attr>
     </path>

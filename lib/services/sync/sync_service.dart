@@ -274,8 +274,8 @@ class SyncService {
       final remoteBytes = await _retry(() => backend.download());
       if (remoteBytes != null) {
         try {
-          final decrypted =
-              EncryptionService.instance.decryptBytes(remoteBytes, passphrase);
+          final decrypted = await EncryptionService.instance
+              .decryptBytesAsync(remoteBytes, passphrase);
           final decoded = jsonDecode(utf8.decode(decrypted));
           if (decoded is List) {
             remote = decoded
@@ -322,8 +322,8 @@ class SyncService {
       // 5) ارفع المدموج (مع إعادة محاولة). المدموج اتحاديّ فلا يقلّ أبدًا عن عدد
       //    ملاحظات السحابة ⇒ الرفع لا يُنقص النسخة السحابية إطلاقًا.
       final bytes = Uint8List.fromList(utf8.encode(jsonEncode(merged)));
-      final encrypted =
-          EncryptionService.instance.encryptBytes(bytes, passphrase);
+      final encrypted = await EncryptionService.instance
+          .encryptBytesAsync(bytes, passphrase);
       await _retry(() => backend.upload(encrypted));
 
       final prefs = await SharedPreferences.getInstance();

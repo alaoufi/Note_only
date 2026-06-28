@@ -3,7 +3,14 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as enc;
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show compute, visibleForTesting;
+
+// نقاط دخول العزلة (Isolate): اشتقاق المفتاح (PBKDF2) ثقيل، فنُجريه خارج خيط
+// الواجهة عبر compute كي لا يتجمّد التطبيق (ANR) أثناء النسخ/الاستعادة/المزامنة.
+Uint8List _encryptIsolate(List<Object> a) =>
+    EncryptionService.instance.encryptBytes(a[0] as Uint8List, a[1] as String);
+Uint8List _decryptIsolate(List<Object> a) =>
+    EncryptionService.instance.decryptBytes(a[0] as Uint8List, a[1] as String);
 
 /// تشفير/فك تشفير بيانات النسخ الاحتياطية باستخدام AES-256.
 ///
@@ -69,6 +76,14 @@ class EncryptionService {
 
   /// يشفّر [data] ويعيد حزمة بايتات قابلة للحفظ في ملف (الصيغة MDK3).
   /// التنسيق: MAGIC(4) | iterations(4 BE) | salt(16) | iv(16) | mac(32) | cipher
+  /// مثل [encryptBytes] لكن في عزلة منفصلة (لا يُجمّد الواجهة). يفضَّل في الخلفية.
+  Future<Uint8List> encryptBytesAsync(Uint8List data, String password) =>
+      compute(_encryptIsolate, <Object>[data, password]);
+
+  /// مثل [decryptBytes] لكن في عزلة منفصلة (لا يُجمّد الواجهة).
+  Future<Uint8List> decryptBytesAsync(Uint8List packed, String password) =>
+      compute(_decryptIsolate, <Object>[packed, password]);
+
   Uint8List encryptBytes(Uint8List data, String password) {
     final salt = _randomBytes(16);
     final iv = enc.IV.fromSecureRandom(16);
