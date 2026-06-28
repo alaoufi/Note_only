@@ -58,6 +58,8 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0, 4, 0, 28),
             sliver: SliverList.list(
               children: [
+                // ── القسم: التخصيص ──
+                _sectionHeader(context, Icons.tune, 'التخصيص'),
                 _groupCard(
                   context,
                   icon: Icons.palette_outlined,
@@ -66,6 +68,9 @@ class SettingsScreen extends StatelessWidget {
                   initiallyExpanded: true,
                   children: _appearance(context, s, settings),
                 ),
+
+                // ── القسم: الملاحظات والمحرّر ──
+                _sectionHeader(context, Icons.edit_note, 'الملاحظات والمحرّر'),
                 _groupCard(
                   context,
                   icon: Icons.sticky_note_2_outlined,
@@ -94,10 +99,14 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: 'سلوك المحرّر وطريقة العرض',
                   children: _editingDisplay(context, s, settings),
                 ),
+
+                // ── القسم: الأمان والبيانات ──
+                _sectionHeader(context, Icons.security, 'الأمان والبيانات'),
                 _groupCard(
                   context,
                   icon: Icons.shield_outlined,
                   title: 'الأمان والنسخ الاحتياطي',
+                  subtitle: 'القفل والنسخ والمزامنة',
                   children: [
                     const DailyBackupSwitch(),
                     _nav(context, Icons.lock_outline, s.t('security'),
@@ -111,6 +120,7 @@ class SettingsScreen extends StatelessWidget {
                   context,
                   icon: Icons.folder_outlined,
                   title: 'التنظيم',
+                  subtitle: 'التصنيفات والأرشيف وسلة المحذوفات',
                   children: [
                     _nav(context, Icons.category_outlined,
                         s.t('manage_categories'),
@@ -121,6 +131,9 @@ class SettingsScreen extends StatelessWidget {
                         const TrashScreen()),
                   ],
                 ),
+
+                // ── القسم: عن التطبيق ──
+                _sectionHeader(context, Icons.info_outline, 'عن التطبيق'),
                 _groupCard(
                   context,
                   icon: Icons.info_outline,
@@ -129,6 +142,36 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===================== عنوان قسم (يجمع بطاقات متشابهة بصريًّا) =====================
+
+  /// عنوان قسم صغير بلون السمة يفصل مجموعات الإعدادات لهيكلة أوضح واحترافيّة.
+  Widget _sectionHeader(BuildContext context, IconData icon, String text) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 18, 22, 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: scheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: scheme.primary,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+                color: scheme.outlineVariant.withOpacity(0.6), height: 1),
           ),
         ],
       ),
