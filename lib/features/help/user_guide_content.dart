@@ -778,6 +778,63 @@ const List<GuideTopic> guideTopics = [
           '• Proper use: the app is for lawful personal use. You are responsible for your '
           'notes’ content, for taking regular backups, and for keeping your passwords and '
           'encryption passphrases.',
+      'tr': 'Gizlilik ve kullanım politikası:\n\n'
+          '• Verileriniz size aittir: tüm notlar cihazınızda şifreli bir veritabanında '
+          '(SQLCipher) yerel olarak saklanır. Sunucumuz yoktur ve verilerinizi asla görmeyiz.\n'
+          '• Hesap yok, takip yok, reklam yok, analiz yok.\n'
+          '• İnternet isteğe bağlıdır: yalnızca bulut eşitlemeyi (uçtan uca şifreli) veya '
+          'kendi kendine güncellemeyi açarsanız kullanılır.\n'
+          '• İzinler yalnızca gerektiğinde ve net bir amaçla istenir.\n'
+          '• Doğru kullanım: uygulama yasal kişisel kullanım içindir. Notlarınızın içeriğinden, '
+          'düzenli yedek almaktan ve parolalarınızı/şifreleme ifadelerinizi saklamaktan siz sorumlusunuz.',
+      'es': 'Política de privacidad y uso:\n\n'
+          '• Tus datos son tuyos: todas las notas se guardan localmente en tu dispositivo en una '
+          'base de datos cifrada (SQLCipher). No tenemos servidor y nunca vemos tus datos.\n'
+          '• Sin cuentas, sin rastreo, sin anuncios, sin analíticas.\n'
+          '• Internet es opcional: se usa solo si activas la sincronización en la nube (cifrada de '
+          'extremo a extremo) o la autoactualización.\n'
+          '• Los permisos se piden solo cuando se necesitan, cada uno con un propósito claro.\n'
+          '• Uso correcto: la app es para uso personal lícito. Eres responsable del contenido de tus '
+          'notas, de hacer copias periódicas y de guardar tus contraseñas y frases de cifrado.',
+      'fa': 'سیاست حریم خصوصی و استفاده:\n\n'
+          '• داده‌های شما مال شماست: همهٔ یادداشت‌ها به‌صورت محلی روی دستگاه شما در پایگاه‌دادهٔ '
+          'رمزگذاری‌شده (SQLCipher) ذخیره می‌شوند. ما سروری نداریم و هرگز داده‌های شما را نمی‌بینیم.\n'
+          '• بدون حساب، بدون ردیابی، بدون تبلیغات، بدون تحلیل.\n'
+          '• اینترنت اختیاری است: فقط اگر همگام‌سازی ابری (رمزگذاری سرتاسری) یا به‌روزرسانی خودکار '
+          'را فعال کنید استفاده می‌شود.\n'
+          '• مجوزها فقط هنگام نیاز و با هدف روشن درخواست می‌شوند.\n'
+          '• استفادهٔ درست: برنامه برای استفادهٔ شخصی قانونی است. شما مسئول محتوای یادداشت‌ها، '
+          'گرفتن پشتیبان منظم و نگه‌داری گذرواژه‌ها و عبارات رمزگذاری هستید.',
+      'id': 'Kebijakan privasi & penggunaan:\n\n'
+          '• Data Anda milik Anda: semua catatan disimpan secara lokal di perangkat Anda dalam basis '
+          'data terenkripsi (SQLCipher). Kami tidak punya server dan tidak pernah melihat data Anda.\n'
+          '• Tanpa akun, tanpa pelacakan, tanpa iklan, tanpa analitik.\n'
+          '• Internet opsional: dipakai hanya jika Anda mengaktifkan sinkronisasi cloud (terenkripsi '
+          'ujung-ke-ujung) atau pembaruan otomatis.\n'
+          '• Izin diminta hanya saat diperlukan, masing-masing dengan tujuan jelas.\n'
+          '• Penggunaan yang benar: aplikasi untuk penggunaan pribadi yang sah. Anda bertanggung jawab '
+          'atas isi catatan, membuat cadangan berkala, dan menyimpan kata sandi serta frasa enkripsi.',
+      'fr': "Politique de confidentialité et d'usage :\n\n"
+          "• Vos données vous appartiennent : toutes les notes sont stockées localement sur votre "
+          "appareil dans une base de données chiffrée (SQLCipher). Nous n'avons aucun serveur et ne "
+          "voyons jamais vos données.\n"
+          "• Pas de comptes, pas de suivi, pas de publicité, pas d'analyse.\n"
+          "• Internet est optionnel : utilisé uniquement si vous activez la synchronisation cloud "
+          "(chiffrée de bout en bout) ou la mise à jour automatique.\n"
+          "• Les autorisations sont demandées seulement quand c'est nécessaire, avec un but clair.\n"
+          "• Usage correct : l'app est destinée à un usage personnel licite. Vous êtes responsable du "
+          "contenu de vos notes, des sauvegardes régulières et de vos mots de passe et phrases de chiffrement.",
+      'de': 'Datenschutz- & Nutzungsrichtlinie:\n\n'
+          '• Ihre Daten gehören Ihnen: alle Notizen werden lokal auf Ihrem Gerät in einer '
+          'verschlüsselten Datenbank (SQLCipher) gespeichert. Wir betreiben keinen Server und sehen '
+          'Ihre Daten nie.\n'
+          '• Keine Konten, kein Tracking, keine Werbung, keine Analyse.\n'
+          '• Internet ist optional: wird nur genutzt, wenn Sie Cloud-Sync (Ende-zu-Ende verschlüsselt) '
+          'oder Selbst-Update aktivieren.\n'
+          '• Berechtigungen werden nur bei Bedarf und mit klarem Zweck angefragt.\n'
+          '• Richtige Nutzung: die App ist für rechtmäßige persönliche Nutzung. Sie sind '
+          'verantwortlich für den Inhalt Ihrer Notizen, regelmäßige Sicherungen und das Aufbewahren '
+          'Ihrer Passwörter und Verschlüsselungs-Passphrasen.',
     },
   ),
   GuideTopic(
@@ -812,6 +869,61 @@ const List<GuideTopic> guideTopics = [
           '• The developer is not responsible for any misuse of the app or its use for purposes '
           'that violate applicable laws and regulations; that responsibility rests solely with the user.\n'
           '• By using the app, you acknowledge and accept these terms.',
+      'tr': 'Sorumluluk reddi:\n\n'
+          '• Uygulama, açık veya zımni hiçbir garanti olmaksızın “olduğu gibi” sunulur.\n'
+          '• Geliştirici; herhangi bir kusur, yazılım hatası, veri kaybı veya uygulamanın '
+          'kullanımından doğan doğrudan ya da dolaylı zararlardan sorumlu değildir.\n'
+          '• Düzenli yedek almak ve parolalarınızı saklamak yalnızca sizin sorumluluğunuzdadır; '
+          'yedek parolasını kaybetmek, geri yüklemenin asla mümkün olmaması demektir.\n'
+          '• Geliştirici, uygulamanın kötüye kullanımından veya yasalara aykırı amaçlarla '
+          'kullanılmasından sorumlu değildir; bu sorumluluk yalnızca kullanıcıya aittir.\n'
+          '• Uygulamayı kullanarak bu şartları kabul etmiş olursunuz.',
+      'es': 'Descargo de responsabilidad:\n\n'
+          '• La app se ofrece “tal cual”, sin garantía alguna, expresa o implícita.\n'
+          '• El desarrollador no se hace responsable de ningún defecto, error de software, pérdida de '
+          'datos ni de daños directos o indirectos derivados del uso de la app.\n'
+          '• Solo tú eres responsable de hacer copias periódicas y de guardar tus contraseñas; perder '
+          'la contraseña de la copia significa que nunca podrá restaurarse.\n'
+          '• El desarrollador no es responsable del uso indebido de la app ni de su uso para fines que '
+          'infrinjan las leyes; esa responsabilidad recae únicamente en el usuario.\n'
+          '• Al usar la app, aceptas estos términos.',
+      'fa': 'سلب مسئولیت:\n\n'
+          '• برنامه «همان‌گونه که هست» و بدون هیچ ضمانت صریح یا ضمنی ارائه می‌شود.\n'
+          '• توسعه‌دهنده هیچ مسئولیتی در قبال هر نقص، خطای نرم‌افزاری، از دست رفتن داده، یا خسارات '
+          'مستقیم یا غیرمستقیم ناشی از استفاده از برنامه ندارد.\n'
+          '• تنها شما مسئول گرفتن پشتیبان منظم و نگه‌داری گذرواژه‌ها هستید؛ از دست دادن گذرواژهٔ '
+          'پشتیبان یعنی بازیابی هرگز ممکن نیست.\n'
+          '• توسعه‌دهنده مسئول هیچ‌گونه سوءاستفاده از برنامه یا استفادهٔ آن برای اهداف مغایر قوانین '
+          'نیست؛ این مسئولیت تنها بر عهدهٔ کاربر است.\n'
+          '• با استفاده از برنامه، این شرایط را می‌پذیرید.',
+      'id': 'Penafian:\n\n'
+          '• Aplikasi disediakan “sebagaimana adanya”, tanpa jaminan apa pun, tersurat maupun tersirat.\n'
+          '• Pengembang tidak bertanggung jawab atas cacat, kesalahan perangkat lunak, kehilangan data, '
+          'atau kerugian langsung maupun tidak langsung akibat penggunaan aplikasi.\n'
+          '• Hanya Anda yang bertanggung jawab membuat cadangan berkala dan menyimpan kata sandi; '
+          'kehilangan kata sandi cadangan berarti tidak akan pernah bisa dipulihkan.\n'
+          '• Pengembang tidak bertanggung jawab atas penyalahgunaan aplikasi atau penggunaannya untuk '
+          'tujuan yang melanggar hukum; tanggung jawab itu sepenuhnya ada pada pengguna.\n'
+          '• Dengan menggunakan aplikasi, Anda menerima ketentuan ini.',
+      'fr': "Avis de non-responsabilité :\n\n"
+          "• L'application est fournie « telle quelle », sans aucune garantie, expresse ou implicite.\n"
+          "• Le développeur n'est pas responsable des défauts, erreurs logicielles, pertes de données, "
+          "ni des dommages directs ou indirects résultant de l'utilisation de l'application.\n"
+          "• Vous êtes seul responsable des sauvegardes régulières et de la conservation de vos mots de "
+          "passe ; perdre le mot de passe de la sauvegarde signifie qu'elle ne pourra jamais être restaurée.\n"
+          "• Le développeur n'est pas responsable d'un usage abusif de l'application ou de son "
+          "utilisation à des fins illégales ; cette responsabilité incombe uniquement à l'utilisateur.\n"
+          "• En utilisant l'application, vous acceptez ces conditions.",
+      'de': 'Haftungsausschluss:\n\n'
+          '• Die App wird „wie besehen“ bereitgestellt, ohne jegliche ausdrückliche oder '
+          'stillschweigende Gewährleistung.\n'
+          '• Der Entwickler haftet nicht für Mängel, Softwarefehler, Datenverlust oder direkte bzw. '
+          'indirekte Schäden, die aus der Nutzung der App entstehen.\n'
+          '• Allein Sie sind verantwortlich für regelmäßige Sicherungen und das Aufbewahren Ihrer '
+          'Passwörter; der Verlust des Sicherungspassworts bedeutet, dass es nie wiederhergestellt werden kann.\n'
+          '• Der Entwickler haftet nicht für Missbrauch der App oder deren Nutzung zu rechtswidrigen '
+          'Zwecken; diese Verantwortung liegt allein beim Nutzer.\n'
+          '• Durch die Nutzung der App akzeptieren Sie diese Bedingungen.',
     },
   ),
   GuideTopic(
