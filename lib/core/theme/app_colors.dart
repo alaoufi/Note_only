@@ -5,12 +5,26 @@ class AppColors {
   AppColors._();
 
   /// ألوان السمة (Theme) المتاحة للاختيار من الإعدادات.
+  /// ألوان «بذرة» لـ Material 3: كلٌّ يولّد لوحة متدرّجة ناعمة كاملة تلقائيًّا.
+  /// مجموعة موسّعة بألوان هادئة وجميلة ترضي أذواقًا مختلفة.
   static const Map<String, Color> themeSeeds = {
     'أخضر زمردي': Color(0xFF2E7D6B),
+    'فيروزي': Color(0xFF159B8F),
+    'نعناعي': Color(0xFF4DB6AC),
+    'أزرق بترولي': Color(0xFF00838F),
     'أزرق هادئ': Color(0xFF3F6FB5),
+    'سماوي': Color(0xFF2196D9),
+    'نيليّ': Color(0xFF5C6BC0),
+    'خزامى': Color(0xFF9575CD),
     'بنفسجي': Color(0xFF7E57C2),
-    'برتقالي دافئ': Color(0xFFE8772E),
+    'برقوقي': Color(0xFF9C4D8C),
     'وردي': Color(0xFFC2476B),
+    'وردي فاتح': Color(0xFFE57399),
+    'مرجاني': Color(0xFFEF6F57),
+    'برتقالي دافئ': Color(0xFFE8772E),
+    'كهرماني': Color(0xFFC8951B),
+    'أخضر زيتوني': Color(0xFF7E8B4F),
+    'بنّي موكا': Color(0xFF8D6E63),
     'رمادي أنيق': Color(0xFF546E7A),
   };
 

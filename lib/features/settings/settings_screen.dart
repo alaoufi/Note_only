@@ -197,6 +197,22 @@ class SettingsScreen extends StatelessWidget {
   // ===================== المظهر =====================
 
   List<Widget> _appearance(BuildContext context, S s, SettingsProvider st) => [
+        // اللغة (في الأعلى ليسهل الوصول إليها)
+        ListTile(
+          leading: const Icon(Icons.language),
+          title: Text(s.t('language')),
+          trailing: DropdownButton<String>(
+            value: st.locale.languageCode,
+            underline: const SizedBox.shrink(),
+            items: [
+              for (final e in S.languages.entries)
+                DropdownMenuItem(value: e.key, child: Text(e.value)),
+            ],
+            onChanged: (v) => st.setLocale(Locale(v ?? 'en')),
+          ),
+        ),
+        const Divider(height: 1),
+
         // الوضع (نهاري/ليلي/النظام)
         ListTile(
           leading: const Icon(Icons.brightness_6_outlined),
@@ -293,21 +309,6 @@ class SettingsScreen extends StatelessWidget {
               if (v != null) st.setFontFamily(v);
             },
             items: _fontDropdownItems(context),
-          ),
-        ),
-
-        // اللغة
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: Text(s.t('language')),
-          trailing: DropdownButton<String>(
-            value: st.locale.languageCode,
-            underline: const SizedBox.shrink(),
-            items: [
-              for (final e in S.languages.entries)
-                DropdownMenuItem(value: e.key, child: Text(e.value)),
-            ],
-            onChanged: (v) => st.setLocale(Locale(v ?? 'en')),
           ),
         ),
       ];
