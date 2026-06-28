@@ -3,6 +3,18 @@ import 'package:flutter/material.dart';
 import '../../core/l10n/app_strings.dart';
 import 'user_guide_content.dart';
 
+/// عنوان «الخصوصية وإخلاء المسؤولية» حسب اللغة المختارة (مشترك للقائمة والإعدادات).
+String legalTitle(String lang) => switch (lang) {
+      'ar' => 'الخصوصية وإخلاء المسؤولية',
+      'tr' => 'Gizlilik ve sorumluluk reddi',
+      'es' => 'Privacidad y responsabilidad',
+      'fa' => 'حریم خصوصی و سلب مسئولیت',
+      'id' => 'Privasi & penafian',
+      'fr' => 'Confidentialité et responsabilité',
+      'de' => 'Datenschutz & Haftung',
+      _ => 'Privacy & Disclaimer',
+    };
+
 /// شاشة «الخصوصية وإخلاء المسؤولية» — بارزة ومباشرة من القائمة الجانبية،
 /// بمحتوى مفصّل مترجَم لكل اللغات (يتبع لغة المستخدم).
 class LegalScreen extends StatelessWidget {
@@ -10,16 +22,7 @@ class LegalScreen extends StatelessWidget {
 
   static const _ids = ['privacy', 'disclaimer'];
 
-  String _title(String lang) => switch (lang) {
-        'ar' => 'الخصوصية وإخلاء المسؤولية',
-        'tr' => 'Gizlilik ve sorumluluk reddi',
-        'es' => 'Privacidad y responsabilidad',
-        'fa' => 'حریم خصوصی و سلب مسئولیت',
-        'id' => 'Privasi & penafian',
-        'fr' => 'Confidentialité et responsabilité',
-        'de' => 'Datenschutz & Haftung',
-        _ => 'Privacy & Disclaimer',
-      };
+  String _title(String lang) => legalTitle(lang);
 
   @override
   Widget build(BuildContext context) {

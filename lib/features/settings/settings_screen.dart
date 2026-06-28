@@ -14,6 +14,7 @@ import '../home/notes_provider.dart';
 import '../backup/backup_screen.dart';
 import '../backup/daily_backup_switch.dart';
 import '../categories/manage_categories_screen.dart';
+import '../help/legal_screen.dart';
 import '../security/security_settings_screen.dart';
 import '../../services/update_service.dart';
 import '../trash/archive_screen.dart';
@@ -694,6 +695,8 @@ class SettingsScreen extends StatelessWidget {
           child: Text(s.t('about_desc'),
               style: Theme.of(context).textTheme.bodySmall),
         ),
+        _nav(context, Icons.privacy_tip_outlined,
+            legalTitle(s.locale.languageCode), const LegalScreen()),
         FutureBuilder<PackageInfo>(
           future: PackageInfo.fromPlatform(),
           builder: (context, snap) {

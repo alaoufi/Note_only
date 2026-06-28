@@ -14,18 +14,6 @@ import '../features/settings/settings_screen.dart';
 import '../features/trash/archive_screen.dart';
 import '../features/trash/trash_screen.dart';
 
-/// عنوان «الخصوصية وإخلاء المسؤولية» حسب اللغة المختارة.
-String _legalTitle(String lang) => switch (lang) {
-      'ar' => 'الخصوصية وإخلاء المسؤولية',
-      'tr' => 'Gizlilik ve sorumluluk reddi',
-      'es' => 'Privacidad y responsabilidad',
-      'fa' => 'حریم خصوصی و سلب مسئولیت',
-      'id' => 'Privasi & penafian',
-      'fr' => 'Confidentialité et responsabilité',
-      'de' => 'Datenschutz & Haftung',
-      _ => 'Privacy & Disclaimer',
-    };
-
 /// القائمة الجانبية الرئيسية (مستوحاة من تطبيقات المذكرات الاحترافية).
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -120,7 +108,7 @@ class AppDrawer extends StatelessWidget {
             // الخصوصية وإخلاء المسؤولية — بارزة ومباشرة (بكل اللغات).
             ListTile(
               leading: Icon(Icons.privacy_tip_outlined, color: scheme.primary),
-              title: Text(_legalTitle(s.locale.languageCode),
+              title: Text(legalTitle(s.locale.languageCode),
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: scheme.primary)),
               onTap: () => go(const LegalScreen()),
