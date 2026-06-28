@@ -15,8 +15,8 @@ class GuideTopic {
       body[lang] ?? body['en'] ?? body['ar'] ?? '';
 }
 
-/// مواضيع الدليل بالترتيب. الشرح مفصّل في العربية/الإنجليزية/التركية/الإسبانية،
-/// ويرجع للإنجليزية في بقية اللغات.
+/// مواضيع الدليل بالترتيب. الشرح مفصّل في: العربية، الإنجليزية، التركية،
+/// الإسبانية، الفارسية، الإندونيسية، الفرنسية، الألمانية — ويرجع للإنجليزية في غيرها.
 const List<GuideTopic> guideTopics = [
   GuideTopic(
     'start',
@@ -26,6 +26,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Getting started',
       'tr': 'Hızlı başlangıç',
       'es': 'Primeros pasos',
+      'fa': 'شروع سریع',
+      'id': 'Memulai',
+      'fr': 'Premiers pas',
+      'de': 'Erste Schritte',
     },
     {
       'ar': 'تطبيق «ملاحظات» يعمل دون إنترنت بالكامل، ويحفظ كل شيء داخل جهازك '
@@ -52,6 +56,30 @@ const List<GuideTopic> guideTopics = [
           '2) Empieza a escribir — la nota se guarda automáticamente.\n'
           '3) Vuelve atrás; tu nota aparece arriba en la pantalla principal.\n'
           '4) Recomendamos activar el Bloqueo de la app y la Copia de seguridad en Ajustes.',
+      'fa': 'برنامهٔ «یادداشت‌ها» کاملاً آفلاین کار می‌کند و همه چیز را در دستگاه شما '
+          'در یک پایگاه‌دادهٔ رمزگذاری‌شده نگه می‌دارد.\n\n'
+          '۱) دکمهٔ + پایین را بزنید تا یادداشت بیفزایید و نوع آن را انتخاب کنید.\n'
+          '۲) شروع به نوشتن کنید — یادداشت هنگام نوشتن به‌طور خودکار ذخیره می‌شود.\n'
+          '۳) بازگردید؛ یادداشت در بالای صفحهٔ اصلی دیده می‌شود.\n'
+          '۴) توصیه می‌کنیم «قفل برنامه» و «پشتیبان‌گیری» را از تنظیمات فعال کنید.',
+      'id': 'Notes bekerja sepenuhnya offline dan menyimpan semuanya di perangkat '
+          'Anda dalam basis data terenkripsi.\n\n'
+          '1) Ketuk tombol + di bawah untuk menambah catatan dan pilih jenisnya.\n'
+          '2) Mulai mengetik — catatan tersimpan otomatis saat Anda menulis.\n'
+          '3) Kembali; catatan Anda muncul di atas layar utama.\n'
+          '4) Sebaiknya aktifkan Kunci Aplikasi dan Pencadangan di Pengaturan.',
+      'fr': "Notes fonctionne entièrement hors ligne et conserve tout sur votre "
+          "appareil dans une base de données chiffrée.\n\n"
+          "1) Appuyez sur le bouton + en bas pour ajouter une note et choisissez son type.\n"
+          "2) Commencez à écrire — la note est enregistrée automatiquement.\n"
+          "3) Revenez en arrière ; votre note apparaît en haut de l'écran principal.\n"
+          "4) Nous recommandons d'activer le Verrouillage et la Sauvegarde dans les Réglages.",
+      'de': 'Notes funktioniert vollständig offline und speichert alles auf Ihrem '
+          'Gerät in einer verschlüsselten Datenbank.\n\n'
+          '1) Tippen Sie unten auf +, um eine Notiz hinzuzufügen, und wählen Sie den Typ.\n'
+          '2) Beginnen Sie zu schreiben — die Notiz wird automatisch gespeichert.\n'
+          '3) Gehen Sie zurück; Ihre Notiz erscheint oben im Hauptbildschirm.\n'
+          '4) Wir empfehlen, App-Sperre und Sicherung in den Einstellungen zu aktivieren.',
     },
   ),
   GuideTopic(
@@ -62,6 +90,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Note types',
       'tr': 'Not türleri',
       'es': 'Tipos de notas',
+      'fa': 'انواع یادداشت',
+      'id': 'Jenis catatan',
+      'fr': 'Types de notes',
+      'de': 'Notiztypen',
     },
     {
       'ar': 'عند الضغط على + تختار نوع الملاحظة:\n\n'
@@ -96,6 +128,38 @@ const List<GuideTopic> guideTopics = [
           '• PDF: adjunta y abre un archivo PDF.\n'
           '• Dibujo: lienzo para dibujar/escribir a mano.\n'
           '• Contraseñas: campos estructurados; el campo secreto se cifra y la nota se bloquea por defecto.',
+      'fa': 'با زدن +، نوع یادداشت را انتخاب می‌کنید:\n\n'
+          '• متنی: یادداشت متنی کامل با قالب‌بندی (پیش‌فرض).\n'
+          '• فهرست کارها: موارد با کادر تیک ✓ و نوار پیشرفت.\n'
+          '• تصویر: از دوربین یا گالری.\n'
+          '• صوتی: ضبط صدا درون یادداشت.\n'
+          '• PDF: پیوست و باز کردن فایل PDF.\n'
+          '• نقاشی: بوم نقاشی/دست‌نوشته.\n'
+          '• گذرواژه‌ها: فیلدهای ساختارمند؛ فیلد حساس رمزگذاری شده و یادداشت به‌طور پیش‌فرض قفل است.',
+      'id': 'Saat menekan +, pilih jenis catatan:\n\n'
+          '• Teks: catatan teks kaya penuh (bawaan).\n'
+          '• Daftar: item dengan kotak centang ✓ dan bilah kemajuan.\n'
+          '• Gambar: dari kamera atau galeri.\n'
+          '• Suara: rekam audio di dalam catatan.\n'
+          '• PDF: lampirkan dan buka berkas PDF.\n'
+          '• Gambar tangan: kanvas untuk menggambar/menulis tangan.\n'
+          '• Kata sandi: bidang terstruktur; bidang rahasia dienkripsi dan catatan terkunci secara bawaan.',
+      'fr': "En appuyant sur +, choisissez le type de note :\n\n"
+          "• Texte : note en texte enrichi (par défaut).\n"
+          "• Liste : éléments avec cases à cocher ✓ et barre de progression.\n"
+          "• Image : depuis l'appareil photo ou la galerie.\n"
+          "• Voix : enregistrement audio dans la note.\n"
+          "• PDF : joindre et ouvrir un fichier PDF.\n"
+          "• Dessin : une zone de dessin/écriture manuscrite.\n"
+          "• Mots de passe : champs structurés ; le champ secret est chiffré et la note est verrouillée par défaut.",
+      'de': 'Beim Tippen auf + wählen Sie den Notiztyp:\n\n'
+          '• Text: Notiz mit voller Formatierung (Standard).\n'
+          '• Checkliste: Einträge mit Kästchen ✓ und Fortschrittsbalken.\n'
+          '• Bild: aus Kamera oder Galerie.\n'
+          '• Sprache: Audioaufnahme in der Notiz.\n'
+          '• PDF: eine PDF-Datei anhängen und öffnen.\n'
+          '• Zeichnung: eine Zeichen-/Handschriftfläche.\n'
+          '• Passwörter: strukturierte Felder; das geheime Feld ist verschlüsselt und die Notiz ist standardmäßig gesperrt.',
     },
   ),
   GuideTopic(
@@ -106,6 +170,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Editor & formatting',
       'tr': 'Düzenleyici ve biçimlendirme',
       'es': 'Editor y formato',
+      'fa': 'ویرایشگر و قالب‌بندی',
+      'id': 'Editor & format',
+      'fr': 'Éditeur et mise en forme',
+      'de': 'Editor & Formatierung',
     },
     {
       'ar': 'حدّد النصّ ثم استخدم شريط الأدوات:\n\n'
@@ -114,7 +182,7 @@ const List<GuideTopic> guideTopics = [
           '• محاذاة (يمين/وسط/يسار) وتباعد الأسطر.\n'
           '• اتجاه ذكيّ لكل سطر: يكتشف العربية/الإنجليزية تلقائيًّا.\n'
           '• تصدير الملاحظة PDF أو Word، أو مشاركتها كصورة.\n'
-          '• يمكنك تخصيص الأزرار الظاهرة من: الإعدادات ← الملاحظات والمحرّر ← أزرار شريط التنسيق.',
+          '• خصّص الأزرار الظاهرة من: الإعدادات ← الملاحظات والمحرّر ← أزرار شريط التنسيق.',
       'en': 'Select text, then use the toolbar:\n\n'
           '• Bold/italic/underline/strikethrough, text and highlight colors.\n'
           '• Headings, bulleted & numbered lists, quote, code block, tasks.\n'
@@ -136,6 +204,34 @@ const List<GuideTopic> guideTopics = [
           '• Dirección inteligente por línea: detecta árabe/inglés.\n'
           '• Exporta la nota como PDF o Word, o compártela como imagen.\n'
           '• Personaliza los botones en: Ajustes → Notas y editor → Botones de la barra.',
+      'fa': 'متن را انتخاب کنید، سپس از نوار ابزار استفاده کنید:\n\n'
+          '• پررنگ/کج/زیرخط/خط‌خورده، رنگ متن و هایلایت.\n'
+          '• سرفصل‌ها، فهرست نقطه‌ای و شماره‌دار، نقل‌قول، بلوک کد، کارها.\n'
+          '• چینش (راست/وسط/چپ) و فاصلهٔ خطوط.\n'
+          '• جهت هوشمند هر خط: فارسی/انگلیسی را خودکار تشخیص می‌دهد.\n'
+          '• خروجی PDF یا Word، یا اشتراک‌گذاری به‌صورت تصویر.\n'
+          '• دکمه‌های نمایان را تنظیم کنید: تنظیمات ← یادداشت‌ها و ویرایشگر ← دکمه‌های نوار ابزار.',
+      'id': 'Pilih teks, lalu gunakan bilah alat:\n\n'
+          '• Tebal/miring/garis bawah/coret, warna teks dan sorotan.\n'
+          '• Judul, daftar berbutir & bernomor, kutipan, blok kode, tugas.\n'
+          '• Perataan (kanan/tengah/kiri) dan jarak baris.\n'
+          '• Arah cerdas per baris: mendeteksi Arab/Inggris otomatis.\n'
+          '• Ekspor catatan sebagai PDF atau Word, atau bagikan sebagai gambar.\n'
+          '• Sesuaikan tombol di: Pengaturan → Catatan & Editor → Tombol bilah alat.',
+      'fr': "Sélectionnez du texte, puis utilisez la barre d'outils :\n\n"
+          "• Gras/italique/souligné/barré, couleurs de texte et de surlignage.\n"
+          "• Titres, listes à puces et numérotées, citation, bloc de code, tâches.\n"
+          "• Alignement (droite/centre/gauche) et interligne.\n"
+          "• Direction intelligente par ligne : détecte l'arabe/l'anglais.\n"
+          "• Exportez la note en PDF ou Word, ou partagez-la comme image.\n"
+          "• Personnalisez les boutons dans : Réglages → Notes et éditeur → Boutons de la barre.",
+      'de': 'Text auswählen, dann die Symbolleiste verwenden:\n\n'
+          '• Fett/kursiv/unterstrichen/durchgestrichen, Text- und Markierungsfarben.\n'
+          '• Überschriften, Aufzählungs- und nummerierte Listen, Zitat, Codeblock, Aufgaben.\n'
+          '• Ausrichtung (rechts/mitte/links) und Zeilenabstand.\n'
+          '• Intelligente Zeilenrichtung: erkennt Arabisch/Englisch automatisch.\n'
+          '• Notiz als PDF oder Word exportieren oder als Bild teilen.\n'
+          '• Sichtbare Schaltflächen anpassen: Einstellungen → Notizen & Editor → Symbolleisten-Schaltflächen.',
     },
   ),
   GuideTopic(
@@ -146,6 +242,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Organize: categories, tags, colors',
       'tr': 'Düzenleme: kategoriler, etiketler, renkler',
       'es': 'Organizar: categorías, etiquetas, colores',
+      'fa': 'سازمان‌دهی: دسته‌ها، برچسب‌ها، رنگ‌ها',
+      'id': 'Atur: kategori, tag, warna',
+      'fr': 'Organiser : catégories, tags, couleurs',
+      'de': 'Organisieren: Kategorien, Tags, Farben',
     },
     {
       'ar': '• التصنيفات: صنّف ملاحظاتك (شخصي/عمل/أفكار…)؛ أدِرها من الإعدادات ← التنظيم ← إدارة التصنيفات.\n'
@@ -168,6 +268,26 @@ const List<GuideTopic> guideTopics = [
           '• Colores y degradados: desde el botón de color dentro de una nota — color o degradado + estilo de página.\n'
           '• Fijar ⭐ y favoritos: fija lo importante arriba; reúne los favoritos en su sección.\n'
           '• Selección múltiple: mantén pulsada una tarjeta para seleccionar varias y aplicar una acción en lote.',
+      'fa': '• دسته‌ها: یادداشت‌ها را دسته‌بندی کنید (شخصی/کاری/ایده‌ها…)؛ از تنظیمات ← سازمان‌دهی ← مدیریت دسته‌ها.\n'
+          '• برچسب‌ها (#): از صفحهٔ یادداشت برچسب آزاد بیفزایید. برای تغییر رنگ، روی برچسب نگه دارید.\n'
+          '• رنگ‌ها و گرادیان‌ها: از دکمهٔ رنگ درون یادداشت — رنگ یا گرادیان + سبک صفحه (خط‌کشی).\n'
+          '• سنجاق ⭐ و علاقه‌مندی‌ها: مهم‌ها را بالا سنجاق کنید؛ علاقه‌مندی‌ها در بخش خود.\n'
+          '• انتخاب چندتایی: روی یک کارت نگه دارید تا چند یادداشت را انتخاب و عملیات گروهی اجرا کنید.',
+      'id': '• Kategori: klasifikasikan catatan (pribadi/kerja/ide…); kelola di Pengaturan → Atur → Kelola kategori.\n'
+          '• Tag (#): tambahkan tag bebas dari layar catatan. Tekan lama tag untuk ganti warnanya.\n'
+          '• Warna & gradien: dari tombol warna di dalam catatan — warna atau gradien + gaya halaman (garis).\n'
+          '• Sematkan ⭐ & favorit: sematkan yang penting ke atas; kumpulkan favorit di bagiannya.\n'
+          '• Pilih banyak: tekan lama kartu untuk memilih beberapa catatan dan terapkan aksi massal.',
+      'fr': "• Catégories : classez les notes (perso/travail/idées…) ; gérez-les dans Réglages → Organiser → Gérer les catégories.\n"
+          "• Tags (#) : ajoutez des tags libres depuis la note. Appui long sur un tag pour changer sa couleur.\n"
+          "• Couleurs et dégradés : depuis le bouton couleur dans une note — couleur ou dégradé + style de page (lignes).\n"
+          "• Épingler ⭐ et favoris : épinglez l'important en haut ; regroupez les favoris dans leur section.\n"
+          "• Sélection multiple : appui long sur une carte pour sélectionner plusieurs notes et appliquer une action groupée.",
+      'de': '• Kategorien: Notizen einordnen (privat/Arbeit/Ideen…); verwalten in Einstellungen → Organisieren → Kategorien verwalten.\n'
+          '• Tags (#): freie Tags aus der Notiz hinzufügen. Lang auf ein Tag drücken, um die Farbe zu ändern.\n'
+          '• Farben & Verläufe: über die Farbschaltfläche in einer Notiz — Farbe oder Verlauf + Seitenstil (Linien).\n'
+          '• Anheften ⭐ & Favoriten: Wichtiges nach oben anheften; Favoriten in ihrem Bereich sammeln.\n'
+          '• Mehrfachauswahl: lang auf eine Karte drücken, um mehrere Notizen auszuwählen und eine Sammelaktion anzuwenden.',
     },
   ),
   GuideTopic(
@@ -178,6 +298,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Search & filtering',
       'tr': 'Arama ve filtreleme',
       'es': 'Búsqueda y filtros',
+      'fa': 'جستجو و فیلتر',
+      'id': 'Cari & filter',
+      'fr': 'Recherche et filtres',
+      'de': 'Suche & Filter',
     },
     {
       'ar': '• البحث الفوريّ: اضغط أيقونة العدسة 🔍 في الأعلى وابحث في العنوان والمحتوى.\n'
@@ -196,6 +320,22 @@ const List<GuideTopic> guideTopics = [
           '• Filtro avanzado: desde el menú de opciones — por categoría, etiqueta, color, tipo, '
           'presencia de imagen/audio/PDF y rango de fechas.\n'
           '• Orden: editado recientemente, creado más nuevo/antiguo o título (A–Z).',
+      'fa': '• جستجوی فوری: روی نماد ذره‌بین 🔍 در بالا بزنید و در عنوان و محتوا بگردید.\n'
+          '• فیلتر پیشرفته: از منوی گزینه‌ها — بر اساس دسته، برچسب، رنگ، نوع، '
+          'وجود تصویر/صدا/PDF و بازهٔ تاریخ.\n'
+          '• مرتب‌سازی: آخرین ویرایش، جدیدترین/قدیمی‌ترین ساخت، یا عنوان (الفبا).',
+      'id': '• Pencarian instan: ketuk ikon 🔍 di atas untuk mencari di judul dan isi.\n'
+          '• Filter lanjutan: dari menu opsi — berdasarkan kategori, tag, warna, jenis, '
+          'keberadaan gambar/audio/PDF, dan rentang tanggal.\n'
+          '• Urutkan: baru diedit, terbaru/terlama dibuat, atau judul (A–Z).',
+      'fr': "• Recherche instantanée : touchez l'icône 🔍 en haut pour chercher dans les titres et le contenu.\n"
+          "• Filtre avancé : depuis le menu d'options — par catégorie, tag, couleur, type, "
+          "présence d'image/audio/PDF et plage de dates.\n"
+          "• Tri : récemment modifié, créé le plus récent/ancien, ou titre (A–Z).",
+      'de': '• Sofortsuche: oben auf das Symbol 🔍 tippen, um Titel und Inhalt zu durchsuchen.\n'
+          '• Erweiterter Filter: aus dem Optionsmenü — nach Kategorie, Tag, Farbe, Typ, '
+          'Vorhandensein von Bild/Audio/PDF und Datumsbereich.\n'
+          '• Sortierung: zuletzt bearbeitet, neueste/älteste erstellt oder Titel (A–Z).',
     },
   ),
   GuideTopic(
@@ -206,32 +346,60 @@ const List<GuideTopic> guideTopics = [
       'en': 'Security & lock',
       'tr': 'Güvenlik ve kilit',
       'es': 'Seguridad y bloqueo',
+      'fa': 'امنیت و قفل',
+      'id': 'Keamanan & kunci',
+      'fr': 'Sécurité et verrouillage',
+      'de': 'Sicherheit & Sperre',
     },
     {
       'ar': 'كل بياناتك محليّة ومشفّرة. للحماية الإضافية:\n\n'
           '• قفل التطبيق: الإعدادات ← الأمان والبيانات ← الأمان → فعّل القفل واضبط رقمًا سرّيًّا، '
           'وفعّل البصمة/الوجه إن رغبت. سيُطلب عند فتح التطبيق.\n'
-          '• قفل ملاحظة بعينها: من خيارات الملاحظة (اضغط مطوّلًا) → قفل. تتطلّب فتحًا لعرضها.\n'
+          '• قفل ملاحظة بعينها: من خيارات الملاحظة (اضغط مطوّلًا) → قفل.\n'
           '• القسم السرّي: ملاحظات مخفيّة لا تظهر إلا بعد فكّ القفل.\n'
-          '• ملاحظات كلمات المرور والملاحظات المقفلة: يُمنع تصوير شاشتها تلقائيًّا.',
+          '• ملاحظات كلمات المرور والمقفلة: يُمنع تصوير شاشتها تلقائيًّا.',
       'en': 'All your data is local and encrypted. For extra protection:\n\n'
           '• App lock: Settings → Security & data → Security → enable the lock and set a PIN, '
           'and enable biometrics if you like. It is requested when opening the app.\n'
-          '• Lock a specific note: from the note options (long-press) → Lock. It requires unlocking to view.\n'
+          '• Lock a specific note: from the note options (long-press) → Lock.\n'
           '• Secret section: hidden notes that only appear after unlocking.\n'
           '• Password notes and locked notes: screenshots are blocked automatically.',
       'tr': 'Tüm verileriniz yereldir ve şifrelidir. Ek koruma için:\n\n'
           '• Uygulama kilidi: Ayarlar → Güvenlik ve veriler → Güvenlik → kilidi açın ve bir PIN belirleyin, '
           'isterseniz biyometriyi etkinleştirin. Uygulama açılırken istenir.\n'
-          '• Belirli bir notu kilitleyin: not seçeneklerinden (uzun basın) → Kilitle. Görmek için kilit açma gerekir.\n'
+          '• Belirli bir notu kilitleyin: not seçeneklerinden (uzun basın) → Kilitle.\n'
           '• Gizli bölüm: yalnızca kilit açıldıktan sonra görünen gizli notlar.\n'
           '• Parola notları ve kilitli notlar: ekran görüntüsü otomatik engellenir.',
       'es': 'Todos tus datos son locales y cifrados. Para mayor protección:\n\n'
           '• Bloqueo de la app: Ajustes → Seguridad y datos → Seguridad → activa el bloqueo y define un PIN, '
           'y activa la biometría si quieres. Se pide al abrir la app.\n'
-          '• Bloquear una nota: en las opciones de la nota (mantén pulsado) → Bloquear. Requiere desbloqueo para verla.\n'
+          '• Bloquear una nota: en las opciones de la nota (mantén pulsado) → Bloquear.\n'
           '• Sección secreta: notas ocultas que solo aparecen tras desbloquear.\n'
-          '• Notas de contraseñas y notas bloqueadas: las capturas se bloquean automáticamente.',
+          '• Notas de contraseñas y bloqueadas: las capturas se bloquean automáticamente.',
+      'fa': 'همهٔ داده‌های شما محلی و رمزگذاری‌شده‌اند. برای حفاظت بیشتر:\n\n'
+          '• قفل برنامه: تنظیمات ← امنیت و داده‌ها ← امنیت → قفل را فعال و یک رمز عددی تعیین کنید، '
+          'و در صورت تمایل اثر انگشت/چهره را فعال کنید. هنگام باز کردن برنامه پرسیده می‌شود.\n'
+          '• قفل یک یادداشت خاص: از گزینه‌های یادداشت (نگه دارید) → قفل.\n'
+          '• بخش محرمانه: یادداشت‌های پنهان که فقط پس از باز کردن قفل دیده می‌شوند.\n'
+          '• یادداشت‌های گذرواژه و قفل‌شده: اسکرین‌شات به‌طور خودکار مسدود می‌شود.',
+      'id': 'Semua data Anda lokal dan terenkripsi. Untuk perlindungan ekstra:\n\n'
+          '• Kunci aplikasi: Pengaturan → Keamanan & data → Keamanan → aktifkan kunci dan atur PIN, '
+          'serta aktifkan biometrik bila mau. Diminta saat membuka aplikasi.\n'
+          '• Kunci catatan tertentu: dari opsi catatan (tekan lama) → Kunci.\n'
+          '• Bagian rahasia: catatan tersembunyi yang hanya muncul setelah dibuka.\n'
+          '• Catatan kata sandi dan terkunci: tangkapan layar diblokir otomatis.',
+      'fr': "Toutes vos données sont locales et chiffrées. Pour plus de protection :\n\n"
+          "• Verrouillage de l'app : Réglages → Sécurité et données → Sécurité → activez le verrou et définissez un code, "
+          "et activez la biométrie si vous le souhaitez. Demandé à l'ouverture de l'app.\n"
+          "• Verrouiller une note précise : depuis les options de la note (appui long) → Verrouiller.\n"
+          "• Section secrète : notes masquées qui n'apparaissent qu'après déverrouillage.\n"
+          "• Notes de mots de passe et verrouillées : les captures d'écran sont bloquées automatiquement.",
+      'de': 'Alle Ihre Daten sind lokal und verschlüsselt. Für zusätzlichen Schutz:\n\n'
+          '• App-Sperre: Einstellungen → Sicherheit & Daten → Sicherheit → Sperre aktivieren und eine PIN festlegen, '
+          'und bei Bedarf Biometrie aktivieren. Wird beim Öffnen der App abgefragt.\n'
+          '• Eine bestimmte Notiz sperren: aus den Notizoptionen (lang drücken) → Sperren.\n'
+          '• Geheimer Bereich: versteckte Notizen, die erst nach dem Entsperren erscheinen.\n'
+          '• Passwort- und gesperrte Notizen: Screenshots werden automatisch blockiert.',
     },
   ),
   GuideTopic(
@@ -242,6 +410,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Backup & restore',
       'tr': 'Yedekleme ve geri yükleme',
       'es': 'Copia de seguridad y restauración',
+      'fa': 'پشتیبان‌گیری و بازیابی',
+      'id': 'Pencadangan & pemulihan',
+      'fr': 'Sauvegarde et restauration',
+      'de': 'Sicherung & Wiederherstellung',
     },
     {
       'ar': 'كل النسخ مشفّرة AES‑256 بكلمة مرور تحدّدها (دونها لا يمكن الاستعادة — احفظها!).\n\n'
@@ -249,33 +421,57 @@ const List<GuideTopic> guideTopics = [
           '• نسخة تلقائية يومية: مفعّلة افتراضيًّا، تُحفظ داخل الجهاز (٧ خانات أسبوعيّة).\n'
           '• تصدير نسخة: تحفظ ملفًّا مشفّرًا في الجهاز.\n'
           '• مشاركة للسحابة: أرسل النسخة لأي تطبيق (Drive/تيليجرام…).\n'
-          '• الاستعادة: «استعادة من نسخة» — مع لقطة أمان تتيح التراجع بضغطة.\n'
-          '• التحقّق: تأكّد أن النسخة سليمة دون تطبيقها.\n\n'
+          '• الاستعادة: «استعادة من نسخة» — مع لقطة أمان تتيح التراجع بضغطة.\n\n'
           '💡 النسخة الداخلية تُحذف عند إلغاء التثبيت — خذ نسخة خارجية (تصدير/مشاركة) دوريًّا.',
       'en': 'All backups are AES‑256 encrypted with a password you set (without it they cannot be restored — keep it!).\n\n'
           'Open: Settings → Security & data → Backup.\n'
           '• Daily auto-backup: on by default, stored on the device (7 weekly slots).\n'
           '• Export backup: saves an encrypted file to the device.\n'
           '• Share to cloud: send the backup to any app (Drive/Telegram…).\n'
-          '• Restore: “Restore from backup” — with a safety snapshot so you can undo with one tap.\n'
-          '• Verify: confirm a backup is intact without applying it.\n\n'
+          '• Restore: “Restore from backup” — with a safety snapshot so you can undo with one tap.\n\n'
           '💡 The internal backup is removed on uninstall — take an external backup (export/share) regularly.',
       'tr': 'Tüm yedekler, belirlediğiniz bir parolayla AES‑256 ile şifrelenir (parola olmadan geri yüklenemez — saklayın!).\n\n'
           'Açın: Ayarlar → Güvenlik ve veriler → Yedekleme.\n'
-          '• Günlük otomatik yedek: varsayılan olarak açık, cihazda saklanır (7 haftalık slot).\n'
+          '• Günlük otomatik yedek: varsayılan açık, cihazda saklanır (7 haftalık slot).\n'
           '• Yedeği dışa aktar: cihaza şifreli bir dosya kaydeder.\n'
           '• Buluta paylaş: yedeği herhangi bir uygulamaya gönderin (Drive/Telegram…).\n'
-          '• Geri yükle: “Yedekten geri yükle” — geri almayı sağlayan güvenlik anlık görüntüsüyle.\n'
-          '• Doğrula: bir yedeğin sağlam olduğunu uygulamadan onaylayın.\n\n'
+          '• Geri yükle: “Yedekten geri yükle” — geri almayı sağlayan güvenlik anlık görüntüsüyle.\n\n'
           '💡 İç yedek, kaldırmada silinir — düzenli olarak harici yedek (dışa aktar/paylaş) alın.',
       'es': 'Todas las copias se cifran con AES‑256 con una contraseña que tú defines (sin ella no se pueden restaurar — ¡guárdala!).\n\n'
           'Abre: Ajustes → Seguridad y datos → Copia de seguridad.\n'
           '• Copia automática diaria: activada por defecto, guardada en el dispositivo (7 ranuras semanales).\n'
           '• Exportar copia: guarda un archivo cifrado en el dispositivo.\n'
           '• Compartir a la nube: envía la copia a cualquier app (Drive/Telegram…).\n'
-          '• Restaurar: “Restaurar desde copia” — con una instantánea de seguridad para deshacer con un toque.\n'
-          '• Verificar: confirma que una copia está íntegra sin aplicarla.\n\n'
+          '• Restaurar: “Restaurar desde copia” — con una instantánea de seguridad para deshacer con un toque.\n\n'
           '💡 La copia interna se borra al desinstalar — haz una copia externa (exportar/compartir) con regularidad.',
+      'fa': 'همهٔ پشتیبان‌ها با AES‑256 و گذرواژه‌ای که تعیین می‌کنید رمزگذاری می‌شوند (بدون آن بازیابی ممکن نیست — نگه دارید!).\n\n'
+          'باز کنید: تنظیمات ← امنیت و داده‌ها ← پشتیبان‌گیری.\n'
+          '• پشتیبان خودکار روزانه: به‌طور پیش‌فرض فعال، روی دستگاه ذخیره می‌شود (۷ خانهٔ هفتگی).\n'
+          '• خروجی پشتیبان: یک فایل رمزگذاری‌شده روی دستگاه ذخیره می‌کند.\n'
+          '• اشتراک در ابر: پشتیبان را به هر برنامه‌ای بفرستید (Drive/تلگرام…).\n'
+          '• بازیابی: «بازیابی از پشتیبان» — همراه با عکس ایمنی برای بازگرداندن با یک لمس.\n\n'
+          '💡 پشتیبان داخلی هنگام حذف برنامه پاک می‌شود — مرتب پشتیبان بیرونی (خروجی/اشتراک) بگیرید.',
+      'id': 'Semua cadangan dienkripsi AES‑256 dengan kata sandi yang Anda tetapkan (tanpa itu tidak bisa dipulihkan — simpan!).\n\n'
+          'Buka: Pengaturan → Keamanan & data → Pencadangan.\n'
+          '• Cadangan otomatis harian: aktif bawaan, disimpan di perangkat (7 slot mingguan).\n'
+          '• Ekspor cadangan: menyimpan berkas terenkripsi ke perangkat.\n'
+          '• Bagikan ke cloud: kirim cadangan ke aplikasi mana pun (Drive/Telegram…).\n'
+          '• Pulihkan: “Pulihkan dari cadangan” — dengan snapshot keamanan agar bisa dibatalkan sekali ketuk.\n\n'
+          '💡 Cadangan internal terhapus saat dicopot — buat cadangan eksternal (ekspor/bagikan) secara berkala.',
+      'fr': "Toutes les sauvegardes sont chiffrées en AES‑256 avec un mot de passe que vous définissez (sans lui, impossible de restaurer — conservez-le !).\n\n"
+          "Ouvrez : Réglages → Sécurité et données → Sauvegarde.\n"
+          "• Sauvegarde auto quotidienne : activée par défaut, stockée sur l'appareil (7 emplacements hebdo).\n"
+          "• Exporter une sauvegarde : enregistre un fichier chiffré sur l'appareil.\n"
+          "• Partager vers le cloud : envoyez la sauvegarde à n'importe quelle app (Drive/Telegram…).\n"
+          "• Restaurer : « Restaurer depuis une sauvegarde » — avec un instantané de sécurité pour annuler en un geste.\n\n"
+          "💡 La sauvegarde interne est supprimée à la désinstallation — faites une sauvegarde externe (export/partage) régulièrement.",
+      'de': 'Alle Sicherungen sind mit AES‑256 und einem von Ihnen gewählten Passwort verschlüsselt (ohne es ist keine Wiederherstellung möglich — gut aufbewahren!).\n\n'
+          'Öffnen: Einstellungen → Sicherheit & Daten → Sicherung.\n'
+          '• Tägliche Auto-Sicherung: standardmäßig an, auf dem Gerät gespeichert (7 Wochen-Slots).\n'
+          '• Sicherung exportieren: speichert eine verschlüsselte Datei auf dem Gerät.\n'
+          '• In die Cloud teilen: Sicherung an eine beliebige App senden (Drive/Telegram…).\n'
+          '• Wiederherstellen: „Aus Sicherung wiederherstellen“ — mit Sicherheits-Snapshot zum Rückgängigmachen per Tipp.\n\n'
+          '💡 Die interne Sicherung wird bei Deinstallation entfernt — machen Sie regelmäßig eine externe Sicherung (Export/Teilen).',
     },
   ),
   GuideTopic(
@@ -285,23 +481,25 @@ const List<GuideTopic> guideTopics = [
       'ar': 'المزامنة السحابية (تهيئة خطوة بخطوة)',
       'en': 'Cloud sync (step-by-step setup)',
       'tr': 'Bulut eşitleme (adım adım kurulum)',
-      'es': 'Sincronización en la nube (configuración paso a paso)',
+      'es': 'Sincronización en la nube (paso a paso)',
+      'fa': 'همگام‌سازی ابری (راه‌اندازی گام‌به‌گام)',
+      'id': 'Sinkronisasi cloud (langkah demi langkah)',
+      'fr': 'Synchronisation cloud (étape par étape)',
+      'de': 'Cloud-Sync (Schritt für Schritt)',
     },
     {
       'ar': 'مزامنة مشفّرة طرفيًّا (E2E): الخادم لا يقرأ ملاحظاتك. تُزامَن النصوص والقوائم '
           'والوسوم والتصنيفات (المرفقات تُحفظ عبر النسخة الكاملة).\n\n'
           'افتح: الإعدادات ← الأمان والبيانات ← النسخ الاحتياطي ← تبويب «المزامنة السحابية».\n\n'
-          '— الطريقة الأسهل WebDAV (بلا إعداد خارجيّ):\n'
+          '— الأسهل WebDAV (بلا إعداد خارجيّ):\n'
           '١) اختر «WebDAV».\n'
           '٢) أدخل رابط المجلّد على خادمك (مثال Nextcloud: '
           'https://cloud.example.com/remote.php/dav/files/USER/Notes) واسم المستخدم وكلمة المرور.\n'
           '٣) أدخل «عبارة التشفير» نفسها على كل أجهزتك.\n'
           '٤) اضغط «اختبار الاتصال» ثم «مزامنة الآن».\n\n'
           '— Google Drive: يتطلّب إعدادًا لمرّة واحدة في Google Cloud (مشروع + تفعيل Drive API '
-          '+ عميل OAuth أندرويد باسم الحزمة وبصمة SHA‑1 + إضافة بريدك كـ Test user). راجع المطوّر '
-          'إن ظهر خطأ تسجيل الدخول.\n\n'
-          '💡 ضع «عبارة التشفير» ذاتها على كل الأجهزة، وإلا تعذّر فكّ التشفير. يدمج التطبيق '
-          '«آخر تعديل يفوز» لكل ملاحظة فلا تضيع البيانات.',
+          '+ عميل OAuth أندرويد باسم الحزمة وبصمة SHA‑1 + إضافة بريدك كـ Test user).\n\n'
+          '💡 ضع «عبارة التشفير» ذاتها على كل الأجهزة، وإلا تعذّر فكّ التشفير.',
       'en': 'End-to-end encrypted (E2E) sync: the server cannot read your notes. Text, checklists, '
           'tags and categories are synced (attachments are saved via the full backup).\n\n'
           'Open: Settings → Security & data → Backup → “Cloud sync” tab.\n\n'
@@ -312,10 +510,8 @@ const List<GuideTopic> guideTopics = [
           '3) Enter the same “encryption passphrase” on all your devices.\n'
           '4) Tap “Test connection”, then “Sync now”.\n\n'
           '— Google Drive: requires a one-time setup in Google Cloud (a project + enable Drive API '
-          '+ an Android OAuth client with the package name and SHA‑1 + add your email as a Test user). '
-          'Ask the developer if sign-in fails.\n\n'
-          '💡 Use the same passphrase on every device, otherwise decryption fails. The app merges '
-          '“last edit wins” per note so nothing is lost.',
+          '+ an Android OAuth client with the package name and SHA‑1 + add your email as a Test user).\n\n'
+          '💡 Use the same passphrase on every device, otherwise decryption fails.',
       'tr': 'Uçtan uca şifreli (E2E) eşitleme: sunucu notlarınızı okuyamaz. Metin, listeler, '
           'etiketler ve kategoriler eşitlenir (ekler tam yedek ile saklanır).\n\n'
           'Açın: Ayarlar → Güvenlik ve veriler → Yedekleme → “Bulut eşitleme” sekmesi.\n\n'
@@ -325,11 +521,9 @@ const List<GuideTopic> guideTopics = [
           'https://cloud.example.com/remote.php/dav/files/USER/Notes), kullanıcı adı ve parolayı girin.\n'
           '3) Tüm cihazlarınızda aynı “şifreleme parolasını” girin.\n'
           '4) “Bağlantıyı test et”e, sonra “Şimdi eşitle”ye dokunun.\n\n'
-          '— Google Drive: Google Cloud’da tek seferlik kurulum gerektirir (bir proje + Drive API’yi etkinleştirme '
-          '+ paket adı ve SHA‑1 ile bir Android OAuth istemcisi + e-postanızı Test kullanıcısı olarak ekleme). '
-          'Oturum açma başarısız olursa geliştiriciye danışın.\n\n'
-          '💡 Her cihazda aynı parolayı kullanın, yoksa şifre çözme başarısız olur. Uygulama not başına '
-          '“son düzenleme kazanır” olarak birleştirir, böylece veri kaybolmaz.',
+          '— Google Drive: Google Cloud’da tek seferlik kurulum gerektirir (proje + Drive API '
+          '+ paket adı ve SHA‑1 ile Android OAuth istemcisi + e-postanızı Test kullanıcısı ekleme).\n\n'
+          '💡 Her cihazda aynı parolayı kullanın, yoksa şifre çözme başarısız olur.',
       'es': 'Sincronización cifrada de extremo a extremo (E2E): el servidor no puede leer tus notas. '
           'Se sincronizan texto, listas, etiquetas y categorías (los adjuntos se guardan en la copia completa).\n\n'
           'Abre: Ajustes → Seguridad y datos → Copia de seguridad → pestaña “Sincronización en la nube”.\n\n'
@@ -339,11 +533,57 @@ const List<GuideTopic> guideTopics = [
           'https://cloud.example.com/remote.php/dav/files/USER/Notes), usuario y contraseña.\n'
           '3) Introduce la misma “frase de cifrado” en todos tus dispositivos.\n'
           '4) Toca “Probar conexión” y luego “Sincronizar ahora”.\n\n'
-          '— Google Drive: requiere una configuración única en Google Cloud (un proyecto + activar Drive API '
-          '+ un cliente OAuth de Android con el nombre del paquete y el SHA‑1 + añadir tu correo como usuario de prueba). '
-          'Consulta al desarrollador si falla el inicio de sesión.\n\n'
-          '💡 Usa la misma frase en todos los dispositivos, o el descifrado fallará. La app fusiona '
-          '“la última edición gana” por nota, así no se pierde nada.',
+          '— Google Drive: requiere configuración única en Google Cloud (proyecto + activar Drive API '
+          '+ cliente OAuth de Android con el nombre del paquete y el SHA‑1 + añadir tu correo como usuario de prueba).\n\n'
+          '💡 Usa la misma frase en todos los dispositivos, o el descifrado fallará.',
+      'fa': 'همگام‌سازی رمزگذاری سرتاسری (E2E): سرور نمی‌تواند یادداشت‌های شما را بخواند. متن، فهرست‌ها، '
+          'برچسب‌ها و دسته‌ها همگام می‌شوند (پیوست‌ها از طریق پشتیبان کامل ذخیره می‌شوند).\n\n'
+          'باز کنید: تنظیمات ← امنیت و داده‌ها ← پشتیبان‌گیری ← زبانهٔ «همگام‌سازی ابری».\n\n'
+          '— ساده‌ترین: WebDAV (بدون تنظیم بیرونی):\n'
+          '۱) «WebDAV» را انتخاب کنید.\n'
+          '۲) نشانی پوشهٔ سرور خود (نمونهٔ Nextcloud: '
+          'https://cloud.example.com/remote.php/dav/files/USER/Notes)، نام کاربری و گذرواژه را وارد کنید.\n'
+          '۳) همان «عبارت رمزگذاری» را روی همهٔ دستگاه‌ها وارد کنید.\n'
+          '۴) «آزمایش اتصال» سپس «همگام‌سازی اکنون» را بزنید.\n\n'
+          '— Google Drive: یک‌بار تنظیم در Google Cloud لازم دارد (پروژه + فعال‌سازی Drive API '
+          '+ کلاینت OAuth اندروید با نام بسته و SHA‑1 + افزودن ایمیلتان به‌عنوان Test user).\n\n'
+          '💡 روی همهٔ دستگاه‌ها همان عبارت را استفاده کنید، وگرنه رمزگشایی شکست می‌خورد.',
+      'id': 'Sinkronisasi terenkripsi ujung-ke-ujung (E2E): server tidak bisa membaca catatan Anda. Teks, daftar, '
+          'tag, dan kategori disinkronkan (lampiran disimpan via cadangan penuh).\n\n'
+          'Buka: Pengaturan → Keamanan & data → Pencadangan → tab “Sinkronisasi cloud”.\n\n'
+          '— Termudah: WebDAV (tanpa setup eksternal):\n'
+          '1) Pilih “WebDAV”.\n'
+          '2) Masukkan URL folder server Anda (contoh Nextcloud: '
+          'https://cloud.example.com/remote.php/dav/files/USER/Notes), nama pengguna, dan kata sandi.\n'
+          '3) Masukkan “frasa enkripsi” yang sama di semua perangkat.\n'
+          '4) Ketuk “Tes koneksi”, lalu “Sinkronkan sekarang”.\n\n'
+          '— Google Drive: perlu setup sekali di Google Cloud (proyek + aktifkan Drive API '
+          '+ klien OAuth Android dengan nama paket dan SHA‑1 + tambahkan email Anda sebagai Test user).\n\n'
+          '💡 Gunakan frasa yang sama di setiap perangkat, jika tidak dekripsi gagal.',
+      'fr': "Synchronisation chiffrée de bout en bout (E2E) : le serveur ne peut pas lire vos notes. "
+          "Le texte, les listes, les tags et les catégories sont synchronisés (les pièces jointes via la sauvegarde complète).\n\n"
+          "Ouvrez : Réglages → Sécurité et données → Sauvegarde → onglet « Synchronisation cloud ».\n\n"
+          "— Le plus simple : WebDAV (sans configuration externe) :\n"
+          "1) Choisissez « WebDAV ».\n"
+          "2) Saisissez l'URL du dossier de votre serveur (exemple Nextcloud : "
+          "https://cloud.example.com/remote.php/dav/files/USER/Notes), le nom d'utilisateur et le mot de passe.\n"
+          "3) Saisissez la même « phrase de chiffrement » sur tous vos appareils.\n"
+          "4) Touchez « Tester la connexion », puis « Synchroniser ».\n\n"
+          "— Google Drive : nécessite une configuration unique dans Google Cloud (un projet + activer Drive API "
+          "+ un client OAuth Android avec le nom du paquet et le SHA‑1 + ajouter votre e-mail comme utilisateur de test).\n\n"
+          "💡 Utilisez la même phrase sur chaque appareil, sinon le déchiffrement échoue.",
+      'de': 'Ende-zu-Ende verschlüsselte (E2E) Synchronisierung: der Server kann Ihre Notizen nicht lesen. Text, Listen, '
+          'Tags und Kategorien werden synchronisiert (Anhänge über die vollständige Sicherung).\n\n'
+          'Öffnen: Einstellungen → Sicherheit & Daten → Sicherung → Tab „Cloud-Sync“.\n\n'
+          '— Am einfachsten: WebDAV (keine externe Einrichtung):\n'
+          '1) „WebDAV“ wählen.\n'
+          '2) Die Ordner-URL Ihres Servers (Nextcloud-Beispiel: '
+          'https://cloud.example.com/remote.php/dav/files/USER/Notes), Benutzername und Passwort eingeben.\n'
+          '3) Dieselbe „Verschlüsselungs-Passphrase“ auf allen Geräten eingeben.\n'
+          '4) „Verbindung testen“, dann „Jetzt synchronisieren“ tippen.\n\n'
+          '— Google Drive: erfordert eine einmalige Einrichtung in Google Cloud (Projekt + Drive API aktivieren '
+          '+ Android-OAuth-Client mit Paketname und SHA‑1 + Ihre E-Mail als Testnutzer hinzufügen).\n\n'
+          '💡 Verwenden Sie auf jedem Gerät dieselbe Passphrase, sonst schlägt die Entschlüsselung fehl.',
     },
   ),
   GuideTopic(
@@ -354,28 +594,52 @@ const List<GuideTopic> guideTopics = [
       'en': 'Extra tools',
       'tr': 'Ek araçlar',
       'es': 'Herramientas extra',
+      'fa': 'ابزارهای بیشتر',
+      'id': 'Alat tambahan',
+      'fr': 'Outils supplémentaires',
+      'de': 'Weitere Werkzeuge',
     },
     {
-      'ar': '• ويدجت الشاشة الرئيسية: أضِف ويدجت «ملاحظات» لشاشة هاتفك لعرض ملاحظاتك.\n'
-          '• تثبيت في الإشعارات: من خيارات الملاحظة — تبقى كإشعار صامت مستمرّ أمامك.\n'
+      'ar': '• ويدجت الشاشة الرئيسية: أضِف ويدجت «ملاحظات» لشاشة هاتفك.\n'
+          '• تثبيت في الإشعارات: من خيارات الملاحظة — تبقى كإشعار صامت مستمرّ.\n'
           '• مشاركة كصورة / تصدير PDF / تصدير Word لأي ملاحظة.\n'
-          '• الكتابة الصوتية (الإملاء): زرّ الميكروفون في المحرّر يحوّل صوتك إلى نصّ.\n'
+          '• الكتابة الصوتية: زرّ الميكروفون في المحرّر يحوّل صوتك إلى نصّ.\n'
           '• الملخّص الأسبوعي والتنظيف: من القائمة الجانبية.',
       'en': '• Home-screen widget: add the Notes widget to your phone’s home screen.\n'
           '• Pin to notifications: from the note options — stays as a silent ongoing notification.\n'
           '• Share as image / export PDF / export Word for any note.\n'
-          '• Voice typing (dictation): the mic button in the editor turns speech into text.\n'
+          '• Voice typing: the mic button in the editor turns speech into text.\n'
           '• Weekly summary and Clean-up: from the side menu.',
       'tr': '• Ana ekran widget’ı: telefonunuzun ana ekranına Notlar widget’ını ekleyin.\n'
           '• Bildirimlere sabitle: not seçeneklerinden — sessiz kalıcı bir bildirim olarak kalır.\n'
-          '• Görsel olarak paylaş / PDF dışa aktar / Word dışa aktar.\n'
-          '• Sesle yazma (dikte): düzenleyicideki mikrofon düğmesi konuşmayı metne çevirir.\n'
+          '• Görsel olarak paylaş / PDF / Word dışa aktar.\n'
+          '• Sesle yazma: düzenleyicideki mikrofon düğmesi konuşmayı metne çevirir.\n'
           '• Haftalık özet ve Temizlik: yan menüden.',
       'es': '• Widget de pantalla de inicio: añade el widget de Notas a tu pantalla.\n'
-          '• Fijar en notificaciones: desde las opciones de la nota — queda como notificación silenciosa.\n'
-          '• Compartir como imagen / exportar PDF / exportar Word.\n'
-          '• Dictado por voz: el botón del micrófono en el editor convierte voz en texto.\n'
+          '• Fijar en notificaciones: desde las opciones de la nota — notificación silenciosa.\n'
+          '• Compartir como imagen / exportar PDF / Word.\n'
+          '• Dictado por voz: el botón del micrófono convierte voz en texto.\n'
           '• Resumen semanal y Limpieza: desde el menú lateral.',
+      'fa': '• ویجت صفحهٔ اصلی: ویجت «یادداشت‌ها» را به صفحهٔ گوشی بیفزایید.\n'
+          '• سنجاق در اعلان‌ها: از گزینه‌های یادداشت — به‌صورت اعلان بی‌صدای دائمی می‌ماند.\n'
+          '• اشتراک به‌صورت تصویر / خروجی PDF / Word.\n'
+          '• نوشتن صوتی: دکمهٔ میکروفون در ویرایشگر، گفتار را به متن تبدیل می‌کند.\n'
+          '• خلاصهٔ هفتگی و پاک‌سازی: از منوی کناری.',
+      'id': '• Widget layar utama: tambahkan widget Notes ke layar ponsel.\n'
+          '• Sematkan ke notifikasi: dari opsi catatan — tetap sebagai notifikasi senyap.\n'
+          '• Bagikan sebagai gambar / ekspor PDF / Word.\n'
+          '• Ketik suara: tombol mikrofon di editor mengubah suara jadi teks.\n'
+          '• Ringkasan mingguan dan Pembersihan: dari menu samping.',
+      'fr': "• Widget d'écran d'accueil : ajoutez le widget Notes à votre écran.\n"
+          "• Épingler aux notifications : depuis les options de la note — notification silencieuse persistante.\n"
+          "• Partager en image / exporter en PDF / Word.\n"
+          "• Saisie vocale : le bouton micro de l'éditeur transforme la voix en texte.\n"
+          "• Résumé hebdomadaire et Nettoyage : depuis le menu latéral.",
+      'de': '• Startbildschirm-Widget: fügen Sie das Notes-Widget hinzu.\n'
+          '• An Benachrichtigungen anheften: aus den Notizoptionen — bleibt als stille Dauerbenachrichtigung.\n'
+          '• Als Bild teilen / als PDF / Word exportieren.\n'
+          '• Spracheingabe: die Mikrofon-Schaltfläche im Editor wandelt Sprache in Text um.\n'
+          '• Wochenübersicht und Bereinigung: aus dem Seitenmenü.',
     },
   ),
   GuideTopic(
@@ -386,6 +650,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'Settings, appearance & language',
       'tr': 'Ayarlar, görünüm ve dil',
       'es': 'Ajustes, apariencia e idioma',
+      'fa': 'تنظیمات، ظاهر و زبان',
+      'id': 'Pengaturan, tampilan & bahasa',
+      'fr': 'Réglages, apparence et langue',
+      'de': 'Einstellungen, Aussehen & Sprache',
     },
     {
       'ar': 'الإعدادات مقسّمة لأقسام واضحة:\n\n'
@@ -412,6 +680,30 @@ const List<GuideTopic> guideTopics = [
           '• Notas y editor: nota predeterminada, líneas de página, botones de la barra.\n'
           '• Seguridad y datos: bloqueo, copia, sincronización, organización.\n'
           '• Acerca de: versión y actualizaciones.',
+      'fa': 'تنظیمات به بخش‌های روشن تقسیم شده است:\n\n'
+          '• شخصی‌سازی ← ظاهر و زبان: زبان (اولین گزینه)، حالت '
+          '(روشن/تیره/سیستم)، رنگ پوسته (۱۸ رنگ)، اندازه و نوع فونت.\n'
+          '• یادداشت‌ها و ویرایشگر: یادداشت پیش‌فرض، خط‌کشی صفحه، دکمه‌های نوار ابزار.\n'
+          '• امنیت و داده‌ها: قفل، پشتیبان، همگام‌سازی، سازمان‌دهی.\n'
+          '• درباره: نسخه و به‌روزرسانی.',
+      'id': 'Pengaturan dibagi ke bagian yang jelas:\n\n'
+          '• Personalisasi → Tampilan & bahasa: ubah bahasa (opsi pertama), mode '
+          '(terang/gelap/sistem), warna tema (18 warna), ukuran dan jenis font.\n'
+          '• Catatan & editor: catatan bawaan, garis halaman, tombol bilah alat.\n'
+          '• Keamanan & data: kunci, cadangan, sinkronisasi, pengaturan.\n'
+          '• Tentang: versi dan pembaruan.',
+      'fr': "Les réglages sont divisés en sections claires :\n\n"
+          "• Personnaliser → Apparence et langue : changez la langue (première option), le mode "
+          "(clair/sombre/système), la couleur du thème (18 couleurs), la taille et la police.\n"
+          "• Notes et éditeur : note par défaut, lignes de page, boutons de la barre.\n"
+          "• Sécurité et données : verrou, sauvegarde, synchro, organisation.\n"
+          "• À propos : version et mises à jour.",
+      'de': 'Die Einstellungen sind in klare Bereiche unterteilt:\n\n'
+          '• Personalisieren → Aussehen & Sprache: Sprache (erste Option), Modus '
+          '(hell/dunkel/System), Themenfarbe (18 Farben), Schriftgröße und -art.\n'
+          '• Notizen & Editor: Standardnotiz, Seitenlinien, Symbolleisten-Schaltflächen.\n'
+          '• Sicherheit & Daten: Sperre, Sicherung, Sync, Organisation.\n'
+          '• Über: Version und Updates.',
     },
   ),
   GuideTopic(
@@ -422,6 +714,10 @@ const List<GuideTopic> guideTopics = [
       'en': 'FAQ',
       'tr': 'Sık sorulan sorular',
       'es': 'Preguntas frecuentes',
+      'fa': 'پرسش‌های پرتکرار',
+      'id': 'Tanya jawab',
+      'fr': 'Questions fréquentes',
+      'de': 'Häufige Fragen',
     },
     {
       'ar': '• هل بياناتي آمنة؟ نعم — محليّة ومشفّرة، ولا تُرفع إلا إن فعّلت المزامنة بنفسك.\n'
@@ -444,6 +740,26 @@ const List<GuideTopic> guideTopics = [
           '• ¿Cambiaste de teléfono? Haz una copia externa del antiguo e impórtala en el nuevo (o activa la sincronización).\n'
           '• ¿Cómo cambio el idioma? Ajustes → Apariencia → Idioma (primera opción).\n'
           '• ¿Funciona sin conexión? Sí, todas las funciones básicas funcionan sin conexión.',
+      'fa': '• آیا داده‌هایم امن است؟ بله — محلی و رمزگذاری‌شده، فقط اگر خودتان همگام‌سازی را فعال کنید بارگذاری می‌شود.\n'
+          '• گذرواژهٔ پشتیبان را فراموش کردم؟ قابل بازیابی نیست — جای امن نگه دارید.\n'
+          '• گوشی عوض کردید؟ از قبلی پشتیبان بیرونی بگیرید و در جدید وارد کنید (یا همگام‌سازی را فعال کنید).\n'
+          '• چگونه زبان را عوض کنم؟ تنظیمات ← ظاهر ← زبان (اولین گزینه).\n'
+          '• آفلاین کار می‌کند؟ بله، همهٔ امکانات اصلی بدون اینترنت کار می‌کنند.',
+      'id': '• Apakah data saya aman? Ya — lokal dan terenkripsi, diunggah hanya jika Anda mengaktifkan sinkronisasi.\n'
+          '• Lupa kata sandi cadangan? Tidak bisa dipulihkan — simpan di tempat aman.\n'
+          '• Ganti ponsel? Buat cadangan eksternal dari yang lama dan impor di yang baru (atau aktifkan sinkronisasi).\n'
+          '• Cara mengubah bahasa? Pengaturan → Tampilan → Bahasa (opsi pertama).\n'
+          '• Apakah bekerja offline? Ya, semua fitur inti bekerja tanpa koneksi.',
+      'fr': "• Mes données sont-elles en sécurité ? Oui — locales et chiffrées, envoyées seulement si vous activez la synchro.\n"
+          "• Mot de passe de sauvegarde oublié ? Il est irrécupérable — conservez-le en lieu sûr.\n"
+          "• Changé de téléphone ? Faites une sauvegarde externe de l'ancien et importez-la sur le nouveau (ou activez la synchro).\n"
+          "• Comment changer la langue ? Réglages → Apparence → Langue (première option).\n"
+          "• Fonctionne-t-elle hors ligne ? Oui, toutes les fonctions principales marchent sans connexion.",
+      'de': '• Sind meine Daten sicher? Ja — lokal und verschlüsselt, nur hochgeladen, wenn Sie die Synchronisierung selbst aktivieren.\n'
+          '• Backup-Passwort vergessen? Es kann nicht wiederhergestellt werden — sicher aufbewahren.\n'
+          '• Telefon gewechselt? Externe Sicherung vom alten erstellen und auf dem neuen importieren (oder Sync aktivieren).\n'
+          '• Wie ändere ich die Sprache? Einstellungen → Aussehen → Sprache (erste Option).\n'
+          '• Funktioniert es offline? Ja, alle Kernfunktionen arbeiten ohne Verbindung.',
     },
   ),
 ];
