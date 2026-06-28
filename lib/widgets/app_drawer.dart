@@ -5,7 +5,7 @@ import '../core/l10n/app_strings.dart';
 import '../features/backup/backup_screen.dart';
 import '../features/categories/manage_categories_screen.dart';
 import '../features/cleanup/cleanup_screen.dart';
-import '../features/help/help_guide_screen.dart';
+import '../features/help/user_guide_screen.dart';
 import '../features/security/note_unlock.dart';
 import '../features/security/secret_notes_screen.dart';
 import '../features/security/security_settings_screen.dart';
@@ -102,7 +102,7 @@ class AppDrawer extends StatelessWidget {
               title: Text(s.t('user_guide'),
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: scheme.primary)),
-              onTap: () => go(const HelpGuideScreen()),
+              onTap: () => go(const UserGuideScreen()),
             ),
             const Divider(height: 1),
             // القائمة الجانبية مخصّصة للإعدادات والتحكّم والإدارة.
