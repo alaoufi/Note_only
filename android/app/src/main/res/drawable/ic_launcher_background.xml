@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- خلفية كهرمانية متدرّجة: تميّز أيقونة «ملاحظات» عن بقية تطبيقات المطوّر،
-     وتمنح تباينًا عاليًا مع الدفتر الأزرق في المقدّمة. -->
+<!-- خلفية خضراء مزرقّة (teal) متدرّجة: هويّة مستقلّة لتطبيق «ملاحظات»،
+     مع ورقة بيضاء في المقدّمة — أيقونة مختلفة كليًّا عن «مذكراتي». -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -13,8 +13,8 @@
                 android:startX="0" android:startY="0"
                 android:endX="108" android:endY="108"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFF3E0"/>
-                <item android:offset="1.0" android:color="#FFFFB74D"/>
+                <item android:offset="0.0" android:color="#FF26A69A"/>
+                <item android:offset="1.0" android:color="#FF00695C"/>
             </gradient>
         </aapt:attr>
     </path>

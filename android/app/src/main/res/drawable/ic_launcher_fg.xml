@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- مقدّمة أيقونة «ملاحظات» — رسم متجهيّ مستقلّ تمامًا (ورقة ملاحظة بيضاء بزاوية
+     مطويّة وأسطر) مختلف كليًّا عن أيقونة «مذكراتي». ضمن منطقة الأمان 72x72. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- ظلّ خفيف خلف الورقة لإبرازها على الخلفية. -->
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M41,31 L65,31 L79,45 L79,85 L41,85 Z" />
+    <!-- جسم الورقة (أبيض). -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40,28 L64,28 L78,42 L78,82 L40,82 Z" />
+    <!-- الزاوية المطويّة (أخضر مزرقّ فاتح). -->
+    <path
+        android:fillColor="#FF80CBC4"
+        android:pathData="M64,28 L64,42 L78,42 Z" />
+    <!-- أسطر النصّ (أخضر مزرقّ غامق). -->
+    <path
+        android:fillColor="#FF00897B"
+        android:pathData="M46,52 L72,52 L72,55.5 L46,55.5 Z" />
+    <path
+        android:fillColor="#FF00897B"
+        android:pathData="M46,60 L72,60 L72,63.5 L46,63.5 Z" />
+    <path
+        android:fillColor="#FF00897B"
+        android:pathData="M46,68 L63,68 L63,71.5 L46,71.5 Z" />
+</vector>
