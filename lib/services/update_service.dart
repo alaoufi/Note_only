@@ -34,12 +34,12 @@ class UpdateService {
   // مصادر ملفّ النسخة (نُجرّبها بالترتيب): raw قد يُحجب على بعض شبكات الجوال، و
   // jsDelivr (CDN عالميّ يعكس GitHub) يعمل غالبًا حيث يُحجب raw.
   static const List<String> _versionUrls = [
-    'https://raw.githubusercontent.com/alaoufi/alaoufi_notes/apk-dist-notes/version.json',
-    'https://cdn.jsdelivr.net/gh/alaoufi/alaoufi_notes@apk-dist-notes/version.json',
+    'https://raw.githubusercontent.com/alaoufi/Note_only/apk-dist/version.json',
+    'https://cdn.jsdelivr.net/gh/alaoufi/Note_only@apk-dist/version.json',
   ];
-  // تنزيل الـAPK من Releases عبر github.com (أوثق من raw، ويتبع التحويلات).
+  // تنزيل الـAPK مباشرةً من فرع التوزيع apk-dist عبر github.com (يتبع التحويلات).
   static const _fallbackApk =
-      'https://github.com/alaoufi/alaoufi_notes/releases/download/notes-latest/app-arm64-v8a-release.apk';
+      'https://github.com/alaoufi/Note_only/raw/apk-dist/app-arm64-v8a-release.apk';
 
   /// رابط تنزيل أحدث APK مباشرةً (مسار احتياطيّ عبر المتصفّح حين يتعذّر الفحص/التثبيت
   /// داخل التطبيق — يعمل ما دام المتصفّح يصل إلى github.com).
