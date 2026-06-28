@@ -23,6 +23,7 @@ import '../../widgets/paper_background.dart';
 import '../drawing/drawing_screen.dart';
 import '../home/notes_provider.dart';
 import '../settings/settings_provider.dart';
+import '../../services/notification_service.dart';
 import 'editor_attachments.dart';
 import 'rich_text_field.dart';
 
@@ -196,6 +197,101 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             : i.text)
         .where((l) => l.trim().isNotEmpty)
         .join('\n');
+  }
+
+  // ===================== تذكير بسيط للملاحظة (يوم + وقت) =====================
+
+  bool get _hasActiveReminder =>
+      _note.reminderAt != null && _note.reminderAt!.isAfter(DateTime.now());
+
+  String _fmtReminder(DateTime d) =>
+      '${d.year}/${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')} '
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+  Future<void> _onReminderPressed() async {
+    if (!_hasActiveReminder) {
+      await _pickReminder();
+      return;
+    }
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading:
+                const Icon(Icons.notifications_active, color: Colors.amber),
+            title: Text('تذكير: ${_fmtReminder(_note.reminderAt!)}'),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.edit_calendar_outlined),
+            title: const Text('تغيير الوقت'),
+            onTap: () => Navigator.pop(ctx, 'change'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications_off_outlined,
+                color: Colors.red),
+            title: const Text('إزالة التذكير'),
+            onTap: () => Navigator.pop(ctx, 'remove'),
+          ),
+        ]),
+      ),
+    );
+    if (choice == 'change') await _pickReminder();
+    if (choice == 'remove') await _removeReminder();
+  }
+
+  Future<void> _pickReminder() async {
+    await _ensureSaved();
+    if (!mounted) return;
+    final now = DateTime.now();
+    final existing = _note.reminderAt;
+    final date = await showDatePicker(
+      context: context,
+      initialDate: (existing != null && existing.isAfter(now)) ? existing : now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 366 * 5)),
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime:
+          TimeOfDay.fromDateTime(existing ?? now.add(const Duration(hours: 1))),
+    );
+    if (time == null || !mounted) return;
+    final when =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    if (!when.isAfter(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('اختر وقتًا في المستقبل')));
+      return;
+    }
+    setState(() => _note = _note.copyWith(reminderAt: when));
+    _dirty = true;
+    await _save(force: true);
+    final body = _note.type == NoteType.text
+        ? richToPlainText(_note.content)
+        : _note.title;
+    if (_note.id != null) {
+      await NotificationService.instance
+          .scheduleNoteReminder(_note.id!, when, _note.title, body);
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('سيُذكّرك في ${_fmtReminder(when)}')));
+    }
+  }
+
+  Future<void> _removeReminder() async {
+    final id = _note.id;
+    setState(() => _note = _note.copyWith(clearReminder: true));
+    _dirty = true;
+    await _save(force: true);
+    if (id != null) await NotificationService.instance.cancelNoteReminder(id);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('أُزيل التذكير')));
+    }
   }
 
   Future<void> _save({bool force = false}) async {
@@ -494,6 +590,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 await context.read<NotesProvider>().toggleFavorite(
                     _note.copyWith(isFavorite: !updated.isFavorite));
               },
+            ),
+            IconButton(
+              tooltip: s.t('reminder'),
+              icon: Icon(
+                  _hasActiveReminder ? Icons.notifications_active : Icons.notifications_none,
+                  color: _hasActiveReminder ? Colors.amber : null),
+              onPressed: _onReminderPressed,
             ),
             IconButton(
               tooltip: s.t('tags'),

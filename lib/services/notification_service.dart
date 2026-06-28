@@ -110,7 +110,60 @@ class NotificationService {
       ),
     );
 
+    // قناة تذكيرات الملاحظات البسيطة (صوت النظام الافتراضي + اهتزاز، بلا شاشة كاملة).
+    await androidImpl?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        'alaoufi_note_reminder',
+        'تذكيرات الملاحظات',
+        description: 'تذكير بسيط لملاحظة في وقت تختاره',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+      ),
+    );
+
     _initialized = true;
+  }
+
+  // ===================== تذكير بسيط لكل ملاحظة =====================
+  // نطاق معرّفات مستقلّ (1<<29 + noteId): لا يتعارض مع المثبّتة (1<<30) ولا غيرها.
+  static const int _noteRemBase = 1 << 29;
+
+  static const AndroidNotificationDetails _noteRemAndroid =
+      AndroidNotificationDetails(
+    'alaoufi_note_reminder',
+    'تذكيرات الملاحظات',
+    channelDescription: 'تذكير بسيط لملاحظة في وقت تختاره',
+    importance: Importance.high,
+    priority: Priority.high,
+    playSound: true,
+    enableVibration: true,
+  );
+
+  /// يجدول تذكيرًا بسيطًا لمرّة واحدة لملاحظة في وقت [when]؛ الضغط عليه يفتح الملاحظة.
+  /// يُعيد الجدولة (يلغي السابق) ولا يجدول وقتًا فات.
+  Future<void> scheduleNoteReminder(
+      int noteId, DateTime when, String title, String body) async {
+    await init();
+    final id = _noteRemBase + noteId;
+    await _plugin.cancel(id);
+    if (!when.isAfter(DateTime.now())) return;
+    final t = title.trim().isEmpty ? '🔔 تذكير ملاحظة' : '🔔 ${title.trim()}';
+    await _zonedSchedule(
+      id,
+      t,
+      body.trim(),
+      tz.TZDateTime.from(when, tz.local),
+      const NotificationDetails(android: _noteRemAndroid),
+      mode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: 'note:$noteId',
+    );
+  }
+
+  /// يُلغي تذكير ملاحظة (عند إزالته أو حذف الملاحظة).
+  Future<void> cancelNoteReminder(int noteId) async {
+    await init();
+    await _plugin.cancel(_noteRemBase + noteId);
   }
 
   /// النغمات المتاحة (أسماء ملفات raw). نغمات طبيعية ناعمة مولّدة أصليًّا

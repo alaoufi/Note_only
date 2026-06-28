@@ -109,6 +109,27 @@ void main() {
       expect(n.updatedAt, DateTime.fromMillisecondsSinceEpoch(0));
     });
 
+    test('reminderAt round-trips and clears via copyWith', () {
+      final when = DateTime.fromMillisecondsSinceEpoch(1800000000000);
+      final n = Note(
+        uuid: 'r',
+        reminderAt: when,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+        updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+      );
+      expect(Note.fromMap(n.toMap()).reminderAt, when);
+      expect(n.copyWith(clearReminder: true).reminderAt, isNull);
+      // غياب العمود (صفوف قديمة) ⇒ null.
+      expect(
+          Note.fromMap({
+            'uuid': 'x',
+            'type': 'text',
+            'created_at': 0,
+            'updated_at': 0,
+          }).reminderAt,
+          isNull);
+    });
+
     test('missing updated_at falls back to created_at', () {
       final n = Note.fromMap({
         'id': 8,

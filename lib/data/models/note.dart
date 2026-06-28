@@ -54,6 +54,9 @@ class Note {
   /// تباعد أسطر التسطير (مضاعف ارتفاع السطر؛ يضبط تباعد الكتابة والأسطر معًا).
   final double? ruleLineHeight;
 
+  /// تذكير بسيط لهذه الملاحظة (وقت إشعار واحد). null = بلا تذكير.
+  final DateTime? reminderAt;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -84,6 +87,7 @@ class Note {
     this.ruleThickness,
     this.ruleOpacity,
     this.ruleLineHeight,
+    this.reminderAt,
     required this.createdAt,
     required this.updatedAt,
     this.tags = const [],
@@ -133,6 +137,7 @@ class Note {
       'rule_thickness': ruleThickness,
       'rule_opacity': ruleOpacity,
       'rule_line_height': ruleLineHeight,
+      'reminder_at': reminderAt?.millisecondsSinceEpoch,
       'created_at': createdAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
     };
@@ -166,6 +171,9 @@ class Note {
       ruleThickness: (map['rule_thickness'] as num?)?.toDouble(),
       ruleOpacity: (map['rule_opacity'] as num?)?.toDouble(),
       ruleLineHeight: (map['rule_line_height'] as num?)?.toDouble(),
+      reminderAt: map['reminder_at'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['reminder_at'] as int)
+          : null,
       // صفّ تالف أو ناقص لا يجب أن يُعطّل تحميل القائمة بأكملها؛ نرجع لقيمة آمنة.
       createdAt: DateTime.fromMillisecondsSinceEpoch(
           (map['created_at'] as int?) ?? 0),
@@ -203,6 +211,8 @@ class Note {
     double? ruleThickness,
     double? ruleOpacity,
     double? ruleLineHeight,
+    DateTime? reminderAt,
+    bool clearReminder = false,
     DateTime? createdAt,
     DateTime? updatedAt,
     List<String>? tags,
@@ -231,6 +241,7 @@ class Note {
       ruleThickness: ruleThickness ?? this.ruleThickness,
       ruleOpacity: ruleOpacity ?? this.ruleOpacity,
       ruleLineHeight: ruleLineHeight ?? this.ruleLineHeight,
+      reminderAt: clearReminder ? null : (reminderAt ?? this.reminderAt),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       tags: tags ?? this.tags,
