@@ -33,7 +33,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     setState(() => _loaded = true);
   }
 
-  Future<void> _setupPin() async {
+  Future<bool> _setupPin() async {
     final s = S.of(context);
     String? first;
     final ok = await showModalBottomSheet<bool>(
@@ -64,6 +64,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       ),
     );
     if (ok == true) await _load();
+    return ok == true;
   }
 
   /// إلغاء تفعيل هذا الجهاز (للمالك/الاختبار): يمسح الترخيص المخزَّن فتظهر شاشة
@@ -119,7 +120,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   value: _lockEnabled,
                   onChanged: (v) async {
                     if (v) {
-                      await _setupPin();
+                      // تفعيل قفل التطبيق صراحةً: اضبط الرقم ثم فعّل القفل.
+                      if (await _setupPin()) {
+                        await _sec.enableLock();
+                        await _load();
+                      }
                     } else {
                       await _sec.disableLock();
                       await _load();
