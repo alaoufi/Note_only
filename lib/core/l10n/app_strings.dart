@@ -1474,6 +1474,7 @@ class S {
 
   static const Map<String, String> _es = {
     'app_name': 'ملاحظات',
+    'qa_title': 'Añadir nuevo',
     'nav_notes': 'Notas',
     'nav_reminders': 'Recordatorios',
     'nav_calendar': 'Calendario',
@@ -1915,6 +1916,7 @@ class S {
 
   static const Map<String, String> _de = {
     'app_name': 'ملاحظات',
+    'qa_title': 'Neu hinzufügen',
     'nav_notes': 'Notizen',
     'nav_reminders': 'Erinnerungen',
     'nav_calendar': 'Kalender',
@@ -2797,6 +2799,7 @@ class S {
 
   static const Map<String, String> _fr = {
     'app_name': 'ملاحظات',
+    'qa_title': 'Ajouter',
     'nav_notes': 'Notes',
     'nav_reminders': 'Rappels',
     'nav_calendar': 'Calendrier',
@@ -3238,6 +3241,7 @@ class S {
 
   static const Map<String, String> _id = {
     'app_name': 'ملاحظات',
+    'qa_title': 'Tambah baru',
     'nav_notes': 'Catatan',
     'nav_reminders': 'Pengingat',
     'nav_calendar': 'Kalender',
