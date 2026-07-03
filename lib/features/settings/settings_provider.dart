@@ -127,6 +127,7 @@ class SettingsProvider extends ChangeNotifier {
     'align': 'المحاذاة',
     'lineSpacing': 'تباعد الأسطر',
     'clearFormat': 'مسح التنسيق',
+    'clipboard': 'تحديد الكل / نسخ / قص',
     'pasteMenu': 'زرّ قائمة النسخ/اللصق',
     'export': 'تصدير (PDF/Word)',
   };

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
 
@@ -743,6 +744,57 @@ class RichTextToolbar extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             onPressed: () => settings.setHideSelectionMenu(!hide),
           );
+        case 'clipboard':
+          // أزرار حافظة صريحة تعمل دائمًا — حتى حين تُحدَّد كامل الملاحظة الطويلة
+          // فتخرج مرساة القائمة العائمة خارج الشاشة ولا تظهر «نسخ/قص» تلقائيًّا.
+          return Row(mainAxisSize: MainAxisSize.min, children: [
+            IconButton(
+              icon: const Icon(Icons.select_all, size: 22),
+              tooltip: 'تحديد الكل',
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                final len = q.document.length; // يتضمّن السطر الأخير (\n)
+                q.updateSelection(
+                  TextSelection(
+                      baseOffset: 0, extentOffset: len <= 1 ? 0 : len - 1),
+                  ChangeSource.local,
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.copy, size: 22),
+              tooltip: 'نسخ',
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                final sel = q.selection;
+                if (!sel.isValid || sel.isCollapsed) return;
+                final text = q.document.toPlainText();
+                final end = sel.end.clamp(0, text.length);
+                final start = sel.start.clamp(0, end);
+                Clipboard.setData(
+                    ClipboardData(text: text.substring(start, end)));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    duration: Duration(milliseconds: 900),
+                    content: Text('تم النسخ')));
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.content_cut, size: 22),
+              tooltip: 'قص',
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                final sel = q.selection;
+                if (!sel.isValid || sel.isCollapsed) return;
+                final text = q.document.toPlainText();
+                final end = sel.end.clamp(0, text.length);
+                final start = sel.start.clamp(0, end);
+                Clipboard.setData(
+                    ClipboardData(text: text.substring(start, end)));
+                q.replaceText(start, end - start, '',
+                    TextSelection.collapsed(offset: start));
+              },
+            ),
+          ]);
         case 'export':
           return Row(mainAxisSize: MainAxisSize.min, children: [
             if (onExportPdf != null)
