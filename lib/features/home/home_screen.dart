@@ -204,9 +204,14 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!ok) return;
     }
     if (!mounted) return;
+    // فُتحت أثناء بحث نشِط ⇒ مرِّر مادة البحث ليُفتح شريط البحث داخل المتن
+    // وينتقل مباشرةً إلى أول تطابق (مع أسهم التنقّل إن تعدّدت).
+    final find = context.read<NotesProvider>().search.trim();
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => NoteEditorScreen(noteId: note.id)),
+      MaterialPageRoute(
+          builder: (_) => NoteEditorScreen(
+              noteId: note.id, initialFind: find.isEmpty ? null : find)),
     );
   }
 

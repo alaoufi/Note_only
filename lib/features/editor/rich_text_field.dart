@@ -56,6 +56,34 @@ class RichTextController {
   String? _cachedPlain;
   String get plainText => _cachedPlain ??= quill.document.toPlainText();
 
+  /// «بحث داخل الملاحظة»: مواضع بداية كل تطابق (غير متداخل) لنصّ البحث في المتن،
+  /// غير حسّاس لحالة الأحرف. القائمة مرتّبة تصاعديًّا حسب الموضع.
+  List<int> findMatches(String term) {
+    final n = term.trim();
+    if (n.isEmpty) return const [];
+    final hay = plainText.toLowerCase();
+    final needle = n.toLowerCase();
+    final out = <int>[];
+    var i = hay.indexOf(needle);
+    while (i != -1) {
+      out.add(i);
+      i = hay.indexOf(needle, i + needle.length);
+    }
+    return out;
+  }
+
+  /// يحدِّد المدى [start..start+length] ويُركّز المحرّر كي يُمرِّر العرض إليه —
+  /// فينتقل مباشرةً إلى التطابق ويظهر مظلَّلًا (للتنقّل بين نتائج البحث).
+  void selectMatch(int start, int length) {
+    final docLen = quill.document.length;
+    if (docLen <= 1) return;
+    final s = start.clamp(0, docLen - 1);
+    final e = (start + length).clamp(s, docLen - 1);
+    quill.updateSelection(
+        TextSelection(baseOffset: s, extentOffset: e), ChangeSource.local);
+    if (!focus.hasFocus) focus.requestFocus();
+  }
+
   /// سمات التحديد الحاليّة (غامق/مائل/…) — تُحسب **مرّة** لكل تغيّر تحديد وتُشارَك
   /// بين كل أزرار التنسيق، بدل أن يستدعي كل زرّ getSelectionStyle مستقلًّا في كل
   /// لمسة سحب (كان ×عدد الأزرار ⇒ تقطّع).

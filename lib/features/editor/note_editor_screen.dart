@@ -36,12 +36,17 @@ class NoteEditorScreen extends StatefulWidget {
   /// عند فتح «قائمة مهام» جديدة: هل يبدأ السطر الأول كمهمة (بمربع) أم نصًّا عاديًّا.
   final bool startAsTask;
 
+  /// عند الفتح من نتائج البحث: نصّ البحث — يُفتح شريط «بحث داخل الملاحظة» مسبقًا
+  /// وينتقل مباشرةً إلى أول تطابق داخل المتن.
+  final String? initialFind;
+
   const NoteEditorScreen({
     super.key,
     this.noteId,
     this.initialType = NoteType.text,
     this.initialCategoryId,
     this.startAsTask = true,
+    this.initialFind,
   });
 
   @override
@@ -59,6 +64,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   PasswordEntry _passwordEntry = const PasswordEntry();
   String _richContent = ''; // محتوى النص الغني (Delta JSON) لنوع النص
   RichTextController? _richCtrl; // وحدة تحكّم النص الغني (لنوع النص فقط)
+
+  // ---- بحث داخل الملاحظة (نص فقط) ----
+  bool _findVisible = false;
+  final _findCtrl = TextEditingController();
+  final _findFocus = FocusNode();
+  List<int> _findMatches = const [];
+  int _findIndex = 0;
+  bool _findJumped = false; // هل انتقلنا لتطابق بعدُ لمصطلح البحث الحالي؟
 
   Timer? _debounce;
   Color _fgColor = Colors.black87; // لون نص المتن المناسب للخلفية الحالية
@@ -142,6 +155,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       _secured = true;
       SecureScreen.enable();
     }
+
+    // فُتحت من نتائج البحث ⇒ افتح شريط البحث داخل المتن وانتقل لأول تطابق.
+    final find = widget.initialFind?.trim() ?? '';
+    if (find.isNotEmpty && _note.type == NoteType.text && _richCtrl != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openFind(find);
+      });
+    }
   }
 
   void _rebuildItemCtrls() {
@@ -188,6 +209,130 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _dirty = true;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 800), _save);
+  }
+
+  // ===================== بحث داخل الملاحظة (نص فقط) =====================
+
+  /// يفتح شريط البحث داخل المتن. [initial] يُملأ به الحقل وينتقل لأول تطابق.
+  void _openFind([String? initial]) {
+    if (_richCtrl == null) return;
+    setState(() => _findVisible = true);
+    if (initial != null && initial.trim().isNotEmpty) {
+      _findCtrl.text = initial.trim();
+      _recountFind();
+      _findNext(); // انتقل لأول تطابق وظلّله ومرّر العرض إليه.
+    } else {
+      // ركّز حقل البحث ليكتب المستخدم مباشرةً.
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _findFocus.requestFocus());
+    }
+  }
+
+  void _closeFind() {
+    setState(() {
+      _findVisible = false;
+      _findMatches = const [];
+      _findIndex = 0;
+      _findJumped = false;
+    });
+  }
+
+  /// يعيد حساب مواضع التطابق للمصطلح الحالي (يُستدعى أثناء الكتابة). لا يُغيّر
+  /// التحديد ولا يخطف التركيز — كي يكمل المستخدم الكتابة في حقل البحث بسلاسة.
+  void _recountFind() {
+    final ctrl = _richCtrl;
+    if (ctrl == null) return;
+    setState(() {
+      _findMatches = ctrl.findMatches(_findCtrl.text);
+      _findIndex = 0;
+      _findJumped = false;
+    });
+  }
+
+  /// التطابق التالي (سهم أسفل/Enter). أول ضغطة بعد الكتابة تنتقل للأول.
+  void _findNext() {
+    if (_findMatches.isEmpty) return;
+    _gotoMatch(_findJumped ? _findIndex + 1 : 0);
+  }
+
+  /// التطابق السابق (سهم أعلى).
+  void _findPrev() {
+    if (_findMatches.isEmpty) return;
+    _gotoMatch(_findJumped ? _findIndex - 1 : 0);
+  }
+
+  /// ينتقل للتطابق رقم [i] (مع الالتفاف) ويُظلّله ويُمرّر العرض إليه.
+  void _gotoMatch(int i) {
+    final ctrl = _richCtrl;
+    if (ctrl == null || _findMatches.isEmpty) return;
+    final len = _findMatches.length;
+    final idx = ((i % len) + len) % len; // التفاف للأمام/الخلف
+    setState(() {
+      _findIndex = idx;
+      _findJumped = true;
+    });
+    ctrl.selectMatch(_findMatches[idx], _findCtrl.text.trim().length);
+  }
+
+  /// شريط «بحث داخل الملاحظة»: حقل + عدّاد نتائج + سهما تنقّل + إغلاق.
+  Widget _buildFindBar(S s) {
+    final scheme = Theme.of(context).colorScheme;
+    final has = _findMatches.isNotEmpty;
+    final counter = _findCtrl.text.trim().isEmpty
+        ? ''
+        : has
+            ? '${_findIndex + 1}/${_findMatches.length}'
+            : s.t('no_results');
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 4, 4),
+        child: Row(
+          children: [
+            const Icon(Icons.search, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _findCtrl,
+                focusNode: _findFocus,
+                textDirection: lineDirection(_findCtrl.text),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  hintText: s.t('find_in_note'),
+                ),
+                onChanged: (_) => _recountFind(),
+                onSubmitted: (_) => _findNext(),
+              ),
+            ),
+            Text(counter,
+                style: TextStyle(
+                    color: has ? scheme.onSurfaceVariant : scheme.error,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600)),
+            IconButton(
+              tooltip: s.t('find_prev'),
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.keyboard_arrow_up),
+              onPressed: has ? _findPrev : null,
+            ),
+            IconButton(
+              tooltip: s.t('find_next'),
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.keyboard_arrow_down),
+              onPressed: has ? _findNext : null,
+            ),
+            IconButton(
+              tooltip: s.t('close'),
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.close),
+              onPressed: _closeFind,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   String _checklistToContent() {
@@ -418,6 +563,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (_secured) SecureScreen.disable();
     _debounce?.cancel();
     _richCtrl?.dispose();
+    _findCtrl.dispose();
+    _findFocus.dispose();
     _titleCtrl.dispose();
     _contentCtrl.dispose();
     for (final c in _itemCtrls) {
@@ -610,6 +757,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 if (mounted) {
                   await showNoteActions(context, _note,
                       onDetails: () => _showDetails(s),
+                      onFind: (_note.type == NoteType.text && _richCtrl != null)
+                          ? () => _openFind()
+                          : null,
                       onStats: (_note.type == NoteType.text ||
                               _note.type == NoteType.checklist)
                           ? () => _showStats(s)
@@ -637,6 +787,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             style: TextStyle(color: _fgColor),
             child: Column(
             children: [
+              if (_findVisible && _note.type == NoteType.text) _buildFindBar(s),
               Expanded(
                 child: _note.type == NoteType.text
                     ? _textLayout(s, onBg, settings)
