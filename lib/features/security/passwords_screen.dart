@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/l10n/app_strings.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/note.dart';
 import '../../services/secure_screen.dart';
@@ -58,12 +57,11 @@ class _PasswordsScreenState extends State<PasswordsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     final provider = context.watch<NotesProvider>();
 
     return Scaffold(
-      appBar: gradientAppBar(context, 'كلمات المرور',
-          leading: const Icon(Icons.vpn_key)),
+      // لا نمرّر leading كي يظهر زرّ الرجوع التلقائي (خروج واضح من الصفحة).
+      appBar: gradientAppBar(context, 'كلمات المرور'),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.add),

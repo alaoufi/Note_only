@@ -48,8 +48,8 @@ class _SecretNotesScreenState extends State<SecretNotesScreen> {
     final provider = context.watch<NotesProvider>();
 
     return Scaffold(
-      appBar: gradientAppBar(context, s.t('secret_notes'),
-          leading: const Icon(Icons.lock)),
+      // لا نمرّر leading كي يظهر زرّ الرجوع التلقائي (خروج واضح من الصفحة).
+      appBar: gradientAppBar(context, s.t('secret_notes')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _items.isEmpty
