@@ -106,6 +106,25 @@ class PasswordEntry {
     return 'كلمة مرور';
   }
 
+  /// نصّ قابل للبحث (عنوان/مستخدم/بريد/موقع/ملاحظات) دون فكّ تشفير كلمة المرور.
+  static String searchableFromJson(String raw) {
+    if (raw.trim().isEmpty) return '';
+    try {
+      final m = jsonDecode(raw) as Map<String, dynamic>;
+      return [
+        m['title'],
+        m['app'],
+        m['username'],
+        m['email'],
+        m['website'],
+        m['site'],
+        m['notes'],
+      ].whereType<String>().join(' ');
+    } catch (_) {
+      return '';
+    }
+  }
+
   /// نص مختصر يُعرض في البطاقة (بدون كلمة المرور).
   String get displayTitle {
     if (title.trim().isNotEmpty) return title;
