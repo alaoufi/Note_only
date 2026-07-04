@@ -662,45 +662,89 @@ class RichTextToolbar extends StatelessWidget {
         case 'font':
           // قائمة خطوط مجمّعة حسب العائلة (نسخ/كوفي/…) مطابِقة للإعدادات، مع
           // رؤوس غير قابلة للاختيار، وكل خط معروض باسمه العربيّ وبخطّه نفسه.
-          return PopupMenuButton<String>(
-            tooltip: 'الخط',
-            icon: const Icon(Icons.font_download_outlined, size: 22),
-            onSelected: (family) {
-              if (family == '__clear') {
-                q.formatSelection(Attribute.clone(Attribute.font, null));
-              } else {
-                q.formatSelection(
-                    Attribute.fromKeyValue(Attribute.font.key, family));
-              }
-            },
-            itemBuilder: (_) => [
-              for (final g in SettingsProvider.fontGroups) ...[
-                PopupMenuItem<String>(
-                  enabled: false,
-                  height: 28,
-                  child: Text('— ${g.$1} —',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).hintColor)),
+          // يعرض الزرّ **اسم الخطّ الحالي** للتحديد/المؤشّر ليعرف المستخدم حالته.
+          return ValueListenableBuilder<Map<String, Attribute>>(
+            valueListenable: controller.selectionStyle,
+            builder: (context, styles, _) {
+              final fam = styles['font']?.value as String?;
+              final label =
+                  fam != null ? SettingsProvider.fontLabel(fam) : 'الخط';
+              return PopupMenuButton<String>(
+                tooltip: 'الخط',
+                offset: const Offset(0, 40),
+                onSelected: (family) {
+                  if (family == '__clear') {
+                    q.formatSelection(Attribute.clone(Attribute.font, null));
+                  } else {
+                    q.formatSelection(
+                        Attribute.fromKeyValue(Attribute.font.key, family));
+                  }
+                },
+                itemBuilder: (_) => [
+                  for (final g in SettingsProvider.fontGroups) ...[
+                    PopupMenuItem<String>(
+                      enabled: false,
+                      height: 28,
+                      child: Text('— ${g.$1} —',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).hintColor)),
+                    ),
+                    for (final f in g.$2)
+                      PopupMenuItem<String>(
+                        value: f,
+                        child: Text(SettingsProvider.fontLabel(f),
+                            style: TextStyle(fontFamily: f, fontSize: 16)),
+                      ),
+                  ],
+                  const PopupMenuDivider(),
+                  const PopupMenuItem<String>(
+                      value: '__clear', child: Text('مسح الخط')),
+                ],
+                child: _StateChip(
+                  icon: Icons.font_download_outlined,
+                  label: label,
+                  labelFontFamily: fam,
+                  active: fam != null,
                 ),
-                for (final f in g.$2)
-                  PopupMenuItem<String>(
-                    value: f,
-                    child: Text(SettingsProvider.fontLabel(f),
-                        style: TextStyle(fontFamily: f, fontSize: 16)),
-                  ),
-              ],
-              const PopupMenuDivider(),
-              const PopupMenuItem<String>(
-                  value: '__clear', child: Text('مسح الخط')),
-            ],
+              );
+            },
           );
         case 'size':
-          return QuillToolbarFontSizeButton(
-            controller: q,
-            options:
-                const QuillToolbarFontSizeButtonOptions(items: _fontSizes),
+          // يعرض الزرّ **حجم الخطّ الحالي** (رقمًا)؛ عند غياب سمة الحجم يعرض حجم
+          // المتن الافتراضي من الإعدادات، فيعرف المستخدم الحجم الفعليّ دائمًا.
+          return ValueListenableBuilder<Map<String, Attribute>>(
+            valueListenable: controller.selectionStyle,
+            builder: (context, styles, _) {
+              final raw = styles['size']?.value?.toString();
+              final explicit = raw != null && raw != '0' && raw.isNotEmpty;
+              final current =
+                  explicit ? raw : settings.noteFontSize.round().toString();
+              return PopupMenuButton<String>(
+                tooltip: 'حجم الخط',
+                offset: const Offset(0, 40),
+                onSelected: (v) {
+                  if (v == '0') {
+                    q.formatSelection(Attribute.clone(Attribute.size, null));
+                  } else {
+                    q.formatSelection(
+                        Attribute.fromKeyValue(Attribute.size.key, v));
+                  }
+                },
+                itemBuilder: (_) => [
+                  for (final e in _fontSizes.entries)
+                    PopupMenuItem<String>(
+                        value: e.value,
+                        child: Text(e.value == '0' ? 'مسح' : e.key)),
+                ],
+                child: _StateChip(
+                  icon: Icons.format_size,
+                  label: current,
+                  active: explicit,
+                ),
+              );
+            },
           );
         case 'bold':
           return fmtBtn(Icons.format_bold, 'غامق', Attribute.bold);
@@ -968,6 +1012,58 @@ class _InlineFormatButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// شريحة أداة تعرض أيقونة + نصّ الحالة الحالية (اسم الخطّ/الحجم) مع سهم قائمة —
+/// تُبرِز نفسها بلون بارز حين تكون السمة مضبوطة صراحةً على التحديد/المؤشّر.
+class _StateChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? labelFontFamily;
+  final bool active;
+  const _StateChip({
+    required this.icon,
+    required this.label,
+    this.labelFontFamily,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fg = active ? scheme.onPrimary : scheme.onSurface;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: active ? scheme.primary : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+            color: active ? scheme.primary : scheme.outlineVariant, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: fg),
+          const SizedBox(width: 4),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 92),
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: TextStyle(
+                  fontFamily: labelFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: fg),
+            ),
+          ),
+          Icon(Icons.arrow_drop_down, size: 18, color: fg),
+        ],
+      ),
     );
   }
 }
