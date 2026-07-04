@@ -79,10 +79,30 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
           ? '${loc.t('sync_connected')}: $email'
           : loc.t('sync_login_fail_google'));
     } catch (e) {
-      _snack('${S.of(context).t('sync_login_fail')}: $e');
+      _snack(_friendlySignInError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// رسالة مفهومة بدل استثناء Google الخام — ترشد لسبب الفشل الشائع.
+  String _friendlySignInError(Object e) {
+    final s = e.toString();
+    if (s.contains('ApiException: 10')) {
+      return 'تعذّر الدخول: إعداد OAuth غير مكتمل (بصمة التوقيع أو اسم الحزمة '
+          'لم تُسجَّل في Google Cloud). راجع «تهيئة المزامنة السحابية» في الدليل.';
+    }
+    if (s.contains('ApiException: 8')) {
+      return 'تعذّر الدخول (خطأ داخلي من Google): فعّل Google Drive API، وأضِف '
+          'حسابك كمُختبِر في شاشة الموافقة، ثم أعد المحاولة بعد بضع دقائق.';
+    }
+    if (s.contains('ApiException: 7') || s.toUpperCase().contains('NETWORK')) {
+      return 'تعذّر الدخول: تحقّق من اتصال الإنترنت وأعد المحاولة.';
+    }
+    if (s.contains('12501') || s.toLowerCase().contains('cancel')) {
+      return 'أُلغي تسجيل الدخول.';
+    }
+    return '${S.of(context).t('sync_login_fail')}: $e';
   }
 
   Future<void> _googleDisconnect() async {
