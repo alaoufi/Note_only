@@ -32,6 +32,34 @@ class PdfExportService {
     );
   }
 
+  /// يبني PDF بسيطًا من عنوان ونصّ عاديّ ثم يفتح ورقة المشاركة (للمعلومات وغيرها).
+  static Future<void> exportText(String title, String body) async {
+    final fonts = await _loadFonts();
+    final name = title.trim().isEmpty ? 'معلومة' : title.trim();
+    final doc = pw.Document();
+    doc.addPage(pw.MultiPage(
+      textDirection: pw.TextDirection.rtl,
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
+      build: (context) => [
+        pw.Text(name, style: pw.TextStyle(font: fonts.bold, fontSize: 20)),
+        pw.SizedBox(height: 6),
+        pw.Divider(),
+        pw.SizedBox(height: 6),
+        pw.Text(body,
+            style: pw.TextStyle(
+                font: fonts.regular, fontSize: 12, lineSpacing: 3)),
+      ],
+    ));
+    final bytes = await doc.save();
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/${_safeFileName(name)}.pdf');
+    await file.writeAsBytes(bytes, flush: true);
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(file.path, mimeType: 'application/pdf')],
+      subject: name,
+    ));
+  }
+
   /// يبني بايتات PDF (يمكن استخدامها للحفظ المباشر أيضًا).
   static Future<List<int>> buildPdf(Note note) async {
     final fonts = await _loadFonts();

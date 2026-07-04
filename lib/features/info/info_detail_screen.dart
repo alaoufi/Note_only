@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../data/models/info_entry.dart';
 import '../../data/repositories/info_repository.dart';
+import '../../services/pdf_export_service.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/ui_kit.dart';
 import '../editor/rich_text_field.dart';
@@ -75,7 +76,43 @@ class _InfoDetailScreenState extends State<InfoDetailScreen> {
   }
 
   Future<void> _share() async {
-    await SharePlus.instance.share(ShareParams(text: _entryText()));
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.text_snippet_outlined),
+              title: const Text('مشاركة كنصّ'),
+              onTap: () => Navigator.pop(ctx, 'text'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: const Text('مشاركة كملف PDF'),
+              onTap: () => Navigator.pop(ctx, 'pdf'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (choice == 'text') {
+      await SharePlus.instance.share(ShareParams(text: _entryText()));
+    } else if (choice == 'pdf') {
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(const SnackBar(
+          content: Text('جارٍ تجهيز ملف PDF…'),
+          duration: Duration(seconds: 1)));
+      try {
+        await PdfExportService.exportText(
+            _e.topic.trim().isNotEmpty ? _e.topic.trim() : 'معلومة',
+            _entryText());
+      } catch (e) {
+        messenger.showSnackBar(SnackBar(content: Text('تعذّر التصدير: $e')));
+      }
+    }
   }
 
   /// نسخ قسم واحد بضغطة (لمحة/تفصيل/مصدر…) مع إشعار.
@@ -98,6 +135,10 @@ class _InfoDetailScreenState extends State<InfoDetailScreen> {
             pinned: true,
             backgroundColor: scheme.primary,
             foregroundColor: scheme.onPrimary,
+            // نتجاوز appBarTheme (الذي يلوّن أيقونات الإجراءات بلون داكن يبهت على
+            // الخلفية الخضراء) فتظهر الأيقونات بيضاء واضحة وفعّالة.
+            iconTheme: IconThemeData(color: scheme.onPrimary),
+            actionsIconTheme: IconThemeData(color: scheme.onPrimary),
             actions: [
               IconButton(
                   onPressed: _share,
