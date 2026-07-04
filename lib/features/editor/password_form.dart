@@ -223,48 +223,66 @@ class _PasswordFormState extends State<PasswordForm> {
     );
   }
 
+  /// عنوان صغير فوق الحقل (بدل العنوان العائم الذي كان يتداخل مع حافة البطاقة).
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(right: 8, bottom: 6),
+        child: Text(text,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.primary)),
+      );
+
   Widget _field(String label, TextEditingController ctrl, IconData icon,
       {int maxLines = 1, TextInputType? keyboard}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: ctrl,
-        maxLines: maxLines,
-        keyboardType: keyboard,
-        onChanged: (_) => _emit(),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          // زرّ النسخ يظهر فقط حين يحتوي الحقل على نصّ (لا نسخ لحقل فارغ).
-          suffixIcon: ValueListenableBuilder<TextEditingValue>(
-            valueListenable: ctrl,
-            builder: (context, value, _) => value.text.isEmpty
-                ? const SizedBox.shrink()
-                : IconButton(
-                    tooltip: S.of(context).t('copy'),
-                    icon: const Icon(Icons.copy),
-                    onPressed: () => _copy(ctrl.text),
-                  ),
+      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _label(label),
+          TextField(
+            controller: ctrl,
+            maxLines: maxLines,
+            keyboardType: keyboard,
+            onChanged: (_) => _emit(),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon),
+              // زرّ النسخ يظهر فقط حين يحتوي الحقل على نصّ (لا نسخ لحقل فارغ).
+              suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: ctrl,
+                builder: (context, value, _) => value.text.isEmpty
+                    ? const SizedBox.shrink()
+                    : IconButton(
+                        tooltip: S.of(context).t('copy'),
+                        icon: const Icon(Icons.copy),
+                        onPressed: () => _copy(ctrl.text),
+                      ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _passwordField(S s) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: _password,
-        obscureText: _obscure,
-        onChanged: (_) {
-          setState(() {});
-          _emit();
-        },
-        decoration: InputDecoration(
-          labelText: s.t('pw_password'),
-          prefixIcon: const Icon(Icons.vpn_key),
-          suffixIcon: Row(
+      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _label(s.t('pw_password')),
+          TextField(
+            controller: _password,
+            obscureText: _obscure,
+            onChanged: (_) {
+              setState(() {});
+              _emit();
+            },
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.vpn_key),
+              suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
@@ -283,9 +301,11 @@ class _PasswordFormState extends State<PasswordForm> {
                   icon: const Icon(Icons.copy),
                   onPressed: () => _copySecure(_password.text),
                 ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -356,32 +376,82 @@ class _PasswordFormState extends State<PasswordForm> {
               ),
             )
           else
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final id in _relations)
-                  InputChip(
-                    avatar: CircleAvatar(
-                      backgroundColor: scheme.primary,
-                      child: Text('#$id',
-                          style: const TextStyle(
-                              fontSize: 9, color: Colors.white)),
-                    ),
-                    label: Text(_titleById[id] ?? 'كلمة مرور #$id'),
-                    onPressed: widget.onOpenRelation == null
+            for (final id in _relations)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Material(
+                  color: scheme.primaryContainer.withOpacity(0.30),
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: widget.onOpenRelation == null
                         ? null
                         : () => widget.onOpenRelation!(id),
-                    onDeleted: () => setState(() {
-                      _relations.remove(id);
-                      _emit();
-                    }),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: scheme.primary,
+                            child: Text('#$id',
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.white)),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(_titleById[id] ?? 'كلمة مرور #$id',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                          if (widget.onOpenRelation != null)
+                            Icon(Icons.open_in_new,
+                                size: 18, color: scheme.primary),
+                          IconButton(
+                            tooltip: 'حذف العلاقة',
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(Icons.close, color: scheme.error),
+                            onPressed: () => _removeRelation(id),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-              ],
-            ),
+                ),
+              ),
         ],
       ),
     );
+  }
+
+  /// حذف علاقة برسالة تأكيد (كي لا تُحذف بلمسة عابرة).
+  Future<void> _removeRelation(int id) async {
+    final title = _titleById[id] ?? 'كلمة مرور #$id';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.link_off),
+        title: const Text('حذف العلاقة؟'),
+        content: Text('إزالة الربط مع «$title». يمكنك إعادة إضافته لاحقًا.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (ok == true) {
+      setState(() {
+        _relations.remove(id);
+        _emit();
+      });
+    }
   }
 
   Future<void> _pickRelation() async {
