@@ -43,7 +43,20 @@ class AppDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: scheme.primary),
+              // ترويسة بتدرّج من درجات لون الهوية (اللوقو) — عمق أنيق موحّد.
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color.alphaBlend(
+                        Colors.white.withOpacity(0.14), scheme.primary),
+                    scheme.primary,
+                    Color.alphaBlend(
+                        Colors.black.withOpacity(0.28), scheme.primary),
+                  ],
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,

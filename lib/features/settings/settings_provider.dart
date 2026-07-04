@@ -259,6 +259,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _kRuleOpacity = 'rule_opacity';
   static const _kRuleOnLine = 'rule_on_line';
   static const _kPrivacyMode = 'privacy_mode';
+  static const _kBrandRealign = 'brand_realign_v1'; // مواءمة لون التطبيق مع اللوقو
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -270,6 +271,16 @@ class SettingsProvider extends ChangeNotifier {
     };
     final seed = prefs.getInt(_kSeed);
     if (seed != null) _seedColor = Color(seed);
+    // مواءمة لمرّة واحدة مع لون اللوقو الأخضر الزمرّديّ: تُطبَّق فقط لمن بقي على
+    // «الأزرق الهادئ» القديم (0xFF3F6FB5) أو بلا اختيار، وتُنفَّذ مرّة واحدة فقط
+    // فلا تتعارض مع أي لون يختاره المستخدم لاحقًا.
+    if (!(prefs.getBool(_kBrandRealign) ?? false)) {
+      if (seed == null || seed == 0xFF3F6FB5) {
+        _seedColor = AppColors.defaultSeed;
+        await prefs.setInt(_kSeed, AppColors.defaultSeed.value);
+      }
+      await prefs.setBool(_kBrandRealign, true);
+    }
     _fontScale = prefs.getDouble(_kFont) ?? 1.0;
     final fam = prefs.getString(_kFontFamily);
     if (fam != null && fontFamilies.contains(fam)) _fontFamily = fam;
