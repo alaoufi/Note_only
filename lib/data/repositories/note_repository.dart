@@ -6,6 +6,7 @@ import '../database/app_database.dart';
 import '../models/checklist_item.dart';
 import '../models/enums.dart';
 import '../models/note.dart';
+import '../models/password_entry.dart';
 
 /// كل عمليات قراءة/كتابة الملاحظات وقوائم المهام والوسوم.
 class NoteRepository {
@@ -102,6 +103,24 @@ class NoteRepository {
       }).toList();
     }
     return _attachTags(db, rows);
+  }
+
+  /// معرّفات ملاحظات كلمات المرور مع عناوينها المعروضة (لاختيار «العلاقات»)،
+  /// دون فكّ تشفير كلمة المرور. مرتّبة حسب المعرّف (الترقيم التسلسلي).
+  Future<List<(int, String)>> passwordRefs() async {
+    final db = await _db;
+    final rows = await db.query('notes',
+        columns: ['id', 'content'],
+        where: 'type = ? AND is_deleted = 0',
+        whereArgs: [NoteType.password.dbValue],
+        orderBy: 'id ASC');
+    return [
+      for (final r in rows)
+        (
+          r['id'] as int,
+          PasswordEntry.titleFromJson((r['content'] as String?) ?? '')
+        )
+    ];
   }
 
   Future<List<Note>> getArchived() async {

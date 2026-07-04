@@ -22,6 +22,7 @@ import '../../widgets/note_actions.dart';
 import '../../widgets/paper_background.dart';
 import '../drawing/drawing_screen.dart';
 import '../home/notes_provider.dart';
+import '../security/note_unlock.dart';
 import '../settings/settings_provider.dart';
 import '../../services/notification_service.dart';
 import 'editor_attachments.dart';
@@ -446,7 +447,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (!_loaded || _deleted) return;
     final provider = context.read<NotesProvider>();
 
-    final title = _titleCtrl.text;
+    // لملاحظات كلمات المرور: العنوان حقلٌ داخل النموذج، فنستمدّ عنوان الملاحظة منه.
+    final title = _note.type == NoteType.password
+        ? _passwordEntry.title
+        : _titleCtrl.text;
     var content = _contentCtrl.text;
     var emptyPassword = false;
     var emptyRich = false;
@@ -460,13 +464,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       content = _richContent;
       emptyRich = richToPlainText(_richContent).trim().isEmpty;
     } else if (_note.type == NoteType.password) {
-      final e = _passwordEntry;
-      emptyPassword = e.site.trim().isEmpty &&
-          e.app.trim().isEmpty &&
-          e.username.trim().isEmpty &&
-          e.password.trim().isEmpty &&
-          e.notes.trim().isEmpty;
-      content = e.toStoredJson();
+      emptyPassword = _passwordEntry.isEmpty;
+      content = _passwordEntry.toStoredJson();
     }
 
     final candidate = _note.copyWith(
@@ -495,8 +494,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       checklist: _note.type == NoteType.checklist ? _checklist : null,
       reload: false,
     );
+    final wasNew = _note.id == null;
     _note = candidate.copyWith(id: id);
     _dirty = false;
+    // بعد أوّل حفظ يظهر «الترقيم التسلسلي» (المعرّف) في نموذج كلمة المرور.
+    if (wasNew && _note.type == NoteType.password && mounted) {
+      setState(() {});
+    }
   }
 
   Future<bool> _onWillPop() async {
@@ -541,12 +545,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
     switch (_note.type) {
       case NoteType.password:
-        final e = _passwordEntry;
-        return e.site.trim().isEmpty &&
-            e.app.trim().isEmpty &&
-            e.username.trim().isEmpty &&
-            e.password.trim().isEmpty &&
-            e.notes.trim().isEmpty;
+        return _passwordEntry.isEmpty;
       case NoteType.checklist:
         return !_itemCtrls.any((c) => c.text.trim().isNotEmpty);
       case NoteType.text:
@@ -1095,6 +1094,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     );
   }
 
+  /// يفتح ملاحظة كلمة مرور مرتبطة (علاقة) بعد فتح القفل.
+  Future<void> _openRelation(int id) async {
+    await _ensureSaved();
+    if (!mounted) return;
+    final ok = await ensureUnlocked(context);
+    if (!ok || !mounted) return;
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => NoteEditorScreen(noteId: id)));
+  }
+
   List<Widget> _typeBody(S s) {
     switch (_note.type) {
       case NoteType.checklist:
@@ -1111,6 +1120,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         return [
           PasswordForm(
             initial: _passwordEntry,
+            noteId: _note.id,
+            fetchRefs: () =>
+                context.read<NotesProvider>().notes.passwordRefs(),
+            onOpenRelation: _openRelation,
             onChanged: (entry) {
               _passwordEntry = entry;
               _onChanged();

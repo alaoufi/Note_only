@@ -7,15 +7,28 @@ import 'package:flutter/services.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../data/models/password_entry.dart';
 
-/// نموذج إدخال ملاحظة كلمات المرور: حقول منظمة + نسخ لكل حقل + مولّد + مؤشّر قوة.
+/// نموذج إدخال ملاحظة كلمات المرور: حقول منظّمة بالترتيب المطلوب + نسخ لكل حقل
+/// (يظهر فقط حين يوجد نصّ) + مولّد + مؤشّر قوة + «العلاقات» (ربط بكلمات مرور أخرى).
 class PasswordForm extends StatefulWidget {
   final PasswordEntry initial;
   final ValueChanged<PasswordEntry> onChanged;
+
+  /// الترقيم التسلسلي = معرّف الملاحظة (null قبل أوّل حفظ).
+  final int? noteId;
+
+  /// يجلب (معرّف، عنوان) كل ملاحظات كلمات المرور — لاختيار العلاقات.
+  final Future<List<(int, String)>> Function()? fetchRefs;
+
+  /// فتح ملاحظة كلمة مرور مرتبطة بمعرّفها.
+  final void Function(int id)? onOpenRelation;
 
   const PasswordForm({
     super.key,
     required this.initial,
     required this.onChanged,
+    this.noteId,
+    this.fetchRefs,
+    this.onOpenRelation,
   });
 
   @override
@@ -23,46 +36,68 @@ class PasswordForm extends StatefulWidget {
 }
 
 class _PasswordFormState extends State<PasswordForm> {
-  late final TextEditingController _site;
-  late final TextEditingController _app;
+  late final TextEditingController _title;
   late final TextEditingController _username;
   late final TextEditingController _password;
+  late final TextEditingController _email;
+  late final TextEditingController _website;
   late final TextEditingController _notes;
+  late List<int> _relations;
   bool _obscure = true;
   Timer? _clearTimer;
+
+  // عناوين ملاحظات كلمات المرور (لعرض العلاقات واختيارها).
+  List<(int, String)> _allRefs = const [];
+  Map<int, String> _titleById = const {};
 
   @override
   void initState() {
     super.initState();
-    _site = TextEditingController(text: widget.initial.site);
-    _app = TextEditingController(text: widget.initial.app);
+    _title = TextEditingController(text: widget.initial.title);
     _username = TextEditingController(text: widget.initial.username);
     _password = TextEditingController(text: widget.initial.password);
+    _email = TextEditingController(text: widget.initial.email);
+    _website = TextEditingController(text: widget.initial.website);
     _notes = TextEditingController(text: widget.initial.notes);
+    _relations = List<int>.from(widget.initial.relations);
+    _loadRefs();
+  }
+
+  Future<void> _loadRefs() async {
+    final f = widget.fetchRefs;
+    if (f == null) return;
+    final refs = await f();
+    if (!mounted) return;
+    setState(() {
+      _allRefs = refs;
+      _titleById = {for (final r in refs) r.$1: r.$2};
+    });
   }
 
   @override
   void dispose() {
     _clearTimer?.cancel();
-    _site.dispose();
-    _app.dispose();
+    _title.dispose();
     _username.dispose();
     _password.dispose();
+    _email.dispose();
+    _website.dispose();
     _notes.dispose();
     super.dispose();
   }
 
   void _emit() {
     widget.onChanged(PasswordEntry(
-      site: _site.text,
-      app: _app.text,
+      title: _title.text,
       username: _username.text,
       password: _password.text,
+      email: _email.text,
+      website: _website.text,
+      relations: _relations,
       notes: _notes.text,
     ));
   }
 
-  /// نسخ عادي.
   Future<void> _copy(String value) async {
     if (value.isEmpty) return;
     await Clipboard.setData(ClipboardData(text: value));
@@ -97,7 +132,6 @@ class _PasswordFormState extends State<PasswordForm> {
     const all = upper + lower + digits + symbols;
     final rnd = Random.secure();
     const len = 16;
-    // نضمن وجود صنف واحد على الأقل من كل نوع.
     final chars = <String>[
       upper[rnd.nextInt(upper.length)],
       lower[rnd.nextInt(lower.length)],
@@ -115,7 +149,6 @@ class _PasswordFormState extends State<PasswordForm> {
     _emit();
   }
 
-  // 0..4
   int _strength(String p) {
     if (p.isEmpty) return 0;
     var score = 0;
@@ -133,11 +166,16 @@ class _PasswordFormState extends State<PasswordForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _field(s.t('pw_site'), _site, Icons.language),
-        _field(s.t('pw_app'), _app, Icons.apps),
+        _serialTile(),
+        _field('العنوان', _title, Icons.badge_outlined),
         _field(s.t('pw_username'), _username, Icons.person_outline),
         _passwordField(s),
         _strengthBar(s),
+        _field('البريد الإلكتروني', _email, Icons.alternate_email,
+            keyboard: TextInputType.emailAddress),
+        _field('الموقع الإلكتروني', _website, Icons.language,
+            keyboard: TextInputType.url),
+        _relationsSection(),
         _field(s.t('pw_notes'), _notes, Icons.notes, maxLines: 3),
         const SizedBox(height: 10),
         Row(
@@ -154,13 +192,45 @@ class _PasswordFormState extends State<PasswordForm> {
     );
   }
 
+  /// الترقيم التسلسلي (معرّف الملاحظة) — للقراءة فقط، يُستخدم في «العلاقات».
+  Widget _serialTile() {
+    final scheme = Theme.of(context).colorScheme;
+    final serial = widget.noteId != null ? '#${widget.noteId}' : 'يُنشأ بعد الحفظ';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: scheme.primaryContainer.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: scheme.primary.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.tag, size: 20, color: scheme.primary),
+            const SizedBox(width: 10),
+            const Text('الترقيم التسلسلي',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Spacer(),
+            Text(serial,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.primary,
+                    fontFeatures: const [])),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _field(String label, TextEditingController ctrl, IconData icon,
-      {int maxLines = 1}) {
+      {int maxLines = 1, TextInputType? keyboard}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextField(
         controller: ctrl,
         maxLines: maxLines,
+        keyboardType: keyboard,
         onChanged: (_) => _emit(),
         decoration: InputDecoration(
           labelText: label,
@@ -207,7 +277,6 @@ class _PasswordFormState extends State<PasswordForm> {
                 icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),
-              // زرّ النسخ يظهر فقط حين توجد كلمة مرور.
               if (_password.text.isNotEmpty)
                 IconButton(
                   tooltip: s.t('copy'),
@@ -253,5 +322,110 @@ class _PasswordFormState extends State<PasswordForm> {
         ],
       ),
     );
+  }
+
+  // ---------------- العلاقات ----------------
+
+  Widget _relationsSection() {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.hub_outlined, size: 20, color: scheme.primary),
+              const SizedBox(width: 8),
+              const Text('العلاقات',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _pickRelation,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('إضافة علاقة'),
+              ),
+            ],
+          ),
+          if (_relations.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 4, bottom: 4),
+              child: Text(
+                'اربط كلمات مرور ذات علاقة (مثل البريد الذي سُجِّل به هذا الحساب).',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final id in _relations)
+                  InputChip(
+                    avatar: CircleAvatar(
+                      backgroundColor: scheme.primary,
+                      child: Text('#$id',
+                          style: const TextStyle(
+                              fontSize: 9, color: Colors.white)),
+                    ),
+                    label: Text(_titleById[id] ?? 'كلمة مرور #$id'),
+                    onPressed: widget.onOpenRelation == null
+                        ? null
+                        : () => widget.onOpenRelation!(id),
+                    onDeleted: () => setState(() {
+                      _relations.remove(id);
+                      _emit();
+                    }),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickRelation() async {
+    // الخيارات: كل كلمات المرور عدا هذه الملاحظة وما ارتبط سابقًا.
+    final options = _allRefs
+        .where((r) => r.$1 != widget.noteId && !_relations.contains(r.$1))
+        .toList();
+    if (options.isEmpty) {
+      _toast('لا توجد كلمات مرور أخرى لربطها');
+      return;
+    }
+    final picked = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.6),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Text('اختر كلمة مرور لربطها',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+              for (final r in options)
+                ListTile(
+                  leading: CircleAvatar(child: Text('#${r.$1}',
+                      style: const TextStyle(fontSize: 11))),
+                  title: Text(r.$2),
+                  onTap: () => Navigator.pop(ctx, r.$1),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) {
+      setState(() {
+        _relations.add(picked);
+        _emit();
+      });
+    }
   }
 }
