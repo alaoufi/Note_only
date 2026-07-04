@@ -165,10 +165,16 @@ class _PasswordFormState extends State<PasswordForm> {
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon),
-          suffixIcon: IconButton(
-            tooltip: S.of(context).t('copy'),
-            icon: const Icon(Icons.copy),
-            onPressed: () => _copy(ctrl.text),
+          // زرّ النسخ يظهر فقط حين يحتوي الحقل على نصّ (لا نسخ لحقل فارغ).
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: ctrl,
+            builder: (context, value, _) => value.text.isEmpty
+                ? const SizedBox.shrink()
+                : IconButton(
+                    tooltip: S.of(context).t('copy'),
+                    icon: const Icon(Icons.copy),
+                    onPressed: () => _copy(ctrl.text),
+                  ),
           ),
         ),
       ),
@@ -201,11 +207,13 @@ class _PasswordFormState extends State<PasswordForm> {
                 icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),
-              IconButton(
-                tooltip: s.t('copy'),
-                icon: const Icon(Icons.copy),
-                onPressed: () => _copySecure(_password.text),
-              ),
+              // زرّ النسخ يظهر فقط حين توجد كلمة مرور.
+              if (_password.text.isNotEmpty)
+                IconButton(
+                  tooltip: s.t('copy'),
+                  icon: const Icon(Icons.copy),
+                  onPressed: () => _copySecure(_password.text),
+                ),
             ],
           ),
         ),

@@ -18,6 +18,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   bool _lockEnabled = false;
   bool _biometricEnabled = false;
   bool _biometricAvailable = false;
+  bool _hasPin = false;
   bool _loaded = false;
 
   @override
@@ -30,6 +31,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     _lockEnabled = await _sec.isLockEnabled();
     _biometricEnabled = await _sec.isBiometricEnabled();
     _biometricAvailable = await _sec.canUseBiometrics();
+    _hasPin = await _sec.hasPin();
     setState(() => _loaded = true);
   }
 
@@ -131,14 +133,19 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     }
                   },
                 ),
-                if (_lockEnabled)
-                  ListTile(
-                    leading: const Icon(Icons.password),
-                    title: Text(s.t('set_pin')),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: _setupPin,
-                  ),
-                if (_lockEnabled && _biometricAvailable)
+                // رقم سرّي مشترك — متاح دائمًا: يُضبط مرّة واحدة هنا، ويُستخدم لفتح
+                // الملاحظات المقفلة وملاحظات كلمات المرور (يُطلب عند الفتح/التعديل
+                // فقط، لا عند الإضافة). مستقلّ عن «قفل التطبيق» بالكامل.
+                ListTile(
+                  leading: const Icon(Icons.password),
+                  title: Text(_hasPin ? 'تغيير الرقم السرّي' : s.t('set_pin')),
+                  subtitle: const Text(
+                      'رقم واحد يفتح الملاحظات المقفلة وكلمات المرور — '
+                      'يُطلب عند الفتح أو التعديل فقط.'),
+                  trailing: const Icon(Icons.chevron_left),
+                  onTap: _setupPin,
+                ),
+                if (_hasPin && _biometricAvailable)
                   SwitchListTile(
                     secondary: const Icon(Icons.fingerprint),
                     title: Text(s.t('use_biometric')),

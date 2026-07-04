@@ -26,7 +26,6 @@ import '../templates/note_templates.dart';
 import '../../services/security_service.dart';
 import '../security/info_lock.dart';
 import '../security/note_unlock.dart';
-import '../security/pin_setup.dart';
 import '../settings/settings_provider.dart';
 import 'notes_provider.dart';
 
@@ -381,10 +380,8 @@ class _HomeScreenState extends State<HomeScreen> {
   /// إنشاء نوع ملاحظة محدّد (من قائمة النقاط الثلاث).
   Future<void> _addTypedNote(NoteType type) async {
     final catId = context.read<NotesProvider>().filterCategoryId;
-    if (type == NoteType.password) {
-      final ok = await ensurePinConfigured(context);
-      if (!ok || !mounted) return;
-    }
+    // كلمات المرور تُقفل تلقائيًّا؛ الرقم السرّي يُضبط مرّة واحدة من الإعدادات
+    // ويُطلب عند الفتح/التعديل فقط — فلا نطلبه عند الإضافة الجديدة.
     await Navigator.push(
       context,
       MaterialPageRoute(
