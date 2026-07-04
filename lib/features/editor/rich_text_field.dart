@@ -8,6 +8,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/text/arabic_search.dart';
 import '../../core/text/line_direction.dart';
 import '../settings/settings_provider.dart';
 import 'voice_dictation.dart';
@@ -56,21 +57,9 @@ class RichTextController {
   String? _cachedPlain;
   String get plainText => _cachedPlain ??= quill.document.toPlainText();
 
-  /// «بحث داخل الملاحظة»: مواضع بداية كل تطابق (غير متداخل) لنصّ البحث في المتن،
-  /// غير حسّاس لحالة الأحرف. القائمة مرتّبة تصاعديًّا حسب الموضع.
-  List<int> findMatches(String term) {
-    final n = term.trim();
-    if (n.isEmpty) return const [];
-    final hay = plainText.toLowerCase();
-    final needle = n.toLowerCase();
-    final out = <int>[];
-    var i = hay.indexOf(needle);
-    while (i != -1) {
-      out.add(i);
-      i = hay.indexOf(needle, i + needle.length);
-    }
-    return out;
-  }
+  /// «بحث داخل الملاحظة»: مواضع كل تطابق (غير متداخل) كأزواج `[start, end]`
+  /// بإحداثيات المستند — بحث عربيّ ذكيّ (يتجاهل الهمزة/التشكيل/«ال» التعريف).
+  List<List<int>> findMatches(String term) => findArabicMatches(plainText, term);
 
   /// يحدِّد المدى [start..start+length] ويُركّز المحرّر كي يُمرِّر العرض إليه —
   /// فينتقل مباشرةً إلى التطابق ويظهر مظلَّلًا (للتنقّل بين نتائج البحث).

@@ -1,6 +1,7 @@
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/text/arabic_search.dart';
 import '../database/app_database.dart';
 import '../models/checklist_item.dart';
 import '../models/enums.dart';
@@ -68,12 +69,8 @@ class NoteRepository {
       where.add('n.category_id = ?');
       args.add(categoryId);
     }
-    if (search != null && search.trim().isNotEmpty) {
-      where.add('(n.title LIKE ? OR n.content LIKE ?)');
-      final like = '%${search.trim()}%';
-      args.add(like);
-      args.add(like);
-    }
+    // البحث النصّي يُطبَّق في Dart (تطبيع عربيّ ذكيّ: همزة/تشكيل/«ال») بعد الجلب،
+    // لأن SQL LIKE لا يطبّع العربية. باقي الفلاتر تبقى في SQL.
 
     String sql = 'SELECT n.* FROM notes n';
     if (tag != null && tag.isNotEmpty) {
@@ -92,7 +89,18 @@ class NoteRepository {
     };
     sql += ' ORDER BY n.is_pinned DESC, $order';
 
-    final rows = await db.rawQuery(sql, args);
+    var rows = await db.rawQuery(sql, args);
+    // فلترة نصّية ذكيّة (عربية) على العنوان والمحتوى بعد الجلب.
+    final q = search?.trim() ?? '';
+    if (q.isNotEmpty) {
+      final needle = normalizeArabic(q);
+      rows = rows.where((r) {
+        final title = (r['title'] as String?) ?? '';
+        final content = (r['content'] as String?) ?? '';
+        return normalizeArabic(title).contains(needle) ||
+            normalizeArabic(content).contains(needle);
+      }).toList();
+    }
     return _attachTags(db, rows);
   }
 

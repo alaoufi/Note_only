@@ -69,7 +69,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   bool _findVisible = false;
   final _findCtrl = TextEditingController();
   final _findFocus = FocusNode();
-  List<int> _findMatches = const [];
+  List<List<int>> _findMatches = const []; // أزواج [start, end] بإحداثيات المستند
   int _findIndex = 0;
   bool _findJumped = false; // هل انتقلنا لتطابق بعدُ لمصطلح البحث الحالي؟
 
@@ -157,9 +157,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     // فُتحت من نتائج البحث ⇒ افتح شريط البحث داخل المتن وانتقل لأول تطابق.
+    // نمهل المحرّر لحظةً كي يكتمل بناؤه وتمريره قبل القفز إلى التطابق.
     final find = widget.initialFind?.trim() ?? '';
     if (find.isNotEmpty && _note.type == NoteType.text && _richCtrl != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 150));
         if (mounted) _openFind(find);
       });
     }
@@ -271,7 +273,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       _findIndex = idx;
       _findJumped = true;
     });
-    ctrl.selectMatch(_findMatches[idx], _findCtrl.text.trim().length);
+    final r = _findMatches[idx];
+    ctrl.selectMatch(r[0], r[1] - r[0]);
   }
 
   /// شريط «بحث داخل الملاحظة»: حقل + عدّاد نتائج + سهما تنقّل + إغلاق.
