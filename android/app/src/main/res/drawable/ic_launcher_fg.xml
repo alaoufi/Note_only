@@ -8,6 +8,7 @@
   <group android:name="book" android:rotation="-9"
       android:pivotX="256" android:pivotY="256"
       android:scaleX="0.86" android:scaleY="0.86">
+    <path android:pathData="M168,118 H358 A18,18 0 0 1 376,136 V412 A18,18 0 0 1 358,430 H168 A18,18 0 0 1 150,412 V136 A18,18 0 0 1 168,118 Z" android:fillColor="#2E0A3A30"/>
     <path android:pathData="M155,392 H359 A5,5 0 0 1 364,397 V413 A5,5 0 0 1 359,418 H155 A5,5 0 0 1 150,413 V397 A5,5 0 0 1 155,392 Z">
     <aapt:attr name="android:fillColor">
       <gradient android:type="linear" android:startX="150" android:startY="392"

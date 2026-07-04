@@ -15,7 +15,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'mudhakkarati.db';
-  static const _dbVersion = 19;
+  static const _dbVersion = 20;
 
   Database? _db;
   Future<Database>? _opening;
@@ -385,6 +385,14 @@ class AppDatabase {
       // تذكير بسيط لكل ملاحظة: وقت إشعار واحد (null = بلا تذكير).
       await db.execute('ALTER TABLE notes ADD COLUMN reminder_at INTEGER');
     }
+    if (oldVersion < 20) {
+      // توحيد الهوية البصرية: التصنيفان الافتراضيّان «شخصي» و«الوارد» كانا أزرق
+      // فيتعارضان مع الهوية الخضراء الزمرّدية. نحدّثهما للأخضر فقط إن بقيا على
+      // الأزرق الافتراضي القديم (فلا نلمس تصنيفًا لوّنه المستخدم بنفسه).
+      await db.update('categories', {'color': 0xFF2E7D6B},
+          where: 'name IN (?, ?) AND color = ?',
+          whereArgs: ['شخصي', 'الوارد', 0xFF42A5F5]);
+    }
   }
 
   /// جدول سجلّ التنبيهات المنفّذة (كل تنبيه فات وقته — لكل الأنواع).
@@ -435,7 +443,7 @@ class AppDatabase {
   Future<void> _seedDefaultCategories(Database db) async {
     // icon_code يخزّن *فهرس* الأيقونة في kCategoryIcons (وليس codePoint).
     final defaults = <Map<String, dynamic>>[
-      {'name': 'شخصي', 'color': 0xFF42A5F5, 'icon_code': 0, 'position': 0},
+      {'name': 'شخصي', 'color': 0xFF2E7D6B, 'icon_code': 0, 'position': 0},
       {'name': 'عمل', 'color': 0xFF7E57C2, 'icon_code': 1, 'position': 1},
       {'name': 'مهم', 'color': 0xFFEF5350, 'icon_code': 2, 'position': 2},
       {'name': 'مواعيد', 'color': 0xFF26A69A, 'icon_code': 3, 'position': 3},

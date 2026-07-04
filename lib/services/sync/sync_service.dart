@@ -436,7 +436,7 @@ class SyncService {
         } else {
           categoryId = await db.insert('categories', {
             'name': name,
-            'color': (cat['color'] as num?)?.toInt() ?? 0xFF42A5F5,
+            'color': (cat['color'] as num?)?.toInt() ?? 0xFF2E7D6B,
             'icon_code': (cat['icon_code'] as num?)?.toInt() ?? 0,
             'position': 0,
           });

@@ -103,7 +103,7 @@ class NotesProvider extends ChangeNotifier {
   /// يضمن وجود تصنيف «الوارد» (يظهر أولًا) ويحفظ معرّفه.
   Future<void> ensureInbox() async {
     _inboxId = await categoriesRepo.ensureByName('الوارد',
-        color: 0xFF42A5F5, iconCode: 12, position: -1);
+        color: 0xFF2E7D6B, iconCode: 12, position: -1);
   }
 
   /// يفتح ملاحظة اليوم (يُنشئها بقالب إن لم تكن موجودة) ويعيد معرّفها.

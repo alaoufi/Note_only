@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (sheetCtx) {
         // (أيقونة، تسمية، لون، إجراء) لكل نوع إضافة — مكان واحد لكل الأنواع.
         final items = <(IconData, String, Color, VoidCallback)>[
-          (Icons.edit_note, s.t('qa_note'), const Color(0xFF42A5F5),
+          (Icons.edit_note, s.t('qa_note'), const Color(0xFF2E7D6B),
               () => _quickType(NoteType.text)),
           (Icons.checklist, s.t('note_checklist'), const Color(0xFF66BB6A),
               () => _quickSmooth(startAsTask: true)),
@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
               () => _addTypedNote(NoteType.password)),
           (Icons.dashboard_customize_outlined, s.t('qa_template'),
               const Color(0xFFFFA726), () => showTemplatePicker(context)),
-          (Icons.today, s.t('qa_today'), const Color(0xFF5C6BC0), _openDaily),
+          (Icons.today, s.t('qa_today'), const Color(0xFF00897B), _openDaily),
         ];
         return SafeArea(
           child: Padding(
