@@ -50,6 +50,18 @@ class _PasswordFormState extends State<PasswordForm> {
   List<(int, String)> _allRefs = const [];
   Map<int, String> _titleById = const {};
 
+  // سجلّ التراجع/الإعادة: لقطات للحالة كي يتراجع المستخدم عن تعديل خاطئ رغم
+  // الحفظ التلقائي الفوريّ.
+  final List<PasswordEntry> _history = [];
+  int _histIndex = 0;
+  Timer? _snapTimer;
+  bool _restoring = false;
+
+  // يمكن التراجع إن وُجدت لقطة أقدم، أو إن كان هناك تعديل حيّ غير مسجَّل بعد.
+  bool get _canUndo =>
+      _histIndex > 0 || _sig(_current()) != _sig(_history[_histIndex]);
+  bool get _canRedo => _histIndex < _history.length - 1;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +72,7 @@ class _PasswordFormState extends State<PasswordForm> {
     _website = TextEditingController(text: widget.initial.website);
     _notes = TextEditingController(text: widget.initial.notes);
     _relations = List<int>.from(widget.initial.relations);
+    _history.add(widget.initial); // اللقطة الأولى (الحالة المحمَّلة).
     _loadRefs();
   }
 
@@ -77,6 +90,7 @@ class _PasswordFormState extends State<PasswordForm> {
   @override
   void dispose() {
     _clearTimer?.cancel();
+    _snapTimer?.cancel();
     _title.dispose();
     _username.dispose();
     _password.dispose();
@@ -86,16 +100,84 @@ class _PasswordFormState extends State<PasswordForm> {
     super.dispose();
   }
 
+  PasswordEntry _current() => PasswordEntry(
+        title: _title.text,
+        username: _username.text,
+        password: _password.text,
+        email: _email.text,
+        website: _website.text,
+        relations: List<int>.from(_relations),
+        notes: _notes.text,
+      );
+
   void _emit() {
-    widget.onChanged(PasswordEntry(
-      title: _title.text,
-      username: _username.text,
-      password: _password.text,
-      email: _email.text,
-      website: _website.text,
-      relations: _relations,
-      notes: _notes.text,
-    ));
+    widget.onChanged(_current());
+    if (!_restoring) {
+      _scheduleSnapshot();
+      // حدّث حالة زرَّي التراجع/الإعادة فورًا مع كل تعديل.
+      if (mounted) setState(() {});
+    }
+  }
+
+  /// توقيع نصّي للحالة (لمقارنة اللقطات دون تشفير عشوائيّ).
+  static String _sig(PasswordEntry e) => [
+        e.title,
+        e.username,
+        e.password,
+        e.email,
+        e.website,
+        e.relations.join(','),
+        e.notes,
+      ].join('');
+
+  /// يلتقط لقطة بعد توقّف التعديل بلحظة (كي لا تُسجَّل كل ضغطة على حدة).
+  void _scheduleSnapshot() {
+    _snapTimer?.cancel();
+    _snapTimer = Timer(const Duration(milliseconds: 700), _recordSnapshot);
+  }
+
+  void _recordSnapshot() {
+    final cur = _current();
+    if (_sig(cur) == _sig(_history[_histIndex])) return; // بلا تغيير فعليّ.
+    // اقطع أي «إعادة» سابقة ثم أضف اللقطة الجديدة.
+    if (_histIndex < _history.length - 1) {
+      _history.removeRange(_histIndex + 1, _history.length);
+    }
+    _history.add(cur);
+    if (_history.length > 50) _history.removeAt(0); // حدّ أعلى للسجلّ.
+    _histIndex = _history.length - 1;
+    if (mounted) setState(() {});
+  }
+
+  void _restore(PasswordEntry e) {
+    _restoring = true;
+    _snapTimer?.cancel();
+    setState(() {
+      _title.text = e.title;
+      _username.text = e.username;
+      _password.text = e.password;
+      _email.text = e.email;
+      _website.text = e.website;
+      _notes.text = e.notes;
+      _relations = List<int>.from(e.relations);
+    });
+    widget.onChanged(e); // احفظ الحالة المستعادة فورًا.
+    _restoring = false;
+  }
+
+  void _undo() {
+    _snapTimer?.cancel();
+    _recordSnapshot(); // ثبّت أي تعديل حيّ أولًا كي يُمكن التراجع عنه.
+    if (_histIndex <= 0) return;
+    _histIndex--;
+    _restore(_history[_histIndex]);
+  }
+
+  void _redo() {
+    if (!_canRedo) return;
+    _snapTimer?.cancel();
+    _histIndex++;
+    _restore(_history[_histIndex]);
   }
 
   Future<void> _copy(String value) async {
@@ -163,9 +245,33 @@ class _PasswordFormState extends State<PasswordForm> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // شريط تراجع/إعادة — لاستعادة قيمة سابقة رغم الحفظ التلقائي الفوريّ.
+        Row(
+          children: [
+            IconButton.filledTonal(
+              tooltip: 'تراجع',
+              visualDensity: VisualDensity.compact,
+              onPressed: _canUndo ? _undo : null,
+              icon: const Icon(Icons.undo),
+            ),
+            const SizedBox(width: 6),
+            IconButton.filledTonal(
+              tooltip: 'إعادة',
+              visualDensity: VisualDensity.compact,
+              onPressed: _canRedo ? _redo : null,
+              icon: const Icon(Icons.redo),
+            ),
+            const Spacer(),
+            Icon(Icons.history, size: 16, color: scheme.outline),
+            const SizedBox(width: 4),
+            Text('تراجع/إعادة',
+                style: TextStyle(fontSize: 12, color: scheme.outline)),
+          ],
+        ),
         _serialTile(),
         _field('العنوان', _title, Icons.badge_outlined),
         _field(s.t('pw_username'), _username, Icons.person_outline),
