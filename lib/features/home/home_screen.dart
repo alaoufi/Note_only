@@ -26,6 +26,7 @@ import '../templates/note_templates.dart';
 import '../../services/security_service.dart';
 import '../security/info_lock.dart';
 import '../security/note_unlock.dart';
+import '../security/passwords_screen.dart';
 import '../settings/settings_provider.dart';
 import 'notes_provider.dart';
 
@@ -399,6 +400,14 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(builder: (_) => const InfoListScreen()));
   }
 
+  /// قسم كلمات المرور (نظام) — يُفتح بعد فتح القفل بالرقم السرّي المشترك.
+  Future<void> _openPasswords() async {
+    if (!await ensureUnlocked(context)) return;
+    if (!mounted) return;
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => const PasswordsScreen()));
+  }
+
   Widget _overflowMenu(BuildContext context, S s, NotesProvider provider) {
     final settings = context.read<SettingsProvider>();
     final showInfo = settings.infoPlacement == InfoPlacement.menu;
@@ -412,6 +421,8 @@ class _HomeScreenState extends State<HomeScreen> {
         switch (v) {
           case 'info':
             _openInfo();
+          case 'passwords':
+            _openPasswords();
           case 'privacy':
             settings.setPrivacyMode(!settings.privacyMode);
           case 'favorites':
@@ -443,6 +454,9 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuItem<String>(
               value: 'info',
               child: _menuRow(Icons.menu_book_outlined, s.t('info'))),
+        PopupMenuItem<String>(
+            value: 'passwords',
+            child: _menuRow(Icons.vpn_key_outlined, 'كلمات المرور')),
         PopupMenuItem<String>(
           value: 'privacy',
           child: _menuRow(

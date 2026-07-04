@@ -57,6 +57,11 @@ class NoteRepository {
     if (type != null) {
       where.add('n.type = ?');
       args.add(type.dbValue);
+    } else {
+      // كلمات المرور لها قسمها المخصّص (يُفتح من ⋮) — تُستبعد من القائمة العامّة
+      // والبحث والمفضّلة كي تبقى منظّمة ومحميّة في مكانها.
+      where.add('n.type != ?');
+      args.add(NoteType.password.dbValue);
     }
     if (from != null) {
       where.add('n.updated_at >= ?');
@@ -150,11 +155,25 @@ class NoteRepository {
     return _attachTags(db, rows);
   }
 
-  /// الملاحظات السرية المقفلة (للقسم المحمي).
-  Future<List<Note>> getLocked() async {    final db = await _db;
+  /// ملاحظات كلمات المرور (قسم النظام المخصّص) — مرتّبة حسب الأحدث.
+  Future<List<Note>> getPasswordNotes() async {
+    final db = await _db;
     final rows = await db.query(
       'notes',
-      where: 'is_locked = 1 AND is_deleted = 0 AND is_archived = 0',
+      where: 'type = ? AND is_deleted = 0',
+      whereArgs: [NoteType.password.dbValue],
+      orderBy: 'is_pinned DESC, updated_at DESC',
+    );
+    return _attachTags(db, rows);
+  }
+
+  /// الملاحظات السرية المقفلة (للقسم المحمي) — عدا كلمات المرور (لها قسمها).
+  Future<List<Note>> getLocked() async {
+    final db = await _db;
+    final rows = await db.query(
+      'notes',
+      where: 'is_locked = 1 AND is_deleted = 0 AND is_archived = 0 AND type != ?',
+      whereArgs: [NoteType.password.dbValue],
       orderBy: 'is_pinned DESC, updated_at DESC',
     );
     return _attachTags(db, rows);

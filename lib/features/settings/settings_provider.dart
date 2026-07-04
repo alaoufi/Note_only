@@ -17,7 +17,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _hideSelectionMenu = false;
   bool _dynamicColor = false; // ألوان النظام (Dynamic Color) على أندرويد 12+
   bool _compactCards = false; // عرض مدمج لبطاقات الملاحظات
-  InfoPlacement _infoPlacement = InfoPlacement.tab;
+  InfoPlacement _infoPlacement = InfoPlacement.menu;
   NoteLayout _layout = NoteLayout.grid;
   Locale _locale = const Locale('ar'); // عربي افتراضيًّا (تطبيق عربيّ ⇒ اتجاه RTL)
   String _alarmTone = 'ocean'; // Calm Tide افتراضيًّا
@@ -289,7 +289,7 @@ class SettingsProvider extends ChangeNotifier {
     _compactCards = prefs.getBool(_kCompactCards) ?? false;
     final ip = prefs.getString(_kInfoPlacement);
     _infoPlacement = InfoPlacement.values
-        .firstWhere((e) => e.name == ip, orElse: () => InfoPlacement.tab);
+        .firstWhere((e) => e.name == ip, orElse: () => InfoPlacement.menu);
     _layout = prefs.getString(_kLayout) == 'list' ? NoteLayout.list : NoteLayout.grid;
     _locale = Locale(prefs.getString(_kLocale) ?? 'ar'); // افتراضي عربي (RTL)
     _alarmTone = prefs.getString(_kTone) ?? 'ocean';

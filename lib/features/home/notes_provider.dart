@@ -255,6 +255,7 @@ class NotesProvider extends ChangeNotifier {
 
   Future<List<Note>> getFavorites() => notes.getNotes(onlyFavorites: true);
   Future<List<Note>> getLocked() => notes.getLocked();
+  Future<List<Note>> getPasswordNotes() => notes.getPasswordNotes();
 
   Future<void> setArchived(Note note, bool archived) async {
     await notes.setArchived(note.id!, archived);
