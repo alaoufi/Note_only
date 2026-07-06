@@ -443,6 +443,45 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
   }
 
+  /// حذف الوسيط (صورة/صوت/PDF/رسم) من الملاحظة مع تأكيد — تبقى الملاحظة ونصّها.
+  Future<void> _removeMedia(
+      {bool image = false,
+      bool audio = false,
+      bool pdf = false,
+      bool drawing = false,
+      required String label}) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.delete_outline),
+        title: Text('حذف $label؟'),
+        content: Text('سيُحذف $label من الملاحظة (يبقى النصّ). لا يمكن التراجع.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    setState(() => _note = _note.copyWith(
+          clearImage: image,
+          clearAudio: audio,
+          clearPdf: pdf,
+          clearDrawing: drawing,
+        ));
+    _dirty = true;
+    await _ensureSaved();
+    await _save(force: true);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('حُذف $label')));
+    }
+  }
+
   Future<void> _save({bool force = false}) async {
     if (!_loaded || _deleted) return;
     final provider = context.read<NotesProvider>();
@@ -1259,10 +1298,21 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         _attachButton(s.t('note_image'), Icons.add_photo_alternate, _attachImage),
       const SizedBox(height: 8),
       if (_note.imagePath != null)
-        TextButton.icon(
-          onPressed: _attachImage,
-          icon: const Icon(Icons.edit),
-          label: Text(s.t('note_image')),
+        Row(
+          children: [
+            TextButton.icon(
+              onPressed: _attachImage,
+              icon: const Icon(Icons.edit),
+              label: const Text('تغيير'),
+            ),
+            TextButton.icon(
+              onPressed: () => _removeMedia(image: true, label: 'الصورة'),
+              icon: Icon(Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error),
+              label: Text('حذف الصورة',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ),
+          ],
         ),
       _contentField(s),
     ];
@@ -1279,6 +1329,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           await _save(force: true);
         },
       ),
+      if (_note.audioPath != null)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            onPressed: () => _removeMedia(audio: true, label: 'التسجيل'),
+            icon: Icon(Icons.delete_outline,
+                color: Theme.of(context).colorScheme.error),
+            label: Text('حذف التسجيل',
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ),
       const SizedBox(height: 12),
       _contentField(s),
     ];
@@ -1291,9 +1352,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
           title: Text(_note.pdfPath!.split('/').last,
               maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: IconButton(
-            icon: const Icon(Icons.open_in_new),
-            onPressed: () => EditorAttachments.openFile(_note.pdfPath!),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.open_in_new),
+                onPressed: () => EditorAttachments.openFile(_note.pdfPath!),
+              ),
+              IconButton(
+                tooltip: 'حذف',
+                icon: Icon(Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error),
+                onPressed: () => _removeMedia(pdf: true, label: 'ملفّ PDF'),
+              ),
+            ],
           ),
         )
       else
@@ -1319,11 +1391,29 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       else
         _attachButton(s.t('drawing'), Icons.brush, _editDrawing),
       const SizedBox(height: 8),
-      TextButton.icon(
-        onPressed: _editDrawing,
-        icon: const Icon(Icons.edit),
-        label: Text(s.t('drawing')),
-      ),
+      if (_note.drawingPath != null)
+        Row(
+          children: [
+            TextButton.icon(
+              onPressed: _editDrawing,
+              icon: const Icon(Icons.edit),
+              label: const Text('تعديل'),
+            ),
+            TextButton.icon(
+              onPressed: () => _removeMedia(drawing: true, label: 'الرسم'),
+              icon: Icon(Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error),
+              label: Text('حذف الرسم',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ),
+          ],
+        )
+      else
+        TextButton.icon(
+          onPressed: _editDrawing,
+          icon: const Icon(Icons.edit),
+          label: Text(s.t('drawing')),
+        ),
       _contentField(s),
     ];
   }

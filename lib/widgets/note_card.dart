@@ -250,50 +250,67 @@ class NoteCard extends StatelessWidget {
     switch (note.type) {
       case NoteType.image:
         if (note.imagePath != null && File(note.imagePath!).existsSync()) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(File(note.imagePath!),
-                  height: 120, width: double.infinity, fit: BoxFit.cover),
+          return _captioned(
+            context,
+            onBg,
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(File(note.imagePath!),
+                    height: 120, width: double.infinity, fit: BoxFit.cover),
+              ),
             ),
           );
         }
         return _text(context, onBg);
       case NoteType.drawing:
         if (note.drawingPath != null && File(note.drawingPath!).existsSync()) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(File(note.drawingPath!),
-                  height: 120, width: double.infinity, fit: BoxFit.contain),
+          return _captioned(
+            context,
+            onBg,
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.file(File(note.drawingPath!),
+                    height: 120, width: double.infinity, fit: BoxFit.contain),
+              ),
             ),
           );
         }
         return _text(context, onBg);
       case NoteType.audio:
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(children: [
-            Icon(Icons.play_circle_fill, color: onBg.withOpacity(0.8)),
-            const SizedBox(width: 8),
-            Text('ملاحظة صوتية', style: TextStyle(color: onBg.withOpacity(0.8))),
-          ]),
+        return _captioned(
+          context,
+          onBg,
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(children: [
+              Icon(Icons.play_circle_fill, color: onBg.withOpacity(0.8)),
+              const SizedBox(width: 8),
+              Text('ملاحظة صوتية',
+                  style: TextStyle(color: onBg.withOpacity(0.8))),
+            ]),
+          ),
         );
       case NoteType.pdf:
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(children: [
-            Icon(Icons.picture_as_pdf, color: onBg.withOpacity(0.8)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text('ملف PDF مرفق',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: onBg.withOpacity(0.8))),
-            ),
-          ]),
+        return _captioned(
+          context,
+          onBg,
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(children: [
+              Icon(Icons.picture_as_pdf, color: onBg.withOpacity(0.8)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('ملف PDF مرفق',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: onBg.withOpacity(0.8))),
+              ),
+            ]),
+          ),
         );
       case NoteType.checklist:
         final noteFont = context.watch<SettingsProvider>().noteFontFamily;
@@ -506,6 +523,33 @@ class NoteCard extends StatelessWidget {
         textDirection: dir,
         text: TextSpan(children: spans),
       ),
+    );
+  }
+
+  /// يُلحق نصّ الملاحظة (التعليق) أسفل الوسيط مع تظليل كلمات البحث — كي يظهر
+  /// النصّ المطابق في نتائج البحث لملاحظات الصور/الصوت/الرسم/PDF.
+  Widget _captioned(BuildContext context, Color onBg, Widget media) {
+    final cap = note.content.trim();
+    if (cap.isEmpty) return media;
+    final noteFont = context.watch<SettingsProvider>().noteFontFamily;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        media,
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: _highlight(
+            context,
+            cap,
+            TextStyle(
+                color: onBg.withOpacity(0.85),
+                height: 1.3,
+                fontSize: 13,
+                fontFamily: noteFont),
+            maxLines: 3,
+          ),
+        ),
+      ],
     );
   }
 
