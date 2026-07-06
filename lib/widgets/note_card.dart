@@ -13,6 +13,7 @@ import '../data/models/category.dart';
 import '../data/models/enums.dart';
 import '../data/models/note.dart';
 import '../data/models/password_entry.dart';
+import '../data/models/treatment_entry.dart';
 import '../features/editor/rich_text_field.dart';
 import '../features/home/notes_provider.dart';
 
@@ -216,6 +217,7 @@ class NoteCard extends StatelessWidget {
         NoteType.pdf => Icons.picture_as_pdf,
         NoteType.drawing => Icons.brush,
         NoteType.password => Icons.vpn_key,
+        NoteType.treatment => Icons.medication,
       };
 
   /// معاينة مخفية في «وضع الخصوصية» (يظهر العنوان فقط).
@@ -382,6 +384,33 @@ class NoteCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: onBg.withOpacity(0.8))),
               Text('••••••••', style: TextStyle(color: onBg.withOpacity(0.6))),
+            ],
+          ),
+        );
+      case NoteType.treatment:
+        final t = TreatmentEntry.fromStoredJson(note.content);
+        final sub = [t.concentration, t.dose]
+            .where((e) => e.trim().isNotEmpty)
+            .join(' • ');
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.displayTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: onBg, fontWeight: FontWeight.w600)),
+              if (t.activeIngredient.trim().isNotEmpty)
+                Text(t.activeIngredient,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: onBg.withOpacity(0.8))),
+              if (sub.isNotEmpty)
+                Text(sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: onBg.withOpacity(0.7), fontSize: 12)),
             ],
           ),
         );

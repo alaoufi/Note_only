@@ -27,6 +27,7 @@ import '../../services/security_service.dart';
 import '../security/info_lock.dart';
 import '../security/note_unlock.dart';
 import '../security/passwords_screen.dart';
+import '../treatment/treatments_screen.dart';
 import '../settings/settings_provider.dart';
 import 'notes_provider.dart';
 
@@ -423,6 +424,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _openInfo();
           case 'passwords':
             _openPasswords();
+          case 'treatment':
+            open(const TreatmentsScreen());
           case 'privacy':
             settings.setPrivacyMode(!settings.privacyMode);
           case 'favorites':
@@ -457,6 +460,9 @@ class _HomeScreenState extends State<HomeScreen> {
         PopupMenuItem<String>(
             value: 'passwords',
             child: _menuRow(Icons.vpn_key_outlined, 'كلمات المرور')),
+        PopupMenuItem<String>(
+            value: 'treatment',
+            child: _menuRow(Icons.medication_outlined, 'العلاج')),
         PopupMenuItem<String>(
           value: 'privacy',
           child: _menuRow(

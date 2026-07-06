@@ -58,10 +58,11 @@ class NoteRepository {
       where.add('n.type = ?');
       args.add(type.dbValue);
     } else {
-      // كلمات المرور لها قسمها المخصّص (يُفتح من ⋮) — تُستبعد من القائمة العامّة
-      // والبحث والمفضّلة كي تبقى منظّمة ومحميّة في مكانها.
-      where.add('n.type != ?');
+      // كلمات المرور والعلاج لهما قسماهما المخصّصان (يُفتحان من ⋮) — يُستبعدان من
+      // القائمة العامّة والبحث والمفضّلة كي تبقى منظّمة في مكانها.
+      where.add('n.type NOT IN (?, ?)');
       args.add(NoteType.password.dbValue);
+      args.add(NoteType.treatment.dbValue);
     }
     if (from != null) {
       where.add('n.updated_at >= ?');
@@ -162,6 +163,18 @@ class NoteRepository {
       'notes',
       where: 'type = ? AND is_deleted = 0',
       whereArgs: [NoteType.password.dbValue],
+      orderBy: 'is_pinned DESC, updated_at DESC',
+    );
+    return _attachTags(db, rows);
+  }
+
+  /// ملاحظات العلاج/الدواء (قسم النظام المخصّص) — مرتّبة حسب الأحدث.
+  Future<List<Note>> getTreatmentNotes() async {
+    final db = await _db;
+    final rows = await db.query(
+      'notes',
+      where: 'type = ? AND is_deleted = 0',
+      whereArgs: [NoteType.treatment.dbValue],
       orderBy: 'is_pinned DESC, updated_at DESC',
     );
     return _attachTags(db, rows);

@@ -7,6 +7,7 @@ enum NoteType {
   pdf, // ملاحظة مع ملف PDF
   drawing, // رسم / كتابة يدوية
   password, // ملاحظة كلمات مرور (حقول منظمة، كلمة المرور مشفّرة)
+  treatment, // ملاحظة علاج/دواء (حقول منظمة)
 }
 
 extension NoteTypeX on NoteType {

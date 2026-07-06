@@ -13,11 +13,13 @@ import '../../data/models/checklist_item.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/note.dart';
 import '../../data/models/password_entry.dart';
+import '../../data/models/treatment_entry.dart';
 import '../../services/pdf_export_service.dart';
 import '../../services/word_export_service.dart';
 import '../../services/secure_screen.dart';
 import '../../services/vault_service.dart';
 import 'password_form.dart';
+import 'treatment_form.dart';
 import '../../widgets/color_picker_sheet.dart';
 import '../../widgets/note_actions.dart';
 import '../../widgets/paper_background.dart';
@@ -65,6 +67,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final List<TextEditingController> _itemCtrls = [];
   final List<FocusNode> _itemFocus = [];
   PasswordEntry _passwordEntry = const PasswordEntry();
+  TreatmentEntry _treatmentEntry = const TreatmentEntry();
   String _richContent = ''; // محتوى النص الغني (Delta JSON) لنوع النص
   RichTextController? _richCtrl; // وحدة تحكّم النص الغني (لنوع النص فقط)
 
@@ -109,6 +112,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           _rebuildItemCtrls();
         } else if (n.type == NoteType.password) {
           _passwordEntry = PasswordEntry.fromStoredJson(n.content);
+        } else if (n.type == NoteType.treatment) {
+          _treatmentEntry = TreatmentEntry.fromStoredJson(n.content);
         } else if (n.type == NoteType.text) {
           _richContent = n.content;
         }
@@ -511,12 +516,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (!_loaded || _deleted) return;
     final provider = context.read<NotesProvider>();
 
-    // لملاحظات كلمات المرور: العنوان حقلٌ داخل النموذج، فنستمدّ عنوان الملاحظة منه.
-    final title = _note.type == NoteType.password
-        ? _passwordEntry.title
-        : _titleCtrl.text;
+    // لملاحظات كلمات المرور/العلاج: العنوان حقلٌ داخل النموذج فنستمدّه منه.
+    final title = switch (_note.type) {
+      NoteType.password => _passwordEntry.title,
+      NoteType.treatment => _treatmentEntry.displayTitle,
+      _ => _titleCtrl.text,
+    };
     var content = _contentCtrl.text;
-    var emptyPassword = false;
+    var emptyStructured = false;
     var emptyRich = false;
     if (_note.type == NoteType.checklist) {
       // زامن النصوص من الحقول.
@@ -528,8 +535,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       content = _richContent;
       emptyRich = richToPlainText(_richContent).trim().isEmpty;
     } else if (_note.type == NoteType.password) {
-      emptyPassword = _passwordEntry.isEmpty;
+      emptyStructured = _passwordEntry.isEmpty;
       content = _passwordEntry.toStoredJson();
+    } else if (_note.type == NoteType.treatment) {
+      emptyStructured = _treatmentEntry.isEmpty;
+      content = _treatmentEntry.toStoredJson();
     }
 
     final candidate = _note.copyWith(
@@ -540,8 +550,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     // لا تحفظ ملاحظة فارغة تمامًا.
     final bool isEmpty;
-    if (_note.type == NoteType.password) {
-      isEmpty = title.trim().isEmpty && emptyPassword;
+    if (_note.type == NoteType.password ||
+        _note.type == NoteType.treatment) {
+      isEmpty = title.trim().isEmpty && emptyStructured;
     } else if (_note.type == NoteType.text) {
       isEmpty = title.trim().isEmpty && emptyRich;
     } else {
@@ -610,6 +621,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     switch (_note.type) {
       case NoteType.password:
         return _passwordEntry.isEmpty;
+      case NoteType.treatment:
+        return _treatmentEntry.isEmpty;
       case NoteType.checklist:
         return !_itemCtrls.any((c) => c.text.trim().isNotEmpty);
       case NoteType.text:
@@ -1189,6 +1202,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             onOpenRelation: _openRelation,
             onChanged: (entry) {
               _passwordEntry = entry;
+              _onChanged();
+            },
+          ),
+        ];
+      case NoteType.treatment:
+        return [
+          TreatmentForm(
+            initial: _treatmentEntry,
+            onChanged: (entry) {
+              _treatmentEntry = entry;
               _onChanged();
             },
           ),
