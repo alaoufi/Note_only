@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../data/models/password_entry.dart';
@@ -279,8 +280,7 @@ class _PasswordFormState extends State<PasswordForm> {
         _strengthBar(s),
         _field('البريد الإلكتروني', _email, Icons.alternate_email,
             keyboard: TextInputType.emailAddress),
-        _field('الموقع الإلكتروني', _website, Icons.language,
-            keyboard: TextInputType.url),
+        _websiteField(),
         _relationsSection(),
         _field(s.t('pw_notes'), _notes, Icons.notes, maxLines: 3),
         const SizedBox(height: 10),
@@ -370,6 +370,69 @@ class _PasswordFormState extends State<PasswordForm> {
         ],
       ),
     );
+  }
+
+  /// حقل الموقع الإلكتروني: زرّ فتح (يفتح الرابط في المتصفّح) + زرّ نسخ. كما
+  /// يمكن النسخ بالضغط المطوّل (قائمة التحديد الأصلية).
+  Widget _websiteField() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _label('الموقع الإلكتروني'),
+          TextField(
+            controller: _website,
+            keyboardType: TextInputType.url,
+            onChanged: (_) => _emit(),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.language),
+              suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _website,
+                builder: (context, value, _) => value.text.trim().isEmpty
+                    ? const SizedBox.shrink()
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            tooltip: 'فتح الموقع',
+                            icon: const Icon(Icons.open_in_new),
+                            color: Theme.of(context).colorScheme.primary,
+                            onPressed: () => _openUrl(value.text),
+                          ),
+                          IconButton(
+                            tooltip: S.of(context).t('copy'),
+                            icon: const Icon(Icons.copy),
+                            onPressed: () => _copy(value.text),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// يفتح رابط الموقع في المتصفّح (يضيف https:// إن لزم).
+  Future<void> _openUrl(String raw) async {
+    var url = raw.trim();
+    if (url.isEmpty) return;
+    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9+.-]*://').hasMatch(url)) {
+      url = 'https://$url';
+    }
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
+      _toast('رابط غير صالح');
+      return;
+    }
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok) _toast('تعذّر فتح الموقع');
+    } catch (_) {
+      _toast('تعذّر فتح الموقع');
+    }
   }
 
   Widget _passwordField(S s) {

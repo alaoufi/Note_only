@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/text/arabic_search.dart';
 import '../../core/text/line_direction.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/note_gradient.dart';
@@ -57,6 +58,7 @@ class NoteEditorScreen extends StatefulWidget {
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final _titleCtrl = TextEditingController();
   final _contentCtrl = TextEditingController();
+  final _contentFocus = FocusNode(); // لتظليل نتائج البحث في تعليق الوسائط
 
   late Note _note;
   List<ChecklistItem> _checklist = [];
@@ -160,7 +162,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     // فُتحت من نتائج البحث ⇒ افتح شريط البحث داخل المتن وانتقل لأول تطابق.
     // نمهل المحرّر لحظةً كي يكتمل بناؤه وتمريره قبل القفز إلى التطابق.
     final find = widget.initialFind?.trim() ?? '';
-    if (find.isNotEmpty && _note.type == NoteType.text && _richCtrl != null) {
+    if (find.isNotEmpty && _canFindInNote) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future<void>.delayed(const Duration(milliseconds: 150));
         if (mounted) _openFind(find);
@@ -214,11 +216,27 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _debounce = Timer(const Duration(milliseconds: 800), _save);
   }
 
-  // ===================== بحث داخل الملاحظة (نص فقط) =====================
+  // ============ بحث داخل الملاحظة (نصّ + تعليق الوسائط) ============
+
+  /// أنواع الوسائط التي لها حقل تعليق نصّي قابل للبحث.
+  bool get _isMediaCaptionType =>
+      _note.type == NoteType.image ||
+      _note.type == NoteType.audio ||
+      _note.type == NoteType.pdf ||
+      _note.type == NoteType.drawing;
+
+  /// هل يدعم البحث داخل هذه الملاحظة؟ (نصّ غنيّ، أو وسيط ذو تعليق.)
+  bool get _canFindInNote =>
+      (_note.type == NoteType.text && _richCtrl != null) || _isMediaCaptionType;
+
+  /// النصّ المصدر للبحث حسب النوع.
+  String _findSourceText() => _note.type == NoteType.text
+      ? (_richCtrl?.plainText ?? '')
+      : _contentCtrl.text;
 
   /// يفتح شريط البحث داخل المتن. [initial] يُملأ به الحقل وينتقل لأول تطابق.
   void _openFind([String? initial]) {
-    if (_richCtrl == null) return;
+    if (!_canFindInNote) return;
     setState(() => _findVisible = true);
     if (initial != null && initial.trim().isNotEmpty) {
       _findCtrl.text = initial.trim();
@@ -243,10 +261,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   /// يعيد حساب مواضع التطابق للمصطلح الحالي (يُستدعى أثناء الكتابة). لا يُغيّر
   /// التحديد ولا يخطف التركيز — كي يكمل المستخدم الكتابة في حقل البحث بسلاسة.
   void _recountFind() {
-    final ctrl = _richCtrl;
-    if (ctrl == null) return;
     setState(() {
-      _findMatches = ctrl.findMatches(_findCtrl.text);
+      _findMatches = findArabicMatches(_findSourceText(), _findCtrl.text);
       _findIndex = 0;
       _findJumped = false;
     });
@@ -266,8 +282,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   /// ينتقل للتطابق رقم [i] (مع الالتفاف) ويُظلّله ويُمرّر العرض إليه.
   void _gotoMatch(int i) {
-    final ctrl = _richCtrl;
-    if (ctrl == null || _findMatches.isEmpty) return;
+    if (_findMatches.isEmpty) return;
     final len = _findMatches.length;
     final idx = ((i % len) + len) % len; // التفاف للأمام/الخلف
     setState(() {
@@ -275,7 +290,17 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       _findJumped = true;
     });
     final r = _findMatches[idx];
-    ctrl.selectMatch(r[0], r[1] - r[0]);
+    if (_note.type == NoteType.text && _richCtrl != null) {
+      _richCtrl!.selectMatch(r[0], r[1] - r[0]);
+    } else {
+      // وسيط ذو تعليق: نحدّد المطابقة في حقل النصّ ونركّزه لتظهر مظلَّلة.
+      final maxLen = _contentCtrl.text.length;
+      final start = r[0].clamp(0, maxLen);
+      final end = r[1].clamp(start, maxLen);
+      _contentCtrl.selection =
+          TextSelection(baseOffset: start, extentOffset: end);
+      _contentFocus.requestFocus();
+    }
   }
 
   /// شريط «بحث داخل الملاحظة»: حقل + عدّاد نتائج + سهما تنقّل + إغلاق.
@@ -608,6 +633,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _findFocus.dispose();
     _titleCtrl.dispose();
     _contentCtrl.dispose();
+    _contentFocus.dispose();
     for (final c in _itemCtrls) {
       c.dispose();
     }
@@ -798,9 +824,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 if (mounted) {
                   await showNoteActions(context, _note,
                       onDetails: () => _showDetails(s),
-                      onFind: (_note.type == NoteType.text && _richCtrl != null)
-                          ? () => _openFind()
-                          : null,
+                      onFind: _canFindInNote ? () => _openFind() : null,
                       onStats: (_note.type == NoteType.text ||
                               _note.type == NoteType.checklist)
                           ? () => _showStats(s)
@@ -828,7 +852,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             style: TextStyle(color: _fgColor),
             child: Column(
             children: [
-              if (_findVisible && _note.type == NoteType.text) _buildFindBar(s),
+              if (_findVisible) _buildFindBar(s),
               Expanded(
                 child: _note.type == NoteType.text
                     ? _textLayout(s, onBg, settings)
@@ -1179,6 +1203,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   Widget _contentField(S s) {
     return TextField(
       controller: _contentCtrl,
+      focusNode: _contentFocus,
       maxLines: null,
       minLines: 8,
       textDirection: lineDirection(_contentCtrl.text),

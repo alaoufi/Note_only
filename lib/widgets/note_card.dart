@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/l10n/app_strings.dart';
+import '../core/text/arabic_search.dart';
 import '../core/text/line_direction.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/note_gradient.dart';
@@ -488,7 +489,9 @@ class NoteCard extends StatelessWidget {
       {int maxLines = 2}) {
     final q = context.watch<NotesProvider>().search.trim();
     final dir = lineDirection(text);
-    if (q.isEmpty || !text.toLowerCase().contains(q.toLowerCase())) {
+    // تظليل ذكيّ (يتجاهل الهمزة/التشكيل/«ال») مطابق لبحث القائمة.
+    final matches = q.isEmpty ? const <List<int>>[] : findArabicMatches(text, q);
+    if (matches.isEmpty) {
       return Directionality(
         textDirection: dir,
         child: Text(text,
@@ -496,24 +499,20 @@ class NoteCard extends StatelessWidget {
       );
     }
     final spans = <TextSpan>[];
-    final lc = text.toLowerCase();
-    final lq = q.toLowerCase();
     final hl = style.copyWith(
         backgroundColor: Colors.amber.withOpacity(0.45),
         fontWeight: FontWeight.bold);
     var i = 0;
-    while (true) {
-      final idx = lc.indexOf(lq, i);
-      if (idx < 0) {
-        spans.add(TextSpan(text: text.substring(i), style: style));
-        break;
+    for (final m in matches) {
+      final start = m[0], end = m[1];
+      if (start > i) {
+        spans.add(TextSpan(text: text.substring(i, start), style: style));
       }
-      if (idx > i) {
-        spans.add(TextSpan(text: text.substring(i, idx), style: style));
-      }
-      spans.add(
-          TextSpan(text: text.substring(idx, idx + q.length), style: hl));
-      i = idx + q.length;
+      spans.add(TextSpan(text: text.substring(start, end), style: hl));
+      i = end;
+    }
+    if (i < text.length) {
+      spans.add(TextSpan(text: text.substring(i), style: style));
     }
     return Directionality(
       textDirection: dir,
