@@ -44,13 +44,18 @@ class NoteRepository {
     final where = <String>[
       'n.is_deleted = 0',
       'n.is_archived = 0',
-      // الملاحظات المقفلة تبقى ظاهرة في مكانها (بمحتوى مُخفى) وتُفتح برقم سري.
     ];
     final args = <dynamic>[];
 
     if (onlyFavorites) where.add('n.is_favorite = 1');
     if (onlyPinned) where.add('n.is_pinned = 1');
-    if (onlyLocked) where.add('n.is_locked = 1');
+    // الملاحظات المقفلة بكلمة مرور تُعرض فقط في القسم الخاص (يُفتح من ⋮).
+    // فتُستبعد من القائمة العامّة والبحث والمفضّلة، وتظهر فقط عند طلبها صراحةً.
+    if (onlyLocked) {
+      where.add('n.is_locked = 1');
+    } else {
+      where.add('n.is_locked = 0');
+    }
     if (hasImage) where.add('n.image_path IS NOT NULL');
     if (hasAudio) where.add('n.audio_path IS NOT NULL');
     if (hasPdf) where.add('n.pdf_path IS NOT NULL');
@@ -481,9 +486,13 @@ class NoteRepository {
   /// شرائح التصنيفات في الرئيسية.
   Future<({Map<int, int> byCategory, int total})> homeCounts() async {
     final db = await _db;
+    // نستبعد المقفلة وكلمات المرور والعلاج كي تطابق الأعداد ما يظهر فعلاً
+    // في القائمة العامّة (لها أقسامها الخاصّة في ⋮).
     final rows = await db.rawQuery(
         'SELECT category_id, COUNT(*) AS c FROM notes '
-        'WHERE is_deleted = 0 AND is_archived = 0 GROUP BY category_id');
+        'WHERE is_deleted = 0 AND is_archived = 0 AND is_locked = 0 '
+        'AND type NOT IN (?, ?) GROUP BY category_id',
+        [NoteType.password.dbValue, NoteType.treatment.dbValue]);
     final map = <int, int>{};
     var total = 0;
     for (final r in rows) {
