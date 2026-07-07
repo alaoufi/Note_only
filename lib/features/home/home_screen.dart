@@ -480,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _menuRow(Icons.medication_outlined, 'العلاج')),
         PopupMenuItem<String>(
             value: 'locked',
-            child: _menuRow(Icons.lock_outline, 'الملاحظات المقفلة')),
+            child: _menuRow(Icons.lock_outline, s.t('secret_notes'))),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
           value: 'privacy',
