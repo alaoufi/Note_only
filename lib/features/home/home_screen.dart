@@ -445,10 +445,8 @@ class _HomeScreenState extends State<HomeScreen> {
             open(const TagsScreen());
           case 'weekly':
             open(const WeeklySummaryScreen());
-          default:
-            if (v.startsWith('sort_')) {
-              provider.setSort(NoteSort.values.byName(v.substring(5)));
-            }
+          case 'sortby':
+            _showSortPicker(context, s, provider);
         }
       },
       itemBuilder: (context) => [
@@ -493,14 +491,12 @@ class _HomeScreenState extends State<HomeScreen> {
               settings.privacyMode ? s.t('privacy_off') : s.t('privacy_mode')),
         ),
         const PopupMenuDivider(),
+        // «فرز حسب» عنصر واحد يفتح قائمة منسدلة (بدل أربعة خيارات مبعثرة).
         PopupMenuItem<String>(
-            enabled: false,
-            child: Text(s.t('sort_by'),
-                style: const TextStyle(fontWeight: FontWeight.bold))),
-        _sortItem('sort_updatedDesc', s.t('sort_updated'), provider),
-        _sortItem('sort_createdDesc', s.t('sort_created_new'), provider),
-        _sortItem('sort_createdAsc', s.t('sort_created_old'), provider),
-        _sortItem('sort_titleAsc', s.t('sort_title'), provider),
+          value: 'sortby',
+          child: _menuRow(Icons.sort,
+              '${s.t('sort_by')}: ${_sortLabel(s, provider.sort)}'),
+        ),
       ],
     );
   }
@@ -513,20 +509,54 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       );
 
-  PopupMenuItem<String> _sortItem(
-      String value, String label, NotesProvider provider) {
-    final selected = 'sort_${provider.sort.name}' == value;
-    return PopupMenuItem<String>(
-      value: value,
-      child: Row(
-        children: [
-          Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              size: 18),
-          const SizedBox(width: 12),
-          Text(label),
-        ],
+  String _sortLabel(S s, NoteSort sort) => switch (sort) {
+        NoteSort.updatedDesc => s.t('sort_updated'),
+        NoteSort.createdDesc => s.t('sort_created_new'),
+        NoteSort.createdAsc => s.t('sort_created_old'),
+        NoteSort.titleAsc => s.t('sort_title'),
+      };
+
+  /// قائمة منسدلة لاختيار الفرز (بديلة عن الخيارات المبعثرة في ⋮).
+  Future<void> _showSortPicker(
+      BuildContext context, S s, NotesProvider provider) async {
+    final scheme = Theme.of(context).colorScheme;
+    final picked = await showModalBottomSheet<NoteSort>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: 'رجوع',
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(s.t('sort_by'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
+                ],
+              ),
+            ),
+            for (final sort in NoteSort.values)
+              RadioListTile<NoteSort>(
+                value: sort,
+                groupValue: provider.sort,
+                activeColor: scheme.primary,
+                title: Text(_sortLabel(s, sort)),
+                onChanged: (v) => Navigator.pop(ctx, v),
+              ),
+          ],
+        ),
       ),
     );
+    if (picked != null) provider.setSort(picked);
   }
 
   @override
