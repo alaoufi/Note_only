@@ -106,9 +106,20 @@ Future<ColorPickResult?> showColorPicker(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(s.t('color'),
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
+                  // ترويسة بزرّ رجوع/إغلاق واضح.
+                  Row(
+                    children: [
+                      IconButton(
+                        tooltip: 'رجوع',
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(s.t('color'),
+                          style: Theme.of(context).textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   // الألوان السريعة (الافتراضية).
                   Wrap(
                     spacing: 10,

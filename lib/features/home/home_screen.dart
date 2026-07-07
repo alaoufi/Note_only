@@ -27,6 +27,7 @@ import '../../services/security_service.dart';
 import '../security/info_lock.dart';
 import '../security/note_unlock.dart';
 import '../security/passwords_screen.dart';
+import '../security/secret_notes_screen.dart';
 import '../treatment/treatments_screen.dart';
 import '../settings/settings_provider.dart';
 import 'notes_provider.dart';
@@ -409,6 +410,14 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(builder: (_) => const PasswordsScreen()));
   }
 
+  /// قسم الملاحظات المقفلة (أي ملاحظة محميّة بكلمة مرور) — يُفتح بالرقم السرّي.
+  Future<void> _openLocked() async {
+    if (!await ensureUnlocked(context)) return;
+    if (!mounted) return;
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => const SecretNotesScreen()));
+  }
+
   Widget _overflowMenu(BuildContext context, S s, NotesProvider provider) {
     final settings = context.read<SettingsProvider>();
     final showInfo = settings.infoPlacement == InfoPlacement.menu;
@@ -424,6 +433,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _openInfo();
           case 'passwords':
             _openPasswords();
+          case 'locked':
+            _openLocked();
           case 'treatment':
             open(const TreatmentsScreen());
           case 'privacy':
@@ -453,6 +464,12 @@ class _HomeScreenState extends State<HomeScreen> {
         PopupMenuItem<String>(
             value: 'weekly',
             child: _menuRow(Icons.insights_outlined, s.t('weekly_summary'))),
+        const PopupMenuDivider(),
+        // الأقسام الخاصّة (تُفتح من هنا لتبقى القائمة الرئيسية منظّمة).
+        PopupMenuItem<String>(
+            enabled: false,
+            child: Text('الأقسام',
+                style: const TextStyle(fontWeight: FontWeight.bold))),
         if (showInfo)
           PopupMenuItem<String>(
               value: 'info',
@@ -463,6 +480,10 @@ class _HomeScreenState extends State<HomeScreen> {
         PopupMenuItem<String>(
             value: 'treatment',
             child: _menuRow(Icons.medication_outlined, 'العلاج')),
+        PopupMenuItem<String>(
+            value: 'locked',
+            child: _menuRow(Icons.lock_outline, 'الملاحظات المقفلة')),
+        const PopupMenuDivider(),
         PopupMenuItem<String>(
           value: 'privacy',
           child: _menuRow(

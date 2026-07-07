@@ -7,8 +7,6 @@ import '../features/categories/manage_categories_screen.dart';
 import '../features/cleanup/cleanup_screen.dart';
 import '../features/help/legal_screen.dart';
 import '../features/help/user_guide_screen.dart';
-import '../features/security/note_unlock.dart';
-import '../features/security/secret_notes_screen.dart';
 import '../features/security/security_settings_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/trash/archive_screen.dart';
@@ -28,14 +26,6 @@ class AppDrawer extends StatelessWidget {
       Navigator.push(context, MaterialPageRoute(builder: (_) => page));
     }
 
-    Future<void> goSecret() async {
-      Navigator.pop(context);
-      final ok = await ensureUnlocked(context);
-      if (ok && context.mounted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SecretNotesScreen()));
-      }
-    }
 
     return Drawer(
       child: SafeArea(
@@ -135,10 +125,9 @@ class AppDrawer extends StatelessWidget {
               _tile(context, Icons.category_outlined, s.t('manage_categories'),
                   () => go(const ManageCategoriesScreen())),
             ]),
-            // 2) الأمان.
+            // 2) الأمان. (الملاحظات المقفلة صارت في قائمة ⋮ لتجنّب التكرار.)
             _group(context, Icons.shield_outlined, s.t('security'),
                 children: [
-              _tile(context, Icons.lock, s.t('secret_notes'), goSecret),
               _tile(context, Icons.security, s.t('security_lock'),
                   () => go(const SecuritySettingsScreen())),
             ]),
