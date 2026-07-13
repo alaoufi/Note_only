@@ -9,10 +9,45 @@ import 'core/theme/app_theme.dart';
 import 'features/security/activation_gate.dart';
 import 'features/security/app_lock_gate.dart';
 import 'features/settings/settings_provider.dart';
+import 'services/memory_housekeeping.dart';
 import 'services/notification_service.dart';
 
-class MudhakkaratiApp extends StatelessWidget {
+class MudhakkaratiApp extends StatefulWidget {
   const MudhakkaratiApp({super.key});
+
+  @override
+  State<MudhakkaratiApp> createState() => _MudhakkaratiAppState();
+}
+
+class _MudhakkaratiAppState extends State<MudhakkaratiApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // عند خروج المستخدم/تعطيل التطبيق ننظّف الذاكرة والملفات المؤقّتة بعمق
+    // (دون المساس بالمرفقات أو القاعدة) — يمنع تراكمها والتهامها موارد الجهاز.
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      MemoryHousekeeping.instance.deepClean();
+    }
+  }
+
+  @override
+  void didHaveMemoryPressure() {
+    // النظام يحذّر من نقص الذاكرة — نفرّغ ذاكرة الصور فورًا.
+    MemoryHousekeeping.instance.clearRuntimeCaches();
+  }
 
   @override
   Widget build(BuildContext context) {

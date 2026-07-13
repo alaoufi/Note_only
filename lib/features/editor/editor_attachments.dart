@@ -36,7 +36,14 @@ class EditorAttachments {
     );
     if (source == null) return null;
 
-    final picked = await _picker.pickImage(source: source, imageQuality: 85);
+    // نحدّ من أبعاد الصورة عند الالتقاط: يقلّل حجم الملف المخزَّن وذاكرة فكّها
+    // لاحقًا (صور الكاميرا 12MP كانت تلتهم الذاكرة وتُبطئ الجهاز).
+    final picked = await _picker.pickImage(
+      source: source,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 82,
+    );
     if (picked == null) return null;
     return FileService.instance.importFile(picked.path, extension: '.jpg');
   }

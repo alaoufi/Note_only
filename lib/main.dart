@@ -34,6 +34,12 @@ Future<void> main() async {
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
+    // سقف صارم لذاكرة الصور: يمنع تراكم الصور المفكوكة في الـ RAM (سبب رئيسي
+    // لبطء الجهاز وتعليقه). القيم الافتراضية (1000 صورة/100م.ب) عالية جدًّا مع
+    // صور الكاميرا. نُبقيها ضمن حدود آمنة.
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 48 << 20; // ‎48MB
+    PaintingBinding.instance.imageCache.maximumSize = 60; // ‎60 صورة كحد أقصى
+
     FlutterError.onError = (details) {
       startupErrors.add('FlutterError: ${details.exceptionAsString()}');
     };

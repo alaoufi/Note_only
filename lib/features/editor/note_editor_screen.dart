@@ -1340,7 +1340,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       if (_note.imagePath != null && File(_note.imagePath!).existsSync())
         ClipRRect(
           borderRadius: BorderRadius.circular(14),
-          child: Image.file(File(_note.imagePath!), fit: BoxFit.cover),
+          // نفكّ الصورة بدقّة العرض (لا الكاملة) لتفادي التهام الذاكرة.
+          child: Image.file(File(_note.imagePath!),
+              fit: BoxFit.cover, cacheWidth: 1280),
         )
       else
         _attachButton(s.t('note_image'), Icons.add_photo_alternate, _attachImage),
@@ -1432,7 +1434,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             borderRadius: BorderRadius.circular(14),
             child: Container(
               color: Colors.white,
-              child: Image.file(File(_note.drawingPath!), fit: BoxFit.contain),
+              child: Image.file(File(_note.drawingPath!),
+                  fit: BoxFit.contain, cacheWidth: 1280),
             ),
           ),
         )
