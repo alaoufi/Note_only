@@ -172,15 +172,11 @@ class LicenseService {
 
   // ---- التفعيل ----
 
-  /// رمز الجهاز الشامل («الكود العالمي»): يُوقَّع على جهاز بديل «*» بدل معرّف
-  /// جهاز محدّد، فيُفعّل أيّ جهاز. مشترك عبر كل تطبيقات المالك على المفتاح الموحّد.
-  static const String _universalDevice = '*';
-
   /// يتحقّق من رمز التفعيل ويُفعّل عند صحّته. يعيد true عند النجاح.
   ///
-  /// يقبل (لأيّ بادئة مدعومة UNI3/UNIV1 وأيّ مفتاح مالك مدمج):
-  ///   1) رمز خاصّ بجهاز واحد: موقَّع على «PREFIX|<رقم الجهاز>|المدّة».
-  ///   2) الكود العالمي (لأيّ جهاز): موقَّع على «PREFIX|*|المدّة».
+  /// الحماية **مربوطة بالجهاز حصرًا** (نظام UNI3/keygen): كل رمز موقَّع على
+  /// «PREFIX|<رقم هذا الجهاز>|المدّة» ⇒ لا يعمل رمزُ جهازٍ على جهاز آخر.
+  /// نجرّب كل بادئة مدعومة (UNI3 ثم UNIV1) مع كل مفتاح مالك مدمج.
   Future<bool> tryActivate(String code) async {
     if (!_keyConfigured) return true;
     try {
@@ -191,19 +187,14 @@ class LicenseService {
 
       final id = await deviceId();
 
-      // جرّب كل بادئة (UNI3 ثم UNIV1) مع كل مفتاح مدمج، ولكلٍّ رمز الجهاز ثم
-      // الكود العالمي (جهاز بديل «*»). أوّل تطابق يُفعّل.
       for (final prefix in _msgPrefixes) {
         final deviceMsg = utf8.encode('$prefix|$id|$duration');
-        final universalMsg = utf8.encode('$prefix|$_universalDevice|$duration');
         for (final keyB64 in _publicKeysB64) {
           if (keyB64.isEmpty || keyB64.startsWith('REPLACE_')) continue;
           final pub =
               SimplePublicKey(base64Decode(keyB64), type: KeyPairType.ed25519);
           final signature = Signature(sig, publicKey: pub);
-          final ok = await _ed.verify(deviceMsg, signature: signature) ||
-              await _ed.verify(universalMsg, signature: signature);
-          if (ok) {
+          if (await _ed.verify(deviceMsg, signature: signature)) {
             await _activate(duration);
             return true;
           }
