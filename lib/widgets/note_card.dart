@@ -90,6 +90,14 @@ class NoteCard extends StatelessWidget {
                     const SizedBox(width: 6),
                   ],
                   Icon(_typeIcon, size: 18, color: onBg.withOpacity(0.6)),
+                  if (note.attachments.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    Icon(Icons.attach_file,
+                        size: 14, color: onBg.withOpacity(0.6)),
+                    Text('${note.attachments.length}',
+                        style: TextStyle(
+                            fontSize: 12, color: onBg.withOpacity(0.6))),
+                  ],
                   const Spacer(),
                   if (note.reminderAt != null &&
                       note.reminderAt!.isAfter(DateTime.now()))

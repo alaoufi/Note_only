@@ -15,7 +15,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'mudhakkarati.db';
-  static const _dbVersion = 20;
+  static const _dbVersion = 21;
 
   Database? _db;
   Future<Database>? _opening;
@@ -198,6 +198,7 @@ class AppDatabase {
         audio_path TEXT,
         pdf_path TEXT,
         drawing_path TEXT,
+        attachments TEXT,
         bg_style INTEGER NOT NULL DEFAULT 0,
         gradient TEXT,
         rule_on_line INTEGER,
@@ -392,6 +393,10 @@ class AppDatabase {
       await db.update('categories', {'color': 0xFF2E7D6B},
           where: 'name IN (?, ?) AND color = ?',
           whereArgs: ['شخصي', 'الوارد', 0xFF42A5F5]);
+    }
+    if (oldVersion < 21) {
+      // مرفقات متعددة (صور + PDF) مخزَّنة كـ JSON لأي ملاحظة.
+      await db.execute('ALTER TABLE notes ADD COLUMN attachments TEXT');
     }
   }
 

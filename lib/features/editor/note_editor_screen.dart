@@ -12,6 +12,8 @@ import '../../core/theme/note_gradient.dart';
 import '../../data/models/checklist_item.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/note.dart';
+import '../../data/models/note_attachment.dart';
+import '../../services/file_service.dart';
 import '../../data/models/password_entry.dart';
 import '../../data/models/treatment_entry.dart';
 import '../../services/pdf_export_service.dart';
@@ -889,7 +891,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                             topPadding: 0,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: _typeBody(s),
+                              children: [
+                                ..._typeBody(s),
+                                _attachmentsSection(s, onBg),
+                              ],
                             ),
                           ),
                         ],
@@ -1490,6 +1495,206 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         ),
       ),
     );
+  }
+
+  // ============ مرفقات متعددة (صور + PDF) لأي ملاحظة ============
+
+  /// قسم المرفقات: شبكة معاينات + زرّ إضافة مفتوح (صور متعددة / ملفات PDF).
+  Widget _attachmentsSection(S s, Color onBg) {
+    final items = _note.attachments;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.attach_file, size: 18, color: onBg.withOpacity(0.75)),
+              const SizedBox(width: 6),
+              Text(
+                items.isEmpty ? 'المرفقات' : 'المرفقات (${items.length})',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: onBg.withOpacity(0.9)),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _addAttachments,
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text('إضافة'),
+              ),
+            ],
+          ),
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 4),
+              child: Text(
+                'أضف صورًا أو ملفات PDF (يمكن اختيار عدّة ملفات دفعة واحدة).',
+                style: TextStyle(fontSize: 12, color: onBg.withOpacity(0.6)),
+              ),
+            )
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(top: 8),
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, i) => _attachmentTile(items[i], i),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _attachmentTile(NoteAttachment a, int index) {
+    final exists = a.path.isNotEmpty && File(a.path).existsSync();
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: InkWell(
+            onTap: () => _openAttachment(a),
+            borderRadius: BorderRadius.circular(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: a.isImage && exists
+                  ? Image.file(File(a.path),
+                      fit: BoxFit.cover,
+                      cacheWidth: 360,
+                      filterQuality: FilterQuality.low)
+                  : Container(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                              a.isPdf
+                                  ? Icons.picture_as_pdf
+                                  : Icons.broken_image_outlined,
+                              size: 34,
+                              color: a.isPdf ? Colors.red : Colors.grey),
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              a.isPdf ? (a.name ?? 'PDF') : 'ملف مفقود',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
+        ),
+        // زرّ حذف بتأكيد.
+        Positioned(
+          top: 2,
+          left: 2,
+          child: Material(
+            color: Colors.black54,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => _removeAttachment(index),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.close, size: 16, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openAttachment(NoteAttachment a) async {
+    if (a.path.isEmpty || !File(a.path).existsSync()) return;
+    await EditorAttachments.openFile(a.path);
+  }
+
+  /// يفتح ورقة اختيار: صور من المعرض / كاميرا / ملفات PDF.
+  Future<void> _addAttachments() async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Wrap(children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('صور من المعرض (عدّة صور)'),
+            onTap: () => Navigator.pop(ctx, 'images'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('التقاط صورة بالكاميرا'),
+            onTap: () => Navigator.pop(ctx, 'camera'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf),
+            title: const Text('ملفات PDF (عدّة ملفات)'),
+            onTap: () => Navigator.pop(ctx, 'pdf'),
+          ),
+        ]),
+      ),
+    );
+    if (choice == null) return;
+
+    final added = <NoteAttachment>[];
+    if (choice == 'images') {
+      for (final p in await EditorAttachments.pickImages()) {
+        added.add(NoteAttachment(path: p, kind: 'image'));
+      }
+    } else if (choice == 'camera') {
+      final p = await EditorAttachments.captureImage();
+      if (p != null) added.add(NoteAttachment(path: p, kind: 'image'));
+    } else if (choice == 'pdf') {
+      for (final f in await EditorAttachments.pickPdfs()) {
+        added.add(NoteAttachment(path: f.path, kind: 'pdf', name: f.name));
+      }
+    }
+    if (added.isEmpty) return;
+    setState(() {
+      _note = _note.copyWith(attachments: [..._note.attachments, ...added]);
+    });
+    _dirty = true;
+    await _ensureSaved();
+    await _save(force: true);
+  }
+
+  Future<void> _removeAttachment(int index) async {
+    if (index < 0 || index >= _note.attachments.length) return;
+    final a = _note.attachments[index];
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.delete_outline),
+        title: const Text('حذف المرفق؟'),
+        content: const Text('سيُحذف هذا المرفق نهائيًّا من الملاحظة.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final next = [..._note.attachments]..removeAt(index);
+    setState(() => _note = _note.copyWith(attachments: next));
+    _dirty = true;
+    await _save(force: true);
+    // نظّف الملف من القرص (لا يمسّ غيره).
+    await FileService.instance.deleteIfExists(a.path);
   }
 
   /// تحرير وسوم الملاحظة في ورقة سفلية تُفتح عند الطلب فقط (لا تشغل حيّزًا دائمًا).

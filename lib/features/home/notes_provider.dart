@@ -355,6 +355,9 @@ class NotesProvider extends ChangeNotifier {
     await FileService.instance.deleteIfExists(note.audioPath);
     await FileService.instance.deleteIfExists(note.pdfPath);
     await FileService.instance.deleteIfExists(note.drawingPath);
+    for (final a in note.attachments) {
+      await FileService.instance.deleteIfExists(a.path);
+    }
     await notes.deletePermanently(note.id!);
     await refresh();
   }
@@ -366,6 +369,9 @@ class NotesProvider extends ChangeNotifier {
       await FileService.instance.deleteIfExists(n.audioPath);
       await FileService.instance.deleteIfExists(n.pdfPath);
       await FileService.instance.deleteIfExists(n.drawingPath);
+      for (final a in n.attachments) {
+        await FileService.instance.deleteIfExists(a.path);
+      }
     }
     await notes.emptyTrash();
     await refresh();

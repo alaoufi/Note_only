@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 
 import 'enums.dart';
+import 'note_attachment.dart';
 
 /// نموذج الملاحظة الأساسي.
 ///
@@ -34,6 +35,9 @@ class Note {
   final String? audioPath;
   final String? pdfPath;
   final String? drawingPath;
+
+  /// مرفقات متعددة (صور وملفات PDF) — عدد مفتوح لأي نوع ملاحظة.
+  final List<NoteAttachment> attachments;
 
   /// نمط خلفية الصفحة: 0=سادة، 1=مسطّر، 2=شبكي، 3=نقاط.
   final int bgStyle;
@@ -81,6 +85,7 @@ class Note {
     this.audioPath,
     this.pdfPath,
     this.drawingPath,
+    this.attachments = const [],
     this.bgStyle = 0,
     this.gradient,
     this.ruleOnLine,
@@ -110,7 +115,8 @@ class Note {
       imagePath == null &&
       audioPath == null &&
       pdfPath == null &&
-      drawingPath == null;
+      drawingPath == null &&
+      attachments.isEmpty;
 
   Map<String, dynamic> toMap() {
     return {
@@ -131,6 +137,7 @@ class Note {
       'audio_path': audioPath,
       'pdf_path': pdfPath,
       'drawing_path': drawingPath,
+      'attachments': NoteAttachment.encode(attachments),
       'bg_style': bgStyle,
       'gradient': gradient,
       'rule_on_line': ruleOnLine == null ? null : (ruleOnLine! ? 1 : 0),
@@ -164,6 +171,7 @@ class Note {
       audioPath: map['audio_path'] as String?,
       pdfPath: map['pdf_path'] as String?,
       drawingPath: map['drawing_path'] as String?,
+      attachments: NoteAttachment.decode(map['attachments'] as String?),
       bgStyle: (map['bg_style'] as int?) ?? 0,
       gradient: map['gradient'] as String?,
       ruleOnLine:
@@ -208,6 +216,7 @@ class Note {
     bool clearPdf = false,
     String? drawingPath,
     bool clearDrawing = false,
+    List<NoteAttachment>? attachments,
     int? bgStyle,
     String? gradient,
     bool clearGradient = false,
@@ -239,6 +248,7 @@ class Note {
       audioPath: clearAudio ? null : (audioPath ?? this.audioPath),
       pdfPath: clearPdf ? null : (pdfPath ?? this.pdfPath),
       drawingPath: clearDrawing ? null : (drawingPath ?? this.drawingPath),
+      attachments: attachments ?? this.attachments,
       bgStyle: bgStyle ?? this.bgStyle,
       gradient: clearGradient ? null : (gradient ?? this.gradient),
       ruleOnLine: ruleOnLine ?? this.ruleOnLine,

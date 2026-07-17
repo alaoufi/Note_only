@@ -48,6 +48,52 @@ class EditorAttachments {
     return FileService.instance.importFile(picked.path, extension: '.jpg');
   }
 
+  /// يختار عدّة صور دفعة واحدة (معرض النظام) وينسخها لمجلد المرفقات.
+  /// يعيد قائمة المسارات الجديدة (مصغّرة لتوفير الذاكرة والمساحة).
+  static Future<List<String>> pickImages() async {
+    final picked = await _picker.pickMultiImage(
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 82,
+    );
+    final out = <String>[];
+    for (final x in picked) {
+      out.add(await FileService.instance.importFile(x.path, extension: '.jpg'));
+    }
+    return out;
+  }
+
+  /// يلتقط صورة واحدة من الكاميرا وينسخها لمجلد المرفقات.
+  static Future<String?> captureImage() async {
+    final x = await _picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 82,
+    );
+    if (x == null) return null;
+    return FileService.instance.importFile(x.path, extension: '.jpg');
+  }
+
+  /// يختار عدّة ملفات PDF دفعة واحدة (مدير الملفات) وينسخها للمرفقات.
+  /// يعيد قائمة أزواج (المسار، الاسم الأصلي).
+  static Future<List<({String path, String name})>> pickPdfs() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: true,
+    );
+    final out = <({String path, String name})>[];
+    for (final f in result?.files ?? const []) {
+      final src = f.path;
+      if (src == null) continue;
+      final dest =
+          await FileService.instance.importFile(src, extension: '.pdf');
+      out.add((path: dest, name: f.name));
+    }
+    return out;
+  }
+
   /// يختار ملف PDF وينسخه لمجلد المرفقات. يعيد المسار.
   static Future<String?> pickPdf() async {
     final result = await FilePicker.platform.pickFiles(
