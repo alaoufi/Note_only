@@ -157,7 +157,16 @@ class LicenseService {
 
   // ---- التفعيل ----
 
+  /// رمز الجهاز الشامل («الكود العالمي»): يُوقَّع على جهاز بديل «*» بدل معرّف
+  /// جهاز محدّد، فيُفعّل أيّ جهاز. مشترك عبر كل تطبيقات المالك في نظام UNIV1
+  /// (نفس المفتاح العامّ والبادئة) ⇒ نفس الكود العالمي يعمل هنا وفي «حلالي».
+  static const String _universalDevice = '*';
+
   /// يتحقّق من رمز التفعيل ويُفعّل عند صحّته. يعيد true عند النجاح.
+  ///
+  /// يقبل نوعين من الأكواد (نفس الصيغة والمفتاح):
+  ///   1) رمز خاصّ بجهاز واحد: موقَّع على «UNIV1|<رقم الجهاز>|المدّة».
+  ///   2) الكود العالمي (لأيّ جهاز): موقَّع على «UNIV1|*|المدّة».
   Future<bool> tryActivate(String code) async {
     if (!_keyConfigured) return true;
     try {
@@ -166,11 +175,16 @@ class LicenseService {
       final duration = (bytes[0] << 8) | bytes[1];
       final sig = bytes.sublist(2);
 
-      final id = await deviceId();
-      final msg = utf8.encode('$_msgPrefix|$id|$duration');
       final pub = SimplePublicKey(base64Decode(_publicKeyB64),
           type: KeyPairType.ed25519);
-      final ok = await _ed.verify(msg, signature: Signature(sig, publicKey: pub));
+      final signature = Signature(sig, publicKey: pub);
+
+      final id = await deviceId();
+      // جرّب أولًا رمز هذا الجهاز، ثم الكود العالمي (جهاز بديل «*»).
+      final deviceMsg = utf8.encode('$_msgPrefix|$id|$duration');
+      final universalMsg = utf8.encode('$_msgPrefix|$_universalDevice|$duration');
+      final ok = await _ed.verify(deviceMsg, signature: signature) ||
+          await _ed.verify(universalMsg, signature: signature);
       if (!ok) return false;
 
       await _activate(duration);

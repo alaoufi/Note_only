@@ -38,6 +38,15 @@ Future<void> main(List<String> args) async {
       final days = args.length >= 4 ? (int.tryParse(args[3]) ?? 0) : 0;
       await _sign(args[1], args[2], days);
       break;
+    case 'universal': // الكود العالمي: يفعّل أيّ جهاز (جهاز بديل «*»).
+      if (args.length < 2) {
+        stderr.writeln('الاستخدام: universal <PRIVATE_KEY_B64> [DAYS]');
+        exitCode = 2;
+        return;
+      }
+      final days = args.length >= 3 ? (int.tryParse(args[2]) ?? 0) : 0;
+      await _sign(args[1], '*', days, universal: true);
+      break;
     default:
       _usage();
   }
@@ -48,6 +57,7 @@ void _usage() {
 أداة ترخيص Alaoufi Notes (نظام UNIV1):
   dart run tool/license.dart keygen
   dart run tool/license.dart sign <PRIVATE_KEY_B64> <DEVICE_ID> [DAYS]
+  dart run tool/license.dart universal <PRIVATE_KEY_B64> [DAYS]   # الكود العالمي (أيّ جهاز)
 ''');
 }
 
@@ -63,10 +73,13 @@ Future<void> _keygen() async {
   print('PUBLIC KEY: ${base64Encode(pub)}');
 }
 
-Future<void> _sign(String privB64, String deviceIdRaw, int days) async {
-  // طبّع رقم الجهاز كما يفعل التطبيق: أحرف كبيرة وحذف كل ما ليس [A-Z0-9].
-  final deviceId =
-      deviceIdRaw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+Future<void> _sign(String privB64, String deviceIdRaw, int days,
+    {bool universal = false}) async {
+  // الكود العالمي يوقّع على «*» حرفيًّا؛ وإلا نطبّع رقم الجهاز كما يفعل التطبيق:
+  // أحرف كبيرة وحذف كل ما ليس [A-Z0-9].
+  final deviceId = universal
+      ? '*'
+      : deviceIdRaw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
   final duration = days < 0 ? 0 : (days & 0xffff); // أيام، 0 = دائم.
   final algo = Ed25519();
   final seed = base64Decode(privB64.trim());
@@ -81,7 +94,7 @@ Future<void> _sign(String privB64, String deviceIdRaw, int days) async {
     for (var i = 0; i < code.length; i += 5)
       code.substring(i, i + 5 > code.length ? code.length : i + 5)
   ].join('-');
-  print('الجهاز: $deviceId');
+  print(universal ? 'الجهاز: * (الكود العالمي — أيّ جهاز)' : 'الجهاز: $deviceId');
   print('المدّة: ${duration == 0 ? 'دائم' : '$duration يوم'}');
   print('رمز التفعيل:');
   print(pretty);

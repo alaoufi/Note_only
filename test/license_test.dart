@@ -96,6 +96,45 @@ void main() {
     });
   });
 
+  group('Universal code (الكود العالمي — أيّ جهاز)', () {
+    test('كود موقّع على «*» يتحقّق لأيّ جهاز، ورمز جهاز محدّد لا يعمل عالميًّا',
+        () async {
+      final ed = Ed25519();
+      final kp = await ed.newKeyPair();
+      final pub = await kp.extractPublicKey();
+
+      // الكود العالمي: يوقَّع على الجهاز البديل «*».
+      final universal = await _signKey(kp, '*', 0);
+      final decoded = LicenseService.base32Decode(universal);
+      final dur = (decoded[0] << 8) | decoded[1];
+      final sig = decoded.sublist(2);
+
+      // يطابق منطق tryActivate: نجرّب رسالة الجهاز ثم الرسالة العالمية «*».
+      Future<bool> activates(String deviceId) async {
+        final deviceMsg = utf8.encode('UNIV1|$deviceId|$dur');
+        final universalMsg = utf8.encode('UNIV1|*|$dur');
+        return await ed.verify(deviceMsg,
+                signature: Signature(sig, publicKey: pub)) ||
+            await ed.verify(universalMsg,
+                signature: Signature(sig, publicKey: pub));
+      }
+
+      // الكود العالمي يفعّل أيّ جهاز مهما كان معرّفه.
+      expect(await activates('ABCD2345EFGH6789'), isTrue);
+      expect(await activates('ZZZZ9999QQQQ8888'), isTrue);
+
+      // بينما رمز خاصّ بجهاز واحد لا يصلح كودًا عالميًّا لجهاز آخر.
+      final perDevice = await _signKey(kp, 'ABCD2345EFGH6789', 0);
+      final d2 = LicenseService.base32Decode(perDevice);
+      final sig2 = d2.sublist(2);
+      final otherOk = await ed.verify(utf8.encode('UNIV1|OTHERDEVICE12345|0'),
+              signature: Signature(sig2, publicKey: pub)) ||
+          await ed.verify(utf8.encode('UNIV1|*|0'),
+              signature: Signature(sig2, publicKey: pub));
+      expect(otherOk, isFalse);
+    });
+  });
+
   // متجهات الاختبار الرسمية لنظام UNIV1 (من مستند المولّد): تتحقّق من أنّ التطبيق
   // متوافق تمامًا مع «مولّد أكواد التفعيل» — أي كود من المولّد سيُقبَل هنا.
   group('UNIV1 official vectors (matches the keygen app)', () {
