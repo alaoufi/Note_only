@@ -167,5 +167,24 @@ void main() {
           signature: Signature(bytes.sublist(2), publicKey: pk));
       expect(ok, isFalse);
     });
+
+    // كود حقيقي من «مولّد أكواد التفعيل» (mdk_keygen) للمالك — يضمن أنّ المفتاح
+    // الأصلي يبقى مقبولًا في التطبيق كي يعمل المولّد الجاهز دائمًا.
+    test('كود المولّد الجاهز (mdk_keygen) يتحقّق بالمفتاح الأصلي', () async {
+      final ed = Ed25519();
+      final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
+      const device = 'JGNKT87QXZ4AZVBE';
+      const code = 'AAAAL-GY7XD-75BEZ-DLWH9-UC362-S23MQ-WDZQ7-H8UUE-BUDL6-'
+          'KGECD-GH4EY-CHXH7-MCGTS-AYU3C-3QYAK-RC9FK-EZ5WL-34JDK-5U64W-'
+          '7BBDK-XF65A-E';
+      final bytes = LicenseService.base32Decode(
+          code.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
+      expect(bytes.length, 66);
+      final dur = (bytes[0] << 8) | bytes[1];
+      expect(dur, 0); // دائم.
+      final ok = await ed.verify(utf8.encode('UNIV1|$device|$dur'),
+          signature: Signature(bytes.sublist(2), publicKey: pk));
+      expect(ok, isTrue);
+    });
   });
 }
