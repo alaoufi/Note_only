@@ -24,12 +24,15 @@ class _ActivationGateState extends State<ActivationGate>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // أعد الفحص فور أي تفعيل/إلغاء تفعيل (يظهر/يختفي القفل مباشرةً).
+    LicenseService.revision.addListener(_check);
     _check();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    LicenseService.revision.removeListener(_check);
     super.dispose();
   }
 

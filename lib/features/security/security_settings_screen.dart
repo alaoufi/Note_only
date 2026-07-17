@@ -78,8 +78,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         icon: const Icon(Icons.lock_reset),
         title: const Text('إلغاء التفعيل؟'),
         content: const Text(
-            'سيُمسح ترخيص هذا الجهاز، فتظهر شاشة التفعيل عند إعادة فتح التطبيق '
-            '(للاختبار). يمكنك إعادة التفعيل بكود جديد في أي وقت.'),
+            'سيُمسح ترخيص هذا الجهاز فتظهر شاشة التفعيل فورًا (للاختبار). '
+            'يمكنك إعادة التفعيل بكود جديد في أي وقت.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -93,10 +93,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     if (ok != true) return;
     await LicenseService.instance.deactivate();
     if (!mounted) return;
-    setState(() {}); // حدّث بطاقة حالة الترخيص.
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content:
-            Text('تم إلغاء التفعيل — أعد تشغيل التطبيق لاختبار شاشة التفعيل')));
+    // ارجع إلى الجذر كي تظهر شاشة التفعيل فورًا (البوابة أعادت الفحص تلقائيًّا).
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override

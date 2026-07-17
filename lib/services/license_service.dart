@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:android_id/android_id.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:crypto/crypto.dart' as crypto;
@@ -45,6 +46,10 @@ class LicenseInfo {
 class LicenseService {
   LicenseService._();
   static final LicenseService instance = LicenseService._();
+
+  /// يتغيّر عند كل تفعيل/إلغاء تفعيل — تستمع إليه بوابة التفعيل لتعيد الفحص فورًا
+  /// (فيظهر أو يختفي قفل التفعيل مباشرةً دون إعادة تشغيل التطبيق).
+  static final ValueNotifier<int> revision = ValueNotifier<int>(0);
 
   // المفاتيح العامّة للمالك (Base64 لـ 32 بايت Ed25519). التحقق فقط — لا يمكن
   // توليد رموز منها. النظام العالميّ UNIV1: مفتاح واحد يفعّل كل تطبيقات المالك.
@@ -234,6 +239,7 @@ class LicenseService {
   Future<void> _activate(int duration) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     await _writeRecord({'d': duration, 'a': now, 's': now});
+    revision.value++; // أبلغ البوابة كي ترفع القفل فورًا.
   }
 
   /// إلغاء التفعيل (للاختبار/إعادة الضبط من إعدادات المالك).
@@ -243,6 +249,7 @@ class LicenseService {
       final f = await _fileRef();
       if (await f.exists()) await f.delete();
     } catch (_) {}
+    revision.value++; // أبلغ البوابة كي تعرض شاشة التفعيل فورًا.
   }
 
   // ---- التخزين (تخزين آمن + نسخة ملفّ دائمة لمقاومة فشل القراءة المؤقّت) ----

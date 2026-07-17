@@ -1,7 +1,7 @@
 name: mudhakkarati
 description: "ملاحظات - تطبيق ملاحظات منبثق عن مذكراتي (مستقل للتطوير)."
 publish_to: 'none'
-version: 1.7.5+44
+version: 1.7.6+45
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
