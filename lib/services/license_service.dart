@@ -49,20 +49,24 @@ class LicenseService {
   // المفاتيح العامّة للمالك (Base64 لـ 32 بايت Ed25519). التحقق فقط — لا يمكن
   // توليد رموز منها. النظام العالميّ UNIV1: مفتاح واحد يفعّل كل تطبيقات المالك.
   //
-  // نقبل أكواد أيّ من مفتاحَي المالك (كلاهما نظام UNIV1، نفس البادئة والصيغة):
-  //   • ‎0JX… مفتاح «مولّد أكواد التفعيل» (mdk_keygen) — المولّد الجاهز للمالك.
-  //   • ‎ucd… مفتاح UNIV1 المستخدم في تطبيق «حلالي».
-  // بقبولهما معًا يعمل أيّ مولّد للمالك على هذا التطبيق دون قفل أيّ جهاز.
+  // نقبل أكواد أيّ من مفاتيح المالك. الأوّل هو المفتاح **الموحّد UNI3** (المولّد
+  // الواحد لكل التطبيقات)، والبقيّة قديمة نُبقيها للتوافق الرجعيّ كي لا يُقفَل
+  // جهاز فُعِّل سابقًا برمز قديم:
+  //   • ‎W5K… المفتاح الموحّد الحالي (نظام UNI3) — المولّد الواحد للمالك.
+  //   • ‎0JX… مفتاح «مولّد أكواد التفعيل» القديم (نظام UNIV1).
+  //   • ‎ucd… مفتاح «حلالي» القديم (نظام UNIV1).
   static const List<String> _publicKeysB64 = [
-    '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=', // mdk_keygen (المولّد الجاهز)
-    'ucd/BzIBLoU2ol9GVwYeEjoTb7SsbfOgPtNwYls0rI0=', // UNIV1 (حلالي)
+    'W5Kc9hRB7lb9xSh/VqdR4T8GT6VaDznEwYQgXZpLZz0=', // UNI3 (المولّد الموحّد)
+    '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=', // قديم (UNIV1 mdk_keygen)
+    'ucd/BzIBLoU2ol9GVwYeEjoTb7SsbfOgPtNwYls0rI0=', // قديم (UNIV1 حلالي)
   ];
 
   // المفتاح الأساسي (للفحوص العامّة/التوثيق).
   static String get _publicKeyB64 => _publicKeysB64.first;
 
-  // بادئة الرسالة الموقَّعة (إصدار الصيغة). يجب أن تطابق المولّد حرفيًّا.
-  static const String _msgPrefix = 'UNIV1';
+  // بادئات الرسالة الموقَّعة (يجب أن تطابق المولّد حرفيًّا). الأولى هي الصيغة
+  // الموحّدة الحالية UNI3، والثانية قديمة (UNIV1) للتوافق الرجعيّ.
+  static const List<String> _msgPrefixes = ['UNI3', 'UNIV1'];
 
   // ملح معرّف الجهاز (موحّد عبر كل تطبيقات المالك في النظام العالميّ UNIV1).
   static const String _deviceSalt = 'alaoufi:';
@@ -169,15 +173,14 @@ class LicenseService {
   // ---- التفعيل ----
 
   /// رمز الجهاز الشامل («الكود العالمي»): يُوقَّع على جهاز بديل «*» بدل معرّف
-  /// جهاز محدّد، فيُفعّل أيّ جهاز. مشترك عبر كل تطبيقات المالك في نظام UNIV1
-  /// (نفس المفتاح العامّ والبادئة) ⇒ نفس الكود العالمي يعمل هنا وفي «حلالي».
+  /// جهاز محدّد، فيُفعّل أيّ جهاز. مشترك عبر كل تطبيقات المالك على المفتاح الموحّد.
   static const String _universalDevice = '*';
 
   /// يتحقّق من رمز التفعيل ويُفعّل عند صحّته. يعيد true عند النجاح.
   ///
-  /// يقبل نوعين من الأكواد (نفس الصيغة والمفتاح):
-  ///   1) رمز خاصّ بجهاز واحد: موقَّع على «UNIV1|<رقم الجهاز>|المدّة».
-  ///   2) الكود العالمي (لأيّ جهاز): موقَّع على «UNIV1|*|المدّة».
+  /// يقبل (لأيّ بادئة مدعومة UNI3/UNIV1 وأيّ مفتاح مالك مدمج):
+  ///   1) رمز خاصّ بجهاز واحد: موقَّع على «PREFIX|<رقم الجهاز>|المدّة».
+  ///   2) الكود العالمي (لأيّ جهاز): موقَّع على «PREFIX|*|المدّة».
   Future<bool> tryActivate(String code) async {
     if (!_keyConfigured) return true;
     try {
@@ -187,20 +190,23 @@ class LicenseService {
       final sig = bytes.sublist(2);
 
       final id = await deviceId();
-      final deviceMsg = utf8.encode('$_msgPrefix|$id|$duration');
-      final universalMsg = utf8.encode('$_msgPrefix|$_universalDevice|$duration');
 
-      // جرّب كل مفتاح مدمج، ولكلٍّ رمز الجهاز ثم الكود العالمي (جهاز بديل «*»).
-      for (final keyB64 in _publicKeysB64) {
-        if (keyB64.isEmpty || keyB64.startsWith('REPLACE_')) continue;
-        final pub =
-            SimplePublicKey(base64Decode(keyB64), type: KeyPairType.ed25519);
-        final signature = Signature(sig, publicKey: pub);
-        final ok = await _ed.verify(deviceMsg, signature: signature) ||
-            await _ed.verify(universalMsg, signature: signature);
-        if (ok) {
-          await _activate(duration);
-          return true;
+      // جرّب كل بادئة (UNI3 ثم UNIV1) مع كل مفتاح مدمج، ولكلٍّ رمز الجهاز ثم
+      // الكود العالمي (جهاز بديل «*»). أوّل تطابق يُفعّل.
+      for (final prefix in _msgPrefixes) {
+        final deviceMsg = utf8.encode('$prefix|$id|$duration');
+        final universalMsg = utf8.encode('$prefix|$_universalDevice|$duration');
+        for (final keyB64 in _publicKeysB64) {
+          if (keyB64.isEmpty || keyB64.startsWith('REPLACE_')) continue;
+          final pub =
+              SimplePublicKey(base64Decode(keyB64), type: KeyPairType.ed25519);
+          final signature = Signature(sig, publicKey: pub);
+          final ok = await _ed.verify(deviceMsg, signature: signature) ||
+              await _ed.verify(universalMsg, signature: signature);
+          if (ok) {
+            await _activate(duration);
+            return true;
+          }
         }
       }
       return false;

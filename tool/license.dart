@@ -1,7 +1,7 @@
-// أداة ترخيص Alaoufi Notes — نظام UNIV1 العالميّ (تعمل على جهازك أنت فقط).
+// أداة ترخيص Alaoufi Notes — نظام UNI3 الموحّد (تعمل على جهازك أنت فقط).
 //
 // تنتج أكوادًا متوافقة تمامًا مع «مولّد أكواد التفعيل» وتطبيق الملاحظات:
-// الكود = Base32( المدّة(2 بايت) + Ed25519_sign("UNIV1|deviceId|duration") ).
+// الكود = Base32( المدّة(2 بايت) + Ed25519_sign("UNI3|deviceId|duration") ).
 //
 // الاستخدام:
 //   1) توليد زوج مفاتيح (مرة واحدة):
@@ -54,7 +54,7 @@ Future<void> main(List<String> args) async {
 
 void _usage() {
   print('''
-أداة ترخيص Alaoufi Notes (نظام UNIV1):
+أداة ترخيص Alaoufi Notes (نظام UNI3):
   dart run tool/license.dart keygen
   dart run tool/license.dart sign <PRIVATE_KEY_B64> <DEVICE_ID> [DAYS]
   dart run tool/license.dart universal <PRIVATE_KEY_B64> [DAYS]   # الكود العالمي (أيّ جهاز)
@@ -84,8 +84,8 @@ Future<void> _sign(String privB64, String deviceIdRaw, int days,
   final algo = Ed25519();
   final seed = _parseSeed(privB64); // يقبل hex(64) أو Base64 (متوافق مع حلالي).
   final kp = await algo.newKeyPairFromSeed(seed);
-  // الرسالة الموقَّعة يجب أن تطابق التطبيق: "UNIV1|deviceId|duration".
-  final sig = await algo.sign(utf8.encode('UNIV1|$deviceId|$duration'),
+  // الرسالة الموقَّعة يجب أن تطابق التطبيق: "UNI3|deviceId|duration".
+  final sig = await algo.sign(utf8.encode('UNI3|$deviceId|$duration'),
       keyPair: kp);
   final packet = <int>[(duration >> 8) & 0xff, duration & 0xff, ...sig.bytes];
   final code = _base32(packet);

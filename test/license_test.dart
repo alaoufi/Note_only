@@ -168,6 +168,39 @@ void main() {
       expect(ok, isFalse);
     });
 
+    // النظام الموحّد الحالي UNI3: كودان رسميّان من مستند المولّد (نفس المفتاح
+    // والبادئة UNI3) — يضمنان قبول التطبيق لأكواد المولّد الموحّد الواحد.
+    test('أكواد UNI3 الرسمية تتحقّق بالمفتاح الموحّد وترفض جهازًا آخر', () async {
+      final ed = Ed25519();
+      const uni3Pub = 'W5Kc9hRB7lb9xSh/VqdR4T8GT6VaDznEwYQgXZpLZz0=';
+      const device = 'JGNKT87QXZ4AZVBE';
+      final pk =
+          SimplePublicKey(base64Decode(uni3Pub), type: KeyPairType.ed25519);
+      const vectors = {
+        0: 'AAAA-NNHY-8FJL-25Z5-WYXN-LWFL-868F-YST9-C9XR-94AN-ECKZ-LSL9-'
+            'LCYH-KDT9-UP57-TF8N-UC62-S26J-AM8U-ATFL-QP6B-SR7L-N8HX-HNHT-'
+            '85QZ-7ATT-BE',
+        30: 'AARL-CPHN-6DH2-X3QY-EAUF-RAD3-PF8A-5PDU-PBXQ-7LV8-PH93-VD8P-'
+            '7DPZ-TGDS-S64Z-JKUL-LSF6-SGY3-GTG9-3BY2-3DKP-SUSX-ACSD-KP6R-'
+            'XRE5-QB7X-B2',
+      };
+      for (final e in vectors.entries) {
+        final bytes = LicenseService.base32Decode(
+            e.value.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
+        expect(bytes.length, 66, reason: 'len dur ${e.key}');
+        expect((bytes[0] << 8) | bytes[1], e.key, reason: 'duration ${e.key}');
+        final ok = await ed.verify(utf8.encode('UNI3|$device|${e.key}'),
+            signature: Signature(bytes.sublist(2), publicKey: pk));
+        expect(ok, isTrue, reason: 'UNI3 verify dur ${e.key}');
+      }
+      // الكود نفسه لا يصلح لجهاز مختلف.
+      final b0 = LicenseService.base32Decode(
+          vectors[0]!.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
+      final wrong = await ed.verify(utf8.encode('UNI3|OTHERDEVICE1234X|0'),
+          signature: Signature(b0.sublist(2), publicKey: pk));
+      expect(wrong, isFalse);
+    });
+
     // كود حقيقي من «مولّد أكواد التفعيل» (mdk_keygen) للمالك — يضمن أنّ المفتاح
     // الأصلي يبقى مقبولًا في التطبيق كي يعمل المولّد الجاهز دائمًا.
     test('كود المولّد الجاهز (mdk_keygen) يتحقّق بالمفتاح الأصلي', () async {
