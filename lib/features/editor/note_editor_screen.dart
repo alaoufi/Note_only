@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/text/arabic_search.dart';
@@ -14,6 +15,7 @@ import '../../data/models/enums.dart';
 import '../../data/models/note.dart';
 import '../../data/models/note_attachment.dart';
 import '../../services/file_service.dart';
+import 'attachment_viewer.dart';
 import '../../data/models/password_entry.dart';
 import '../../data/models/treatment_entry.dart';
 import '../../services/pdf_export_service.dart';
@@ -1594,7 +1596,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ),
           ),
         ),
-        // زرّ حذف بتأكيد.
+        // زرّ خيارات (⋮) بدل زرّ حذف مكشوف — لتفادي الحذف بالخطأ.
         Positioned(
           top: 2,
           left: 2,
@@ -1603,10 +1605,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
-              onTap: () => _removeAttachment(index),
+              onTap: () => _attachmentOptions(a, index),
               child: const Padding(
                 padding: EdgeInsets.all(4),
-                child: Icon(Icons.close, size: 16, color: Colors.white),
+                child: Icon(Icons.more_vert, size: 16, color: Colors.white),
               ),
             ),
           ),
@@ -1615,9 +1617,65 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     );
   }
 
+  /// يفتح المرفق «داخل الملاحظة»: الصور في عارض ملء الشاشة (تكبير/تنقّل)،
+  /// وملفات PDF بعارض النظام.
   Future<void> _openAttachment(NoteAttachment a) async {
     if (a.path.isEmpty || !File(a.path).existsSync()) return;
-    await EditorAttachments.openFile(a.path);
+    if (a.isImage) {
+      final images = _note.attachments.where((e) => e.isImage).toList();
+      final idx = images.indexWhere((e) => e.path == a.path);
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AttachmentViewer(
+              images: images, initialIndex: idx < 0 ? 0 : idx),
+        ),
+      );
+    } else {
+      await EditorAttachments.openFile(a.path);
+    }
+  }
+
+  /// إرسال/مشاركة مرفق واحد (واتساب، مدير الملفات، …).
+  Future<void> _shareAttachment(NoteAttachment a) async {
+    if (a.path.isEmpty || !File(a.path).existsSync()) return;
+    final mime = a.isPdf ? 'application/pdf' : 'image/jpeg';
+    await SharePlus.instance
+        .share(ShareParams(files: [XFile(a.path, mimeType: mime)]));
+  }
+
+  /// ورقة خيارات المرفق: فتح / إرسال / حذف (الحذف بتأكيد — أكثر أمانًا).
+  Future<void> _attachmentOptions(NoteAttachment a, int index) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Wrap(children: [
+          ListTile(
+            leading: const Icon(Icons.open_in_full),
+            title: const Text('فتح'),
+            onTap: () => Navigator.pop(ctx, 'open'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.share),
+            title: const Text('إرسال (واتساب / مدير الملفات …)'),
+            onTap: () => Navigator.pop(ctx, 'share'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline, color: Colors.red),
+            title: const Text('حذف', style: TextStyle(color: Colors.red)),
+            onTap: () => Navigator.pop(ctx, 'delete'),
+          ),
+        ]),
+      ),
+    );
+    if (choice == 'open') {
+      await _openAttachment(a);
+    } else if (choice == 'share') {
+      await _shareAttachment(a);
+    } else if (choice == 'delete') {
+      await _removeAttachment(index);
+    }
   }
 
   /// يفتح ورقة اختيار: صور من المعرض / كاميرا / ملفات PDF.
