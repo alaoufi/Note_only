@@ -82,7 +82,7 @@ Future<void> _sign(String privB64, String deviceIdRaw, int days,
       : deviceIdRaw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
   final duration = days < 0 ? 0 : (days & 0xffff); // أيام، 0 = دائم.
   final algo = Ed25519();
-  final seed = base64Decode(privB64.trim());
+  final seed = _parseSeed(privB64); // يقبل hex(64) أو Base64 (متوافق مع حلالي).
   final kp = await algo.newKeyPairFromSeed(seed);
   // الرسالة الموقَّعة يجب أن تطابق التطبيق: "UNIV1|deviceId|duration".
   final sig = await algo.sign(utf8.encode('UNIV1|$deviceId|$duration'),
@@ -98,6 +98,19 @@ Future<void> _sign(String privB64, String deviceIdRaw, int days,
   print('المدّة: ${duration == 0 ? 'دائم' : '$duration يوم'}');
   print('رمز التفعيل:');
   print(pretty);
+}
+
+// يقبل البذرة السرّية بصيغة hex (64 خانة — كما يُصدّرها مولّد «حلالي») أو Base64.
+List<int> _parseSeed(String input) {
+  final t = input.trim();
+  final hex = t.toLowerCase().replaceAll(RegExp(r'[^0-9a-f]'), '');
+  final looksHex = RegExp(r'^[0-9a-fA-F\s]+$').hasMatch(t) && hex.length == 64;
+  if (looksHex) {
+    return [
+      for (var i = 0; i < 64; i += 2) int.parse(hex.substring(i, i + 2), radix: 16)
+    ];
+  }
+  return base64Decode(t);
 }
 
 // Base32 (نفس أبجدية التطبيق، بلا أحرف ملتبسة I L O U).

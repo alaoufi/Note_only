@@ -46,11 +46,19 @@ class LicenseService {
   LicenseService._();
   static final LicenseService instance = LicenseService._();
 
-  // المفتاح العامّ للمالك (Base64 لـ 32 بايت Ed25519). التحقق فقط — لا يمكن
-  // توليد رموز منه. وُلّد مرّة واحدة؛ مفتاحه الخاصّ يبقى في تطبيق المولّد فقط.
-  // النظام العالميّ UNIV1: مفتاح واحد يفعّل كل تطبيقات المالك (انظر مولّد الأكواد).
-  static const String _publicKeyB64 =
-      '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=';
+  // المفاتيح العامّة للمالك (Base64 لـ 32 بايت Ed25519). التحقق فقط — لا يمكن
+  // توليد رموز منها. النظام العالميّ UNIV1: مفتاح واحد يفعّل كل تطبيقات المالك.
+  //
+  // الأوّل هو مفتاح UNIV1 الموحّد نفسه المستخدم في تطبيق «حلالي» ⇒ نفس المولّد
+  // (نفس البذرة السرّية) يُنتج أكوادًا تعمل في التطبيقين. والثاني مفتاح قديم
+  // نُبقيه للتوافق الرجعيّ كي لا يُقفَل جهاز فُعِّل سابقًا برمز قديم.
+  static const List<String> _publicKeysB64 = [
+    'ucd/BzIBLoU2ol9GVwYeEjoTb7SsbfOgPtNwYls0rI0=', // UNIV1 (حلالي)
+    '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=', // قديم (توافق رجعيّ)
+  ];
+
+  // المفتاح الأساسي (للفحوص العامّة/التوثيق).
+  static String get _publicKeyB64 => _publicKeysB64.first;
 
   // بادئة الرسالة الموقَّعة (إصدار الصيغة). يجب أن تطابق المولّد حرفيًّا.
   static const String _msgPrefix = 'UNIV1';
@@ -70,7 +78,9 @@ class LicenseService {
   final _ed = Ed25519();
 
   bool get _keyConfigured =>
-      _publicKeyB64.isNotEmpty && !_publicKeyB64.startsWith('REPLACE_');
+      _publicKeysB64.isNotEmpty &&
+      _publicKeyB64.isNotEmpty &&
+      !_publicKeyB64.startsWith('REPLACE_');
 
   // ---- معرّف الجهاز ----
 
@@ -175,20 +185,24 @@ class LicenseService {
       final duration = (bytes[0] << 8) | bytes[1];
       final sig = bytes.sublist(2);
 
-      final pub = SimplePublicKey(base64Decode(_publicKeyB64),
-          type: KeyPairType.ed25519);
-      final signature = Signature(sig, publicKey: pub);
-
       final id = await deviceId();
-      // جرّب أولًا رمز هذا الجهاز، ثم الكود العالمي (جهاز بديل «*»).
       final deviceMsg = utf8.encode('$_msgPrefix|$id|$duration');
       final universalMsg = utf8.encode('$_msgPrefix|$_universalDevice|$duration');
-      final ok = await _ed.verify(deviceMsg, signature: signature) ||
-          await _ed.verify(universalMsg, signature: signature);
-      if (!ok) return false;
 
-      await _activate(duration);
-      return true;
+      // جرّب كل مفتاح مدمج، ولكلٍّ رمز الجهاز ثم الكود العالمي (جهاز بديل «*»).
+      for (final keyB64 in _publicKeysB64) {
+        if (keyB64.isEmpty || keyB64.startsWith('REPLACE_')) continue;
+        final pub =
+            SimplePublicKey(base64Decode(keyB64), type: KeyPairType.ed25519);
+        final signature = Signature(sig, publicKey: pub);
+        final ok = await _ed.verify(deviceMsg, signature: signature) ||
+            await _ed.verify(universalMsg, signature: signature);
+        if (ok) {
+          await _activate(duration);
+          return true;
+        }
+      }
+      return false;
     } catch (_) {
       return false;
     }
@@ -206,8 +220,12 @@ class LicenseService {
       ];
       final kp = await _ed.newKeyPairFromSeed(seed);
       final derived = await kp.extractPublicKey();
-      final embedded = base64Decode(_publicKeyB64);
-      if (!_ctEquals(derived.bytes, embedded)) return false; // ليس مفتاح المالك.
+      // يطابق أيّ مفتاح مالك مدمج (UNIV1 أو القديم).
+      final matches = _publicKeysB64.any((k) =>
+          k.isNotEmpty &&
+          !k.startsWith('REPLACE_') &&
+          _ctEquals(derived.bytes, base64Decode(k)));
+      if (!matches) return false; // ليس مفتاح المالك.
       await _activate(0); // دائم.
       return true;
     } catch (_) {
