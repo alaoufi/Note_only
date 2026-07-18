@@ -96,25 +96,25 @@ void main() {
     });
   });
 
-  // متجهات الاختبار الرسمية لنظام UNIV1 (من مستند المولّد): تتحقّق من أنّ التطبيق
-  // متوافق تمامًا مع «مولّد أكواد التفعيل» — أي كود من المولّد سيُقبَل هنا.
-  group('UNIV1 official vectors (matches the keygen app)', () {
-    // المفتاح العامّ المدمج نفسه (نسخة من _publicKeyB64 في license_service.dart).
-    const pub = '0JXPjbbPjczfYbYxl+jy1vOVcsEJT+CPbUIQgXNCStU=';
+  // متجهات الاختبار الرسمية لمولّد المالك المعتمَد (نظام UNI3، مفتاح W5Kc…):
+  // تضمن أنّ أيّ كود من المولّد المعتمَد يُقبَل، وأنّ الحماية مربوطة بالجهاز.
+  group('UNI3 official vectors (adopted owner keygen)', () {
+    // نفس المفتاح المعتمَد في license_service.dart (_publicKeysB64.first).
+    const pub = 'W5Kc9hRB7lb9xSh/VqdR4T8GT6VaDznEwYQgXZpLZz0=';
     const device = 'TESTDEVICE234567';
     const vectors = {
-      0: 'AAANSJ2UELQ398JB5X4FPSV9DWUW3XSRP367RBVF9ASD7URBN55UTUBRMHWNYEQTL6HQLVS43XA5B3K7QK2ZU7FF4GX8PJB93BE4CKB2AJ',
-      30: 'AARLNZUCVGUA827D3FUBNPHB9ESX6KZX4EWUEM7NX7LU2CJ5XX4JPZSBUPAWUDNKH2TAP2P7992LQ99UNV9HP55BME68X8EM8FBU69UBAJ',
+      0: 'AAAKNKS22CVPY4KS5HACNR9CAYXQNGBND5X67V97VF3B6DSHFKD4RS4DG37E4FMF4BS6VWF4FLU6ZW6JHNDFZN6U3CWBEE8CMS7MVC78BN',
+      30: 'AARM69BQE8F29HXS3VPASPVG6EGA4X9K3QQ8SHC2U8ZXKYXHL2QWD77N67B6SKKR7MN2RNWL8RXM8335TZZBNZEGFYTHEJBC3T7HS5VHBA',
     };
 
-    test('official codes verify against the embedded public key', () async {
+    test('official codes verify against the adopted keygen key', () async {
       final ed = Ed25519();
       final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
       for (final e in vectors.entries) {
         final bytes = LicenseService.base32Decode(e.value);
         expect(bytes.length, 66, reason: 'len for dur ${e.key}');
         expect((bytes[0] << 8) | bytes[1], e.key, reason: 'duration parse');
-        final ok = await ed.verify(utf8.encode('UNIV1|$device|${e.key}'),
+        final ok = await ed.verify(utf8.encode('UNI3|$device|${e.key}'),
             signature: Signature(bytes.sublist(2), publicKey: pk));
         expect(ok, isTrue, reason: 'verify dur ${e.key}');
       }
@@ -124,61 +124,28 @@ void main() {
       final ed = Ed25519();
       final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
       final bytes = LicenseService.base32Decode(vectors[0]!);
-      final ok = await ed.verify(utf8.encode('UNIV1|OTHERDEVICE12345|0'),
+      final ok = await ed.verify(utf8.encode('UNI3|OTHERDEVICE12345|0'),
           signature: Signature(bytes.sublist(2), publicKey: pk));
       expect(ok, isFalse);
     });
 
-    // النظام الموحّد الحالي UNI3: كودان رسميّان من مستند المولّد (نفس المفتاح
-    // والبادئة UNI3) — يضمنان قبول التطبيق لأكواد المولّد الموحّد الواحد.
-    test('أكواد UNI3 الرسمية تتحقّق بالمفتاح الموحّد وترفض جهازًا آخر', () async {
-      final ed = Ed25519();
-      const uni3Pub = 'W5Kc9hRB7lb9xSh/VqdR4T8GT6VaDznEwYQgXZpLZz0=';
-      const device = 'JGNKT87QXZ4AZVBE';
-      final pk =
-          SimplePublicKey(base64Decode(uni3Pub), type: KeyPairType.ed25519);
-      const vectors = {
-        0: 'AAAA-NNHY-8FJL-25Z5-WYXN-LWFL-868F-YST9-C9XR-94AN-ECKZ-LSL9-'
-            'LCYH-KDT9-UP57-TF8N-UC62-S26J-AM8U-ATFL-QP6B-SR7L-N8HX-HNHT-'
-            '85QZ-7ATT-BE',
-        30: 'AARL-CPHN-6DH2-X3QY-EAUF-RAD3-PF8A-5PDU-PBXQ-7LV8-PH93-VD8P-'
-            '7DPZ-TGDS-S64Z-JKUL-LSF6-SGY3-GTG9-3BY2-3DKP-SUSX-ACSD-KP6R-'
-            'XRE5-QB7X-B2',
-      };
-      for (final e in vectors.entries) {
-        final bytes = LicenseService.base32Decode(
-            e.value.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
-        expect(bytes.length, 66, reason: 'len dur ${e.key}');
-        expect((bytes[0] << 8) | bytes[1], e.key, reason: 'duration ${e.key}');
-        final ok = await ed.verify(utf8.encode('UNI3|$device|${e.key}'),
-            signature: Signature(bytes.sublist(2), publicKey: pk));
-        expect(ok, isTrue, reason: 'UNI3 verify dur ${e.key}');
-      }
-      // الكود نفسه لا يصلح لجهاز مختلف.
-      final b0 = LicenseService.base32Decode(
-          vectors[0]!.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
-      final wrong = await ed.verify(utf8.encode('UNI3|OTHERDEVICE1234X|0'),
-          signature: Signature(b0.sublist(2), publicKey: pk));
-      expect(wrong, isFalse);
-    });
-
-    // كود حقيقي من «مولّد أكواد التفعيل» (mdk_keygen) للمالك — يضمن أنّ المفتاح
-    // الأصلي يبقى مقبولًا في التطبيق كي يعمل المولّد الجاهز دائمًا.
-    test('كود المولّد الجاهز (mdk_keygen) يتحقّق بالمفتاح الأصلي', () async {
+    // متجهات مستند المولّد (جهاز JGNKT87QXZ4AZVBE) — تأكيد إضافي للتوافق.
+    test('formula vectors (device JGNKT87QXZ4AZVBE) verify', () async {
       final ed = Ed25519();
       final pk = SimplePublicKey(base64Decode(pub), type: KeyPairType.ed25519);
-      const device = 'JGNKT87QXZ4AZVBE';
-      const code = 'AAAAL-GY7XD-75BEZ-DLWH9-UC362-S23MQ-WDZQ7-H8UUE-BUDL6-'
-          'KGECD-GH4EY-CHXH7-MCGTS-AYU3C-3QYAK-RC9FK-EZ5WL-34JDK-5U64W-'
-          '7BBDK-XF65A-E';
-      final bytes = LicenseService.base32Decode(
-          code.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''));
-      expect(bytes.length, 66);
-      final dur = (bytes[0] << 8) | bytes[1];
-      expect(dur, 0); // دائم.
-      final ok = await ed.verify(utf8.encode('UNIV1|$device|$dur'),
-          signature: Signature(bytes.sublist(2), publicKey: pk));
-      expect(ok, isTrue);
+      const dev = 'JGNKT87QXZ4AZVBE';
+      const codes = {
+        0: 'AAAANNHY8FJL25Z5WYXNLWFL868FYST9C9XR94ANECKZLSL9LCYHKDT9UP57'
+            'TF8NUC62S26JAM8UATFLQP6BSR7LN8HXHNHT85QZ7ATTBE',
+        30: 'AARLCPHN6DH2X3QYEAUFRAD3PF8A5PDUPBXQ7LV8PH93VD8P7DPZTGDSS64Z'
+            'JKULLSF6SGY3GTG93BY23DKPSUSXACSDKP6RXRE5QB7XB2',
+      };
+      for (final e in codes.entries) {
+        final bytes = LicenseService.base32Decode(e.value);
+        final ok = await ed.verify(utf8.encode('UNI3|$dev|${e.key}'),
+            signature: Signature(bytes.sublist(2), publicKey: pk));
+        expect(ok, isTrue, reason: 'formula dur ${e.key}');
+      }
     });
   });
 }

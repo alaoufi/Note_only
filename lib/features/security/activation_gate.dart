@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../services/license_service.dart';
 
@@ -216,14 +217,29 @@ class _ActivationScreenState extends State<_ActivationScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: _deviceId));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('تم نسخ رقم الجهاز')));
-                  },
-                  icon: const Icon(Icons.copy, size: 18),
-                  label: const Text('نسخ رقم الجهاز'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: _deviceId));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('تم نسخ رقم الجهاز')));
+                      },
+                      icon: const Icon(Icons.copy, size: 18),
+                      label: const Text('نسخ'),
+                    ),
+                    const SizedBox(width: 8),
+                    // إرسال رقم الجهاز للمالك (واتساب/أي تطبيق) للحصول على الكود.
+                    FilledButton.tonalIcon(
+                      onPressed: () {
+                        SharePlus.instance.share(ShareParams(
+                            text: 'رقم جهازي لتفعيل التطبيق:\n$_deviceId'));
+                      },
+                      icon: const Icon(Icons.share, size: 18),
+                      label: const Text('إرسال رقم الجهاز'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 TextField(
