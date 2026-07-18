@@ -117,6 +117,20 @@ class _ActivationScreenState extends State<_ActivationScreen> {
     }
   }
 
+  /// لصق الكود من الحافظة — **يمسح الحقل أولًا** ثم يضع المُلصَق (فلا تبقى بقايا
+  /// كود قديم تسبّب «رمز غير صحيح»).
+  Future<void> _pasteCode() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim() ?? '';
+    if (text.isEmpty) return;
+    setState(() {
+      _error = false;
+      _codeCtrl.text = text;
+      _codeCtrl.selection =
+          TextSelection.collapsed(offset: _codeCtrl.text.length);
+    });
+  }
+
   /// استرجاع المالك: إدخال المفتاح الخاصّ (Seed) لفكّ القفل دائمًا — ضمانة ألّا
   /// يُحبَس المالك عن بياناته. متاح فقط لمن يملك المفتاح الخاصّ.
   Future<void> _ownerRecovery() async {
@@ -255,7 +269,17 @@ class _ActivationScreenState extends State<_ActivationScreen> {
                     border: const OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                // زرّ لصق الكود: يمسح ما في الحقل ثم يضع المُلصَق (تفاديًا لبقايا كود قديم).
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: _pasteCode,
+                    icon: const Icon(Icons.content_paste, size: 18),
+                    label: const Text('لصق الكود'),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
