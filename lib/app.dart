@@ -9,8 +9,15 @@ import 'core/theme/app_theme.dart';
 import 'features/security/activation_gate.dart';
 import 'features/security/app_lock_gate.dart';
 import 'features/settings/settings_provider.dart';
+import 'features/subscription/subscription_gate.dart';
 import 'services/memory_housekeeping.dart';
 import 'services/notification_service.dart';
+
+/// اختيار نظام الترخيص وقت البناء:
+///   نسخة Google Play  ⇐ اشتراكات مدفوعة  (ابنِ بـ: --dart-define=STORE_BILLING=true)
+///   نسخة جانبية        ⇐ تفعيل بمفتاح (keygen) الافتراضي.
+const bool kStoreBilling =
+    bool.fromEnvironment('STORE_BILLING', defaultValue: false);
 
 class MudhakkaratiApp extends StatefulWidget {
   const MudhakkaratiApp({super.key});
@@ -87,7 +94,9 @@ class _MudhakkaratiAppState extends State<MudhakkaratiApp>
               child: child!,
             );
           },
-          home: const ActivationGate(child: AppLockGate()),
+          home: kStoreBilling
+              ? const SubscriptionGate(child: AppLockGate())
+              : const ActivationGate(child: AppLockGate()),
         );
       },
     );

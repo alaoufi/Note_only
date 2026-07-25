@@ -11,6 +11,7 @@ import 'data/repositories/note_repository.dart';
 import 'features/editor/note_editor_screen.dart';
 import 'features/home/notes_provider.dart';
 import 'features/settings/settings_provider.dart';
+import 'features/subscription/subscription_service.dart';
 import 'services/notification_service.dart';
 import 'services/vault_service.dart';
 
@@ -104,6 +105,7 @@ Future<void> main() async {
         providers: [
           ChangeNotifierProvider.value(value: settings),
           ChangeNotifierProvider.value(value: notesProvider),
+          ChangeNotifierProvider.value(value: SubscriptionService.instance),
         ],
         child: const MudhakkaratiApp(),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/l10n/app_strings.dart';
 import '../data/models/enums.dart';
@@ -189,6 +190,26 @@ Future<void> showNoteActions(BuildContext context, Note note,
               Navigator.pop(context);
               await SharePlus.instance.share(ShareParams(text: _asText(note)));
             }),
+            tile(Icons.email_outlined, 'إرسال بالبريد', () async {
+              Navigator.pop(context);
+              final subject = note.title.trim().isEmpty
+                  ? 'ملاحظة'
+                  : note.title.trim();
+              final uri = Uri(
+                scheme: 'mailto',
+                query: _encodeMailto({
+                  'subject': subject,
+                  'body': _asText(note),
+                }),
+              );
+              try {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (_) {
+                // لا يوجد تطبيق بريد ⇒ نرجع لمشاركة عامّة.
+                await SharePlus.instance
+                    .share(ShareParams(subject: subject, text: _asText(note)));
+              }
+            }),
             tile(Icons.image_outlined, s.t('share_image'), () async {
               Navigator.pop(context);
               await Navigator.push(
@@ -244,6 +265,12 @@ Future<bool> confirmDeleteNote(BuildContext context) {
     message: 'ستُنقل إلى المهملات ويمكنك استرجاعها منها لاحقًا.',
   );
 }
+
+/// ترميز حقول mailto (subject/body) ترميزًا صحيحًا للمسافات والأسطر والعربية.
+String _encodeMailto(Map<String, String> params) => params.entries
+    .map((e) =>
+        '${e.key}=${Uri.encodeComponent(e.value).replaceAll('+', '%20')}')
+    .join('&');
 
 /// نص النسخ/المشاركة: العنوان + المحتوى فقط — بدون التاريخ أو التصنيف.
 /// لملاحظات النص الغني نحوّل Delta إلى نص صريح ليُنسخ نظيفًا.

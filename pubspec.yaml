@@ -81,6 +81,8 @@ dependencies:
   device_info_plus: ^12.4.0
   android_id: ^0.5.1
   dynamic_color: ^1.8.1
+  # اشتراكات Google Play (نسخة المتجر)
+  in_app_purchase: ^3.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
