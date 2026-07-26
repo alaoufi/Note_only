@@ -56,11 +56,41 @@ class SubscriptionService extends ChangeNotifier {
   static const _kEntitledUntil = 'sub_entitled_seen';
   static const _graceMs = 3 * 24 * 60 * 60 * 1000; // ٣ أيام سماح
 
+  // التجربة المجانية على مستوى التطبيق: ١٠ أيام من أوّل تشغيل، بلا دفع.
+  static const _kTrialStart = 'sub_trial_start';
+  static const int trialDays = 10;
+  static const _trialMs = trialDays * 24 * 60 * 60 * 1000;
+
+  int _trialLeft = trialDays;
+  /// الأيام المتبقّية من التجربة المجانية (0 = انتهت).
+  int get trialDaysLeft => _trialLeft;
+
+  Future<bool> _trialActive() async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      var start = sp.getInt(_kTrialStart);
+      start ??= () {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        sp.setInt(_kTrialStart, now);
+        return now;
+      }();
+      final elapsed = DateTime.now().millisecondsSinceEpoch - start;
+      _trialLeft = ((_trialMs - elapsed) / (24 * 60 * 60 * 1000)).ceil();
+      if (_trialLeft < 0) _trialLeft = 0;
+      return elapsed < _trialMs;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> init() async {
+    final trial = await _trialActive(); // يبدأ التجربة عند أوّل تشغيل
     final available = await _iap.isAvailable();
     if (!available) {
-      // متجر غير متاح: اسمح بمهلة السماح إن سبق التفعيل، وإلا اطلب المتجر.
-      _state = await _withinGrace() ? SubState.entitled : SubState.storeUnavailable;
+      // بلا متجر: امنح التجربة إن كانت سارية أو ضمن مهلة السماح، وإلا اطلب المتجر.
+      _state = (trial || await _withinGrace())
+          ? SubState.entitled
+          : SubState.storeUnavailable;
       notifyListeners();
       return;
     }
@@ -74,10 +104,17 @@ class SubscriptionService extends ChangeNotifier {
     // استعادة المشتريات ⇒ إن وُجد اشتراك فعّال يُعيد Google تسليمه فنُفعّل آليًّا.
     await _iap.restorePurchases();
 
+    // خلال التجربة يبقى مفتوحًا فورًا (لا انتظار للمتجر).
+    if (trial && _state == SubState.loading) {
+      _state = SubState.entitled;
+      notifyListeners();
+    }
+
     // مهلة قصيرة لوصول أحداث الاستعادة قبل الحكم بالانتهاء.
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () async {
       if (_state == SubState.loading) {
-        _state = SubState.expired;
+        _state =
+            (await _trialActive()) ? SubState.entitled : SubState.expired;
         notifyListeners();
       }
     });
