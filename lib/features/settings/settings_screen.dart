@@ -3,10 +3,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app.dart' show kStoreBilling;
 import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/note_gradient.dart';
 import '../../data/models/enums.dart';
+import '../subscription/subscription_settings_card.dart';
 import '../../widgets/color_picker_sheet.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/paper_background.dart';
@@ -59,6 +61,13 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0, 4, 0, 28),
             sliver: SliverList.list(
               children: [
+                // ── الاشتراك (نسخة المتجر فقط) ──
+                if (kStoreBilling) ...[
+                  _sectionHeader(
+                      context, Icons.workspace_premium, 'الاشتراك'),
+                  const SubscriptionSettingsCard(),
+                ],
+
                 // ── القسم: التخصيص ──
                 _sectionHeader(context, Icons.tune, 'التخصيص'),
                 _groupCard(

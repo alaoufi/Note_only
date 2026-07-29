@@ -83,6 +83,8 @@ dependencies:
   dynamic_color: ^1.8.1
   # اشتراكات Google Play (نسخة المتجر)
   in_app_purchase: ^3.2.0
+  # طلب تقييم داخل التطبيق
+  in_app_review: ^2.0.9
 dev_dependencies:
   flutter_test:
     sdk: flutter

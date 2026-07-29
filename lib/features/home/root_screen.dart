@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../services/backup_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/review_service.dart';
 import '../../services/sync/sync_service.dart';
 import '../editor/rich_text_field.dart';
 import 'home_screen.dart';
@@ -40,6 +41,8 @@ class _RootScreenState extends State<RootScreen> with WidgetsBindingObserver {
       _autoSync(SyncTrigger.open);
       // أعِد عرض الملاحظات المثبّتة في الإشعارات (تختفي عند إغلاق التطبيق).
       _reassertPinnedNotes();
+      // طلب تقييم لطيف بعد عدّة مرّات فتح (مرّة واحدة).
+      ReviewService.maybeAsk();
     });
   }
 

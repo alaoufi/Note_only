@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// خطط الاشتراك في Google Play. عرّف هذه المنتجات في Play Console بنفس المعرّفات.
 class SubPlans {
@@ -51,6 +52,31 @@ class SubscriptionService extends ChangeNotifier {
 
   bool _busy = false;
   bool get busy => _busy;
+
+  bool _viaPurchase = false;
+  /// هل الوصول عبر اشتراك مدفوع فعليّ (لا مجرّد تجربة)؟
+  bool get subscribed => _viaPurchase;
+
+  /// وصف الحالة للعرض في الإعدادات.
+  String statusLabel() {
+    if (_viaPurchase) return 'مشترك — نشِط';
+    if (_state == SubState.entitled) {
+      return 'تجربة مجانية — يتبقّى $_trialLeft ${_trialLeft == 1 ? 'يوم' : 'أيام'}';
+    }
+    if (_state == SubState.expired) return 'انتهى الاشتراك';
+    if (_state == SubState.storeUnavailable) return 'المتجر غير متاح';
+    return 'جارٍ الفحص…';
+  }
+
+  /// فتح صفحة إدارة الاشتراك في Google Play (تجديد/إلغاء) — إلزاميّ لسياسة Play.
+  Future<void> openManage() async {
+    final id = _products.isNotEmpty ? _products.first.id : SubPlans.monthly;
+    final uri = Uri.parse(
+        'https://play.google.com/store/account/subscriptions?sku=$id&package=com.alaoufi.notes');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
 
   // تخزين آخر حالة معروفة + مهلة سماح دون إنترنت.
   static const _kEntitledUntil = 'sub_entitled_seen';
@@ -183,6 +209,7 @@ class SubscriptionService extends ChangeNotifier {
     }
 
     if (entitled) {
+      _viaPurchase = true; // وصول عبر اشتراك مدفوع فعليّ
       await _markSeen();
       _state = SubState.entitled;
       notifyListeners();
