@@ -8,6 +8,7 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/note_gradient.dart';
 import '../../data/models/enums.dart';
+import '../ai/ai_settings_screen.dart';
 import '../subscription/subscription_settings_card.dart';
 import '../../widgets/color_picker_sheet.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -108,6 +109,16 @@ class SettingsScreen extends StatelessWidget {
                   title: 'التحرير والعرض',
                   subtitle: 'سلوك المحرّر وطريقة العرض',
                   children: _editingDisplay(context, s, settings),
+                ),
+                _groupCard(
+                  context,
+                  icon: Icons.auto_awesome,
+                  title: 'مساعد الذكاء الاصطناعي',
+                  subtitle: 'تلخيص وإعادة صياغة وتدقيق وتوسيع',
+                  children: [
+                    _nav(context, Icons.auto_awesome, 'إعداد المساعد',
+                        const AiSettingsScreen()),
+                  ],
                 ),
 
                 // ── القسم: الأمان والبيانات ──

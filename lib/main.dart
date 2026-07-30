@@ -12,6 +12,7 @@ import 'features/editor/note_editor_screen.dart';
 import 'features/home/notes_provider.dart';
 import 'features/settings/settings_provider.dart';
 import 'features/subscription/subscription_service.dart';
+import 'services/ai_service.dart';
 import 'services/notification_service.dart';
 import 'services/vault_service.dart';
 
@@ -78,6 +79,9 @@ Future<void> main() async {
 
     // مفتاح تشفير كلمات المرور (قد يفشل على بعض الأجهزة — لا يجب أن يُعطّل التطبيق).
     await _safe('vault', () => VaultService.instance.ensureKey());
+
+    // إعداد مساعد الذكاء الاصطناعي (يُقرأ من التخزين الآمن — لا يُعطّل الإقلاع).
+    await _safe('ai', () => AiService.instance.init());
 
     // الإشعارات/المنبّه المحلي.
     await _safe('notifications', () async {

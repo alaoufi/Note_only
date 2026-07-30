@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/text/arabic_search.dart';
 import '../../core/text/line_direction.dart';
+import '../ai/ai_assistant_sheet.dart';
 import '../settings/settings_provider.dart';
 import 'voice_dictation.dart';
 
@@ -626,6 +627,14 @@ class RichTextToolbar extends StatelessWidget {
     // وتُخفى المعطَّلة. المجموعات (المحاذاة/التصدير) تُبنى كصفّ أزرار واحد.
     Widget buildTool(String id) {
       switch (id) {
+        case 'ai':
+          return IconButton(
+            icon: const Icon(Icons.auto_awesome, size: 22),
+            tooltip: 'مساعد الذكاء الاصطناعي',
+            visualDensity: VisualDensity.compact,
+            color: Theme.of(context).colorScheme.primary,
+            onPressed: () => showAiAssistant(context, controller),
+          );
         case 'undo':
           return QuillToolbarHistoryButton(controller: q, isUndo: true);
         case 'redo':

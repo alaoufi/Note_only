@@ -109,6 +109,7 @@ class SettingsProvider extends ChangeNotifier {
   /// أزرار شريط التنسيق القابلة للإظهار/الإخفاء: المعرّف ← الاسم المعروض.
   /// (الترتيب هو ترتيب ظهورها في شاشة الإعدادات.)
   static const toolbarTools = <String, String>{
+    'ai': 'مساعد الذكاء الاصطناعي',
     'undo': 'تراجع',
     'redo': 'إعادة',
     'voice': 'إملاء صوتي',

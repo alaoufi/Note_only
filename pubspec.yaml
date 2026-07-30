@@ -1,7 +1,7 @@
 name: mudhakkarati
 description: "ملاحظات - تطبيق ملاحظات منبثق عن مذكراتي (مستقل للتطوير)."
 publish_to: 'none'
-version: 1.7.9+48
+version: 1.8.0+49
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -85,6 +85,8 @@ dependencies:
   in_app_purchase: ^3.2.0
   # طلب تقييم داخل التطبيق
   in_app_review: ^2.0.9
+  # طلبات HTTP لمساعد الذكاء الاصطناعي (Claude API — لا توجد حزمة رسمية لِـ Dart)
+  http: ^1.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
