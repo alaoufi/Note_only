@@ -3,9 +3,16 @@
 قاعدة **SQLite مشفّرة بالكامل عبر SQLCipher** (حزمة `sqflite_sqlcipher`)، تُفتح بمفتاح
 من `lib/data/database/db_key.dart`. كل الجداول داخل الملفّ المشفّر على الجهاز فقط.
 
-- **إصدار المخطّط الحاليّ:** `18` (الثابت `_dbVersion` في `app_database.dart`).
+- **إصدار المخطّط الحاليّ:** `21` (الثابت `_dbVersion` في `app_database.dart`).
 - **الترقية:** عبر `_onUpgrade` (سلسلة `ALTER TABLE`/جداول جديدة لكل إصدار) — لا تُفقد بيانات.
 - **الإنشاء الأوّل:** `_onCreate` ينشئ الجداول والفهارس ويزرع التصنيفات الافتراضية.
+- **الجديد بعد v18:** `notes.reminder_at` (v19)، توحيد لون التصنيفات الافتراضية (v20)،
+  `notes.attachments` كمرفقات JSON (v21).
+
+> **ما لا يُخزَّن في قاعدة البيانات:** إعداد **مساعد الذكاء الاصطناعي** (الرابط/المفتاح)
+> يُخزَّن في **التخزين الآمن** (`flutter_secure_storage`)، وحالة **الاشتراك/التجربة**
+> وترتيب الأدوات وتفضيلات الواجهة تُخزَّن في `SharedPreferences` — لا في هذا الملف.
+> ملف المخطّط المرجعيّ المحدَّث: `docs/schema.sql` + `docs/schema-reference.db` (v21).
 
 تُولَّد النماذج (`lib/data/models/`) من/إلى صفوف هذه الجداول عبر `toMap()`/`fromMap()`،
 والوصول كلّه عبر المستودعات (`lib/data/repositories/`).
@@ -37,7 +44,9 @@
 | is_pinned / is_favorite / is_archived / is_locked / is_deleted | INTEGER = 0 | أعلام |
 | deleted_at | INTEGER | وقت الحذف (سلة المحذوفات) |
 | category_id | INTEGER FK→categories | ON DELETE SET NULL |
-| image_path / audio_path / pdf_path / drawing_path | TEXT | مسارات المرفقات |
+| image_path / audio_path / pdf_path / drawing_path | TEXT | مسارات المرفقات (مفردة) |
+| attachments | TEXT | (v21) مرفقات متعددة كـ JSON (صور/PDF) |
+| reminder_at | INTEGER | (v19) تذكير بسيط للملاحظة (ملّي ثانية، null=بلا) |
 | bg_style | INTEGER = 0 | نمط صفحة الملاحظة 0..7 |
 | gradient | TEXT | تدرّج مُرمَّز `dir:c1,c2[,c3]` |
 | rule_on_line / rule_thickness / rule_opacity / rule_line_height | INT/REAL | إعدادات التسطير (nullable) |
