@@ -19,6 +19,11 @@ android/app/release
 *.iml
 .idea/
 
+# أسرار التوقيع — لا تُلتزم إطلاقًا
+android/key.properties
+*.jks
+*.keystore
+
 # Misc
 *.log
 .DS_Store

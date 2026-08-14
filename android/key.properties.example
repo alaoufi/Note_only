@@ -1,0 +1,10 @@
+# نموذج إعداد التوقيع — انسخه إلى android/key.properties (غير متعقَّب) واملأ القيم.
+# ضع ملف مخزن المفاتيح (مثل alaoufi-release.jks) داخل مجلد android/app/ ثم:
+#   storeFile = مسار الملف نسبةً إلى android/app/  (مثال: alaoufi-release.jks)
+#
+# ⚠️ لا تلتزم key.properties ولا ملف .jks في المستودع إطلاقًا.
+
+storeFile=alaoufi-release.jks
+storePassword=ضع_كلمة_مرور_المخزن
+keyAlias=ضع_اسم_المفتاح
+keyPassword=ضع_كلمة_مرور_المفتاح
