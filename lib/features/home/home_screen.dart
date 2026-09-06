@@ -13,6 +13,7 @@ import '../../widgets/note_actions.dart';
 import '../../widgets/ui_kit.dart';
 import '../../widgets/note_card.dart';
 import '../../services/backup_service.dart';
+import '../../services/notes_export_service.dart';
 import '../../services/sync/sync_service.dart';
 import '../../services/update_service.dart';
 import '../backup/backup_screen.dart';
@@ -781,6 +782,10 @@ class _HomeScreenState extends State<HomeScreen> {
               tooltip: s.t('archive'),
               onPressed: has ? _bulkArchive : null),
           IconButton(
+              icon: const Icon(Icons.ios_share),
+              tooltip: 'تصدير المحدّد',
+              onPressed: has ? () => _bulkExport(provider) : null),
+          IconButton(
               icon: Icon(Icons.delete_outline, color: scheme.error),
               tooltip: s.t('delete'),
               onPressed: has ? _bulkTrash : null),
@@ -809,6 +814,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _bulkPin() async {
     final ids = _selected.toList();
     await context.read<NotesProvider>().bulkPin(ids, true);
+    if (mounted) _exitSelection();
+  }
+
+  /// تصدير الملاحظات المحدّدة كملفّ Markdown واحد (يفتح ورقة المشاركة).
+  Future<void> _bulkExport(NotesProvider provider) async {
+    final selected = provider.items
+        .where((n) => n.id != null && _selected.contains(n.id))
+        .toList();
+    if (selected.isEmpty) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await NotesExportService.instance.exportSelectionMarkdown(selected);
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('تعذّر التصدير: $e')));
+    }
     if (mounted) _exitSelection();
   }
 

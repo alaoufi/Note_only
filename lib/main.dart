@@ -13,6 +13,7 @@ import 'features/home/notes_provider.dart';
 import 'features/settings/settings_provider.dart';
 import 'features/subscription/subscription_service.dart';
 import 'services/ai_service.dart';
+import 'services/crash_log_service.dart';
 import 'services/notification_service.dart';
 import 'services/vault_service.dart';
 
@@ -23,8 +24,9 @@ final List<String> startupErrors = [];
 Future<void> _safe(String name, Future<void> Function() step) async {
   try {
     await step();
-  } catch (e) {
+  } catch (e, st) {
     startupErrors.add('$name: $e');
+    CrashLogService.instance.log('init:$name', e, st);
   }
 }
 
@@ -44,6 +46,7 @@ Future<void> main() async {
 
     FlutterError.onError = (details) {
       startupErrors.add('FlutterError: ${details.exceptionAsString()}');
+      CrashLogService.instance.log('FlutterError', details.exception, details.stack);
     };
 
     // بدل شاشة رمادية/انهيار عند فشل بناء أي واجهة، نعرض نص الخطأ ليُصوَّر.
@@ -76,6 +79,9 @@ Future<void> main() async {
       await initializeDateFormatting('ar');
       await initializeDateFormatting('en');
     });
+
+    // سجلّ الأعطال المحليّ (يهيّئ مسار الملفّ ويُفرّغ ما تجمّع قبل التهيئة).
+    await _safe('crashlog', () => CrashLogService.instance.init());
 
     // مفتاح تشفير كلمات المرور (قد يفشل على بعض الأجهزة — لا يجب أن يُعطّل التطبيق).
     await _safe('vault', () => VaultService.instance.ensureKey());
@@ -117,6 +123,7 @@ Future<void> main() async {
     appStarted = true;
   }, (error, stack) {
     startupErrors.add('Uncaught: $error');
+    CrashLogService.instance.log('Uncaught', error, stack);
     // إن تعطّل **قبل** عرض أي شيء، نعرض شاشة الخطأ بدل توقّف التطبيق. أمّا بعد
     // الإقلاع فلا نهدم الواجهة الحيّة بسبب خطأ غير متوقّع في إجراء واحد (نسجّله
     // فقط) كي لا يفقد المستخدم شاشته بالكامل.

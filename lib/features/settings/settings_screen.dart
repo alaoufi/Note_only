@@ -8,7 +8,9 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/note_gradient.dart';
 import '../../data/models/enums.dart';
+import '../../services/notes_export_service.dart';
 import '../ai/ai_settings_screen.dart';
+import 'crash_log_screen.dart';
 import '../subscription/subscription_settings_card.dart';
 import '../../widgets/color_picker_sheet.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -135,6 +137,16 @@ class SettingsScreen extends StatelessWidget {
                     _nav(context, Icons.backup_outlined,
                         'النسخ الاحتياطي والمشاركة السحابية',
                         const BackupScreen()),
+                    ListTile(
+                      leading: const Icon(Icons.folder_zip_outlined),
+                      title: const Text('تصدير كل الملاحظات',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: const Text('أرشيف Markdown + JSON للمشاركة/النسخ'),
+                      trailing: const Icon(Icons.chevron_left),
+                      onTap: () => _exportAll(context),
+                    ),
+                    _nav(context, Icons.bug_report_outlined, 'سجلّ الأعطال',
+                        const CrashLogScreen()),
                   ],
                 ),
                 _groupCard(
@@ -756,6 +768,25 @@ class SettingsScreen extends StatelessWidget {
       }
     }
     return items;
+  }
+
+  /// يصدّر كل الملاحظات (غير المحذوفة) كأرشيف ZIP ثم يفتح ورقة المشاركة.
+  Future<void> _exportAll(BuildContext context) async {
+    final provider = context.read<NotesProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(const SnackBar(
+        content: Text('جارٍ تجهيز الأرشيف…'), duration: Duration(seconds: 1)));
+    try {
+      final all = await provider.notes.getNotes();
+      if (all.isEmpty) {
+        messenger.showSnackBar(
+            const SnackBar(content: Text('لا توجد ملاحظات للتصدير')));
+        return;
+      }
+      await NotesExportService.instance.exportAllArchive(all);
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('تعذّر التصدير: $e')));
+    }
   }
 
   Widget _nav(BuildContext context, IconData icon, String title, Widget page) {
