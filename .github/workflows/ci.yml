@@ -1,0 +1,49 @@
+name: CI
+
+# فحص تلقائيّ عند كل دفع/طلب دمج: تحليل + اختبارات + بناء APK للتجربة.
+# يمنع تكرار كسر البناء (مثل رفع record_android الذي كسر أندرويد) بكشفه مبكرًا.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  analyze-test:
+    name: تحليل واختبارات
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # الأخطاء تُفشل البناء؛ تحذيرات/معلومات الإهلاك التاريخية لا تُفشله.
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - run: flutter test
+
+  build-apk:
+    name: بناء APK (تجربة)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # بناء debug يكشف أخطاء ترجمة الإضافات (مثل كسر record) دون الحاجة لمفتاح توقيع.
+      - run: flutter build apk --debug --target-platform android-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: warn

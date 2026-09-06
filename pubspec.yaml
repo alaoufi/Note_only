@@ -31,7 +31,7 @@ dependencies:
   # Media: images, audio, files, pdf
   pdf: ^3.11.1
   image_picker: ^1.1.2
-  record: ^7.0.0
+  record: 7.0.0  # مثبّت: 7.1.x يسحب record_android يكسر بناء أندرويد (AdtsContainer)
   audioplayers: ^6.0.0
   # Voice typing (on-device speech recognition)
   speech_to_text: ^7.0.0
