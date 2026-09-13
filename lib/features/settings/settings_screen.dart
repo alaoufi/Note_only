@@ -10,6 +10,7 @@ import '../../core/theme/note_gradient.dart';
 import '../../data/models/enums.dart';
 import '../../services/notes_export_service.dart';
 import '../ai/ai_settings_screen.dart';
+import '../health/movement_break_settings_screen.dart';
 import 'crash_log_screen.dart';
 import '../subscription/subscription_settings_card.dart';
 import '../../widgets/color_picker_sheet.dart';
@@ -120,6 +121,16 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     _nav(context, Icons.auto_awesome, 'إعداد المساعد',
                         const AiSettingsScreen()),
+                  ],
+                ),
+                _groupCard(
+                  context,
+                  icon: Icons.self_improvement,
+                  title: 'صحّتك: لا تجلس طويلًا',
+                  subtitle: 'كسر الجلوس بفترات حركة هادئة',
+                  children: [
+                    _nav(context, Icons.self_improvement, 'إعداد التنبيه',
+                        const MovementBreakSettingsScreen()),
                   ],
                 ),
 

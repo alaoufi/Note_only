@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/backup_service.dart';
+import '../../services/movement_break_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/review_service.dart';
 import '../../services/sync/sync_service.dart';
+import '../health/movement_break_screen.dart';
 import '../editor/rich_text_field.dart';
 import 'home_screen.dart';
 import 'notes_provider.dart';
@@ -43,7 +47,30 @@ class _RootScreenState extends State<RootScreen> with WidgetsBindingObserver {
       _reassertPinnedNotes();
       // طلب تقييم لطيف بعد عدّة مرّات فتح (مرّة واحدة).
       ReviewService.maybeAsk();
+      // تنبيه «لا تجلس طويلًا»: حمّل الإعداد ثم افحص إن كانت فترة حركة فعّالة الآن،
+      // وواصل الفحص دوريًّا أثناء استخدام التطبيق.
+      MovementBreakService.instance.load().then((_) {
+        if (mounted) _checkMovementBreak();
+      });
+      _breakTimer =
+          Timer.periodic(const Duration(seconds: 30), (_) => _checkMovementBreak());
     });
+  }
+
+  Timer? _breakTimer;
+  bool _breakShowing = false;
+
+  /// يعرض شاشة الحركة الكاملة إن كانت فترة فعّالة الآن (ولم تُعرض بعد).
+  Future<void> _checkMovementBreak() async {
+    if (_breakShowing || !mounted) return;
+    final b = MovementBreakService.instance.activeBreakNow();
+    if (b == null) return;
+    _breakShowing = true;
+    await Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => MovementBreakScreen(index: b.index, end: b.end),
+    ));
+    _breakShowing = false;
   }
 
   /// يعيد إظهار إشعارات الملاحظات المثبّتة بعد إعادة تشغيل التطبيق، ويُنظّف
@@ -69,6 +96,7 @@ class _RootScreenState extends State<RootScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _breakTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -79,6 +107,7 @@ class _RootScreenState extends State<RootScreen> with WidgetsBindingObserver {
     // بالتردّد المختار في الإعدادات (كل فتح / عند الإغلاق / مرّة باليوم).
     if (state == AppLifecycleState.resumed) {
       _autoSync(SyncTrigger.open);
+      _checkMovementBreak();
     } else if (state == AppLifecycleState.paused) {
       _autoSync(SyncTrigger.close);
     }
